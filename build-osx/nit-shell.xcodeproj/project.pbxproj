@@ -1,0 +1,532 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		9E30D95B16B9FE7300601552 /* libwx_osx_cocoa.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 9E30D95A16B9FE7300601552 /* libwx_osx_cocoa.dylib */; };
+		9E30D95C16B9FEC500601552 /* libwx_osx_cocoa.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 9E30D95A16B9FE7300601552 /* libwx_osx_cocoa.dylib */; };
+		9E34BDF216D265E100E10A8A /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9E34BDF116D265E100E10A8A /* Cocoa.framework */; };
+		9E34BE0C16D2670C00E10A8A /* wxNitShellApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9EACDB6C16B91EBC00335211 /* wxNitShellApp.cpp */; };
+		9E34BE0F16D2675200E10A8A /* libwx_osx_cocoa.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 9E30D95A16B9FE7300601552 /* libwx_osx_cocoa.dylib */; };
+		9E3544B416D4983300B471D3 /* libwx_osx_cocoa.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 9E30D95A16B9FE7300601552 /* libwx_osx_cocoa.dylib */; };
+		9E3545A916D4A92D00B471D3 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 9E3545A616D4A90B00B471D3 /* InfoPlist.strings */; };
+		9E79D5EE16D4970E0007AB59 /* libnit-mac32.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 9E1CA70416B8F04E00C3C4AF /* libnit-mac32.dylib */; };
+		9E79D5EF16D4970E0007AB59 /* libnitwx-mac32.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 9EACDB6716B91DB100335211 /* libnitwx-mac32.dylib */; };
+		9E79D5F016D497140007AB59 /* libnit-mac32.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 9E1CA70416B8F04E00C3C4AF /* libnit-mac32.dylib */; };
+		9E79D5F116D497140007AB59 /* libnitwx-mac32.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 9EACDB6716B91DB100335211 /* libnitwx-mac32.dylib */; };
+		9EACDB6D16B91EBC00335211 /* wxNitShellApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9EACDB6C16B91EBC00335211 /* wxNitShellApp.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		9E1CA70316B8F04E00C3C4AF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9E1CA6FF16B8F04E00C3C4AF /* nit.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 9E1CA09E16B8AFCE00C3C4AF;
+			remoteInfo = nit;
+		};
+		9E3545E316D4B35300B471D3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9E3545DF16D4B35300B471D3 /* nitplugins.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 9E3545C816D4B32100B471D3;
+			remoteInfo = nitplugins;
+		};
+		9EACDB6616B91DB100335211 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9EACDB5F16B91DB100335211 /* nitwx.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 9EA301D916B8F86C0060805A;
+			remoteInfo = nitwx;
+		};
+		9EFD78F816D48A41009C706E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9E1CA6FF16B8F04E00C3C4AF /* nit.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 9E1EC4FD16D480F200A5F14A;
+			remoteInfo = "nit-ios";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		9E1CA6BC16B8E68F00C3C4AF /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		9E1CA6F916B8EB7A00C3C4AF /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				9E30D95C16B9FEC500601552 /* libwx_osx_cocoa.dylib in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9E3544B016D4982900B471D3 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				9E3544B416D4983300B471D3 /* libwx_osx_cocoa.dylib in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		9E1CA6BE16B8E68F00C3C4AF /* nit-shell */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "nit-shell"; sourceTree = BUILT_PRODUCTS_DIR; };
+		9E1CA6FF16B8F04E00C3C4AF /* nit.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = nit.xcodeproj; sourceTree = "<group>"; };
+		9E30D95A16B9FE7300601552 /* libwx_osx_cocoa.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libwx_osx_cocoa.dylib; path = ../../../Desktop/libwx_osx_cocoa.dylib; sourceTree = "<group>"; };
+		9E34BDEF16D265E100E10A8A /* nit-appshell.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "nit-appshell.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		9E34BDF116D265E100E10A8A /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		9E34BDF416D265E100E10A8A /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		9E34BDF516D265E100E10A8A /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		9E34BDF616D265E100E10A8A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		9E35458A16D4A6EB00B471D3 /* nit_debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = nit_debug.xcconfig; path = support/nit_debug.xcconfig; sourceTree = "<group>"; };
+		9E35458B16D4A6EB00B471D3 /* nit_release.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = nit_release.xcconfig; path = support/nit_release.xcconfig; sourceTree = "<group>"; };
+		9E35458C16D4A6EB00B471D3 /* nit.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = nit.xcconfig; path = support/nit.xcconfig; sourceTree = "<group>"; };
+		9E35458D16D4A6EB00B471D3 /* nitwx.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = nitwx.xcconfig; path = support/nitwx.xcconfig; sourceTree = "<group>"; };
+		9E3545A416D4A90B00B471D3 /* nit-appshell-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "nit-appshell-Prefix.pch"; path = "support/nit-appshell/nit-appshell-Prefix.pch"; sourceTree = "<group>"; };
+		9E3545A516D4A90B00B471D3 /* nit-appshell-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "nit-appshell-Info.plist"; path = "support/nit-appshell/nit-appshell-Info.plist"; sourceTree = "<group>"; };
+		9E3545A616D4A90B00B471D3 /* InfoPlist.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = InfoPlist.strings; path = "support/nit-appshell/InfoPlist.strings"; sourceTree = "<group>"; };
+		9E3545DF16D4B35300B471D3 /* nitplugins.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = nitplugins.xcodeproj; sourceTree = "<group>"; };
+		9EACDB5F16B91DB100335211 /* nitwx.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = nitwx.xcodeproj; sourceTree = "<group>"; };
+		9EACDB6C16B91EBC00335211 /* wxNitShellApp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = wxNitShellApp.cpp; path = ../src/nitshell/wxNitShellApp.cpp; sourceTree = "<group>"; };
+		9EACDB7416B929B500335211 /* script.app.cfg */ = {isa = PBXFileReference; lastKnownFileType = text; name = script.app.cfg; path = ../script.app.cfg; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		9E1CA6BB16B8E68F00C3C4AF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9E79D5EE16D4970E0007AB59 /* libnit-mac32.dylib in Frameworks */,
+				9E79D5EF16D4970E0007AB59 /* libnitwx-mac32.dylib in Frameworks */,
+				9E30D95B16B9FE7300601552 /* libwx_osx_cocoa.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9E34BDEC16D265E100E10A8A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9E79D5F016D497140007AB59 /* libnit-mac32.dylib in Frameworks */,
+				9E79D5F116D497140007AB59 /* libnitwx-mac32.dylib in Frameworks */,
+				9E34BE0F16D2675200E10A8A /* libwx_osx_cocoa.dylib in Frameworks */,
+				9E34BDF216D265E100E10A8A /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		9E1CA6B316B8E68F00C3C4AF = {
+			isa = PBXGroup;
+			children = (
+				9E1CA6FF16B8F04E00C3C4AF /* nit.xcodeproj */,
+				9EACDB5F16B91DB100335211 /* nitwx.xcodeproj */,
+				9E3545DF16D4B35300B471D3 /* nitplugins.xcodeproj */,
+				9EACDB6C16B91EBC00335211 /* wxNitShellApp.cpp */,
+				9E35458A16D4A6EB00B471D3 /* nit_debug.xcconfig */,
+				9E35458B16D4A6EB00B471D3 /* nit_release.xcconfig */,
+				9E35458C16D4A6EB00B471D3 /* nit.xcconfig */,
+				9E35458D16D4A6EB00B471D3 /* nitwx.xcconfig */,
+				9EACDB7416B929B500335211 /* script.app.cfg */,
+				9E3545A316D4A8FA00B471D3 /* Support */,
+				9E34BDF016D265E100E10A8A /* Frameworks */,
+				9E1CA6BF16B8E68F00C3C4AF /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		9E1CA6BF16B8E68F00C3C4AF /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				9E1CA6BE16B8E68F00C3C4AF /* nit-shell */,
+				9E34BDEF16D265E100E10A8A /* nit-appshell.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		9E1CA70016B8F04E00C3C4AF /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				9E1CA70416B8F04E00C3C4AF /* libnit-mac32.dylib */,
+				9EFD78F916D48A41009C706E /* libnit-ios.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		9E34BDF016D265E100E10A8A /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				9E30D95A16B9FE7300601552 /* libwx_osx_cocoa.dylib */,
+				9E34BDF116D265E100E10A8A /* Cocoa.framework */,
+				9E34BDF316D265E100E10A8A /* Other Frameworks */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		9E34BDF316D265E100E10A8A /* Other Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				9E34BDF416D265E100E10A8A /* AppKit.framework */,
+				9E34BDF516D265E100E10A8A /* CoreData.framework */,
+				9E34BDF616D265E100E10A8A /* Foundation.framework */,
+			);
+			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+		9E3545A316D4A8FA00B471D3 /* Support */ = {
+			isa = PBXGroup;
+			children = (
+				9E3545A416D4A90B00B471D3 /* nit-appshell-Prefix.pch */,
+				9E3545A516D4A90B00B471D3 /* nit-appshell-Info.plist */,
+				9E3545A616D4A90B00B471D3 /* InfoPlist.strings */,
+			);
+			name = Support;
+			sourceTree = "<group>";
+		};
+		9E3545E016D4B35300B471D3 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				9E3545E416D4B35300B471D3 /* libnitplugins.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		9EACDB6016B91DB100335211 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				9EACDB6716B91DB100335211 /* libnitwx-mac32.dylib */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		9E1CA6BD16B8E68F00C3C4AF /* nit-shell */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9E1CA6C816B8E68F00C3C4AF /* Build configuration list for PBXNativeTarget "nit-shell" */;
+			buildPhases = (
+				9E1CA6BA16B8E68F00C3C4AF /* Sources */,
+				9E1CA6BB16B8E68F00C3C4AF /* Frameworks */,
+				9E1CA6F916B8EB7A00C3C4AF /* CopyFiles */,
+				9E1CA6BC16B8E68F00C3C4AF /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "nit-shell";
+			productName = "nit-shell";
+			productReference = 9E1CA6BE16B8E68F00C3C4AF /* nit-shell */;
+			productType = "com.apple.product-type.tool";
+		};
+		9E34BDEE16D265E100E10A8A /* nit-appshell */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9E34BE0916D265E100E10A8A /* Build configuration list for PBXNativeTarget "nit-appshell" */;
+			buildPhases = (
+				9E34BDEB16D265E100E10A8A /* Sources */,
+				9E34BDEC16D265E100E10A8A /* Frameworks */,
+				9E3544B016D4982900B471D3 /* CopyFiles */,
+				9E34BDED16D265E100E10A8A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "nit-appshell";
+			productName = "nit-appshell";
+			productReference = 9E34BDEF16D265E100E10A8A /* nit-appshell.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		9E1CA6B516B8E68F00C3C4AF /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0450;
+				ORGANIZATIONNAME = org.nit;
+			};
+			buildConfigurationList = 9E1CA6B816B8E68F00C3C4AF /* Build configuration list for PBXProject "nit-shell" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 9E1CA6B316B8E68F00C3C4AF;
+			productRefGroup = 9E1CA6BF16B8E68F00C3C4AF /* Products */;
+			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 9E1CA70016B8F04E00C3C4AF /* Products */;
+					ProjectRef = 9E1CA6FF16B8F04E00C3C4AF /* nit.xcodeproj */;
+				},
+				{
+					ProductGroup = 9E3545E016D4B35300B471D3 /* Products */;
+					ProjectRef = 9E3545DF16D4B35300B471D3 /* nitplugins.xcodeproj */;
+				},
+				{
+					ProductGroup = 9EACDB6016B91DB100335211 /* Products */;
+					ProjectRef = 9EACDB5F16B91DB100335211 /* nitwx.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				9E1CA6BD16B8E68F00C3C4AF /* nit-shell */,
+				9E34BDEE16D265E100E10A8A /* nit-appshell */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		9E1CA70416B8F04E00C3C4AF /* libnit-mac32.dylib */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.dylib";
+			path = "libnit-mac32.dylib";
+			remoteRef = 9E1CA70316B8F04E00C3C4AF /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		9E3545E416D4B35300B471D3 /* libnitplugins.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libnitplugins.a;
+			remoteRef = 9E3545E316D4B35300B471D3 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		9EACDB6716B91DB100335211 /* libnitwx-mac32.dylib */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.dylib";
+			path = "libnitwx-mac32.dylib";
+			remoteRef = 9EACDB6616B91DB100335211 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		9EFD78F916D48A41009C706E /* libnit-ios.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libnit-ios.a";
+			remoteRef = 9EFD78F816D48A41009C706E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
+/* Begin PBXResourcesBuildPhase section */
+		9E34BDED16D265E100E10A8A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9E3545A916D4A92D00B471D3 /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		9E1CA6BA16B8E68F00C3C4AF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9EACDB6D16B91EBC00335211 /* wxNitShellApp.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9E34BDEB16D265E100E10A8A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9E34BE0C16D2670C00E10A8A /* wxNitShellApp.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		9E1CA6C616B8E68F00C3C4AF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9E35458D16D4A6EB00B471D3 /* nitwx.xcconfig */;
+			buildSettings = {
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+			};
+			name = Debug;
+		};
+		9E1CA6C716B8E68F00C3C4AF /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9E35458D16D4A6EB00B471D3 /* nitwx.xcconfig */;
+			buildSettings = {
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+			};
+			name = Release;
+		};
+		9E1CA6C916B8E68F00C3C4AF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9E35458A16D4A6EB00B471D3 /* nit_debug.xcconfig */;
+			buildSettings = {
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					__WX__,
+					"wxUSE_BASE=1",
+					"_FILE_OFFSET_BITS=64",
+					_LARGE_FILES,
+					MACOS_CLASSIC,
+					"__WXMAC_XCODE__=1",
+					SCI_LEXER,
+					"WX_PRECOMP=1",
+					"wxUSE_UNICODE_UTF8=1",
+					__WXOSX_COCOA__,
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../../../Desktop/wx_cocoa_dylib/Debug\"",
+					"\"$(SRCROOT)/../../../Desktop\"",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		9E1CA6CA16B8E68F00C3C4AF /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9E35458B16D4A6EB00B471D3 /* nit_release.xcconfig */;
+			buildSettings = {
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					__WX__,
+					"wxUSE_BASE=1",
+					"_FILE_OFFSET_BITS=64",
+					_LARGE_FILES,
+					MACOS_CLASSIC,
+					"__WXMAC_XCODE__=1",
+					SCI_LEXER,
+					"WX_PRECOMP=1",
+					"wxUSE_UNICODE_UTF8=1",
+					__WXOSX_COCOA__,
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../../../Desktop/wx_cocoa_dylib/Debug\"",
+					"\"$(SRCROOT)/../../../Desktop\"",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		9E34BE0A16D265E100E10A8A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9E35458A16D4A6EB00B471D3 /* nit_debug.xcconfig */;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "support/nit-appshell/nit-appshell-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					__WX__,
+					"wxUSE_BASE=1",
+					"_FILE_OFFSET_BITS=64",
+					_LARGE_FILES,
+					MACOS_CLASSIC,
+					"__WXMAC_XCODE__=1",
+					SCI_LEXER,
+					"WX_PRECOMP=1",
+					"wxUSE_UNICODE_UTF8=1",
+					__WXOSX_COCOA__,
+				);
+				INFOPLIST_FILE = "support/nit-appshell/nit-appshell-Info.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../../../Desktop/wx_cocoa_dylib/Debug\"",
+					"\"$(SRCROOT)/../../../Desktop\"",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		9E34BE0B16D265E100E10A8A /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9E35458B16D4A6EB00B471D3 /* nit_release.xcconfig */;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "support/nit-appshell/nit-appshell-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					__WX__,
+					"wxUSE_BASE=1",
+					"_FILE_OFFSET_BITS=64",
+					_LARGE_FILES,
+					MACOS_CLASSIC,
+					"__WXMAC_XCODE__=1",
+					SCI_LEXER,
+					"WX_PRECOMP=1",
+					"wxUSE_UNICODE_UTF8=1",
+					__WXOSX_COCOA__,
+				);
+				INFOPLIST_FILE = "support/nit-appshell/nit-appshell-Info.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../../../Desktop/wx_cocoa_dylib/Debug\"",
+					"\"$(SRCROOT)/../../../Desktop\"",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		9E1CA6B816B8E68F00C3C4AF /* Build configuration list for PBXProject "nit-shell" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9E1CA6C616B8E68F00C3C4AF /* Debug */,
+				9E1CA6C716B8E68F00C3C4AF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9E1CA6C816B8E68F00C3C4AF /* Build configuration list for PBXNativeTarget "nit-shell" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9E1CA6C916B8E68F00C3C4AF /* Debug */,
+				9E1CA6CA16B8E68F00C3C4AF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9E34BE0916D265E100E10A8A /* Build configuration list for PBXNativeTarget "nit-appshell" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9E34BE0A16D265E100E10A8A /* Debug */,
+				9E34BE0B16D265E100E10A8A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 9E1CA6B516B8E68F00C3C4AF /* Project object */;
+}

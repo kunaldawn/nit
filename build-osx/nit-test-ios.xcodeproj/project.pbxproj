@@ -1,0 +1,417 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		9E3549C716D4C49100B471D3 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9E3549C616D4C49100B471D3 /* UIKit.framework */; };
+		9E3549C916D4C49100B471D3 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9E3549C816D4C49100B471D3 /* Foundation.framework */; };
+		9E3549CB16D4C49100B471D3 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9E3549CA16D4C49100B471D3 /* CoreGraphics.framework */; };
+		9E3549EC16D4C4DB00B471D3 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9E3549E716D4C4DB00B471D3 /* main.mm */; };
+		9E3549ED16D4C4DB00B471D3 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9E3549E816D4C4DB00B471D3 /* Default-568h@2x.png */; };
+		9E3549EE16D4C4DB00B471D3 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 9E3549E916D4C4DB00B471D3 /* Default.png */; };
+		9E3549EF16D4C4DB00B471D3 /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9E3549EA16D4C4DB00B471D3 /* Default@2x.png */; };
+		9E354A0516D4C86700B471D3 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9E354A0416D4C86700B471D3 /* OpenGLES.framework */; };
+		9E354A0716D4C87900B471D3 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 9E354A0616D4C87900B471D3 /* libz.dylib */; };
+		9E354A0916D4C88B00B471D3 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9E354A0816D4C88B00B471D3 /* QuartzCore.framework */; };
+		9E354A1016D4C9E200B471D3 /* libnit-ios.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9E3549FC16D4C59600B471D3 /* libnit-ios.a */; };
+		9E354A1116D4C9E200B471D3 /* libnitplugins-ios.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9E3549FF16D4C59600B471D3 /* libnitplugins-ios.a */; };
+		9E354A1916D4CDA400B471D3 /* nit-test.app.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 9E354A1816D4CDA400B471D3 /* nit-test.app.cfg */; };
+		9EE5C05716D4F6D70065F7B2 /* packs-nit in Resources */ = {isa = PBXBuildFile; fileRef = 9EE5C05516D4F6D70065F7B2 /* packs-nit */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		9E3549F916D4C59600B471D3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9E3549F116D4C59500B471D3 /* nit.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 9E1CA09E16B8AFCE00C3C4AF;
+			remoteInfo = "nit-mac32";
+		};
+		9E3549FB16D4C59600B471D3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9E3549F116D4C59500B471D3 /* nit.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 9E1EC4FD16D480F200A5F14A;
+			remoteInfo = "nit-ios";
+		};
+		9E3549FE16D4C59600B471D3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9E3549F416D4C59500B471D3 /* nitplugins.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 9E3545C816D4B32100B471D3;
+			remoteInfo = "nitplugins-ios";
+		};
+		9E354A0C16D4C90E00B471D3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9E3549F116D4C59500B471D3 /* nit.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 9E1EC4FC16D480F200A5F14A;
+			remoteInfo = "nit-ios";
+		};
+		9E354A0E16D4C90E00B471D3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9E3549F416D4C59500B471D3 /* nitplugins.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 9E3545C716D4B32100B471D3;
+			remoteInfo = "nitplugins-ios";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		9E3549C316D4C49100B471D3 /* nit-test-ios.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "nit-test-ios.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		9E3549C616D4C49100B471D3 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		9E3549C816D4C49100B471D3 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		9E3549CA16D4C49100B471D3 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		9E3549E616D4C4DB00B471D3 /* nit-test-ios-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "nit-test-ios-Prefix.pch"; path = "support/nit-test-ios/nit-test-ios-Prefix.pch"; sourceTree = SOURCE_ROOT; };
+		9E3549E716D4C4DB00B471D3 /* main.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = main.mm; path = "support/nit-test-ios/main.mm"; sourceTree = SOURCE_ROOT; };
+		9E3549E816D4C4DB00B471D3 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-568h@2x.png"; path = "support/nit-test-ios/Default-568h@2x.png"; sourceTree = SOURCE_ROOT; };
+		9E3549E916D4C4DB00B471D3 /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Default.png; path = "support/nit-test-ios/Default.png"; sourceTree = SOURCE_ROOT; };
+		9E3549EA16D4C4DB00B471D3 /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default@2x.png"; path = "support/nit-test-ios/Default@2x.png"; sourceTree = SOURCE_ROOT; };
+		9E3549EB16D4C4DB00B471D3 /* nit-test-ios-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "nit-test-ios-Info.plist"; path = "support/nit-test-ios/nit-test-ios-Info.plist"; sourceTree = SOURCE_ROOT; };
+		9E3549F116D4C59500B471D3 /* nit.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = nit.xcodeproj; sourceTree = "<group>"; };
+		9E3549F416D4C59500B471D3 /* nitplugins.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = nitplugins.xcodeproj; sourceTree = "<group>"; };
+		9E354A0416D4C86700B471D3 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
+		9E354A0616D4C87900B471D3 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
+		9E354A0816D4C88B00B471D3 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		9E354A1816D4CDA400B471D3 /* nit-test.app.cfg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "nit-test.app.cfg"; path = "../nit-test.app.cfg"; sourceTree = "<group>"; };
+		9EE5C05516D4F6D70065F7B2 /* packs-nit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "packs-nit"; path = "../packs-nit"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		9E3549C016D4C49100B471D3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9E354A1016D4C9E200B471D3 /* libnit-ios.a in Frameworks */,
+				9E354A1116D4C9E200B471D3 /* libnitplugins-ios.a in Frameworks */,
+				9E354A0916D4C88B00B471D3 /* QuartzCore.framework in Frameworks */,
+				9E354A0716D4C87900B471D3 /* libz.dylib in Frameworks */,
+				9E354A0516D4C86700B471D3 /* OpenGLES.framework in Frameworks */,
+				9E3549C716D4C49100B471D3 /* UIKit.framework in Frameworks */,
+				9E3549C916D4C49100B471D3 /* Foundation.framework in Frameworks */,
+				9E3549CB16D4C49100B471D3 /* CoreGraphics.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		9E3549BA16D4C49100B471D3 = {
+			isa = PBXGroup;
+			children = (
+				9E3549F116D4C59500B471D3 /* nit.xcodeproj */,
+				9E3549F416D4C59500B471D3 /* nitplugins.xcodeproj */,
+				9E3549CC16D4C49100B471D3 /* nit-test-ios */,
+				9E3549C516D4C49100B471D3 /* Frameworks */,
+				9E3549C416D4C49100B471D3 /* Products */,
+				9E354A1816D4CDA400B471D3 /* nit-test.app.cfg */,
+				9EE5C05516D4F6D70065F7B2 /* packs-nit */,
+			);
+			sourceTree = "<group>";
+		};
+		9E3549C416D4C49100B471D3 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				9E3549C316D4C49100B471D3 /* nit-test-ios.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		9E3549C516D4C49100B471D3 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				9E354A0616D4C87900B471D3 /* libz.dylib */,
+				9E354A0816D4C88B00B471D3 /* QuartzCore.framework */,
+				9E354A0416D4C86700B471D3 /* OpenGLES.framework */,
+				9E3549C616D4C49100B471D3 /* UIKit.framework */,
+				9E3549C816D4C49100B471D3 /* Foundation.framework */,
+				9E3549CA16D4C49100B471D3 /* CoreGraphics.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		9E3549CC16D4C49100B471D3 /* nit-test-ios */ = {
+			isa = PBXGroup;
+			children = (
+				9E3549CD16D4C49100B471D3 /* Supporting Files */,
+			);
+			path = "nit-test-ios";
+			sourceTree = "<group>";
+		};
+		9E3549CD16D4C49100B471D3 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				9E3549E616D4C4DB00B471D3 /* nit-test-ios-Prefix.pch */,
+				9E3549E716D4C4DB00B471D3 /* main.mm */,
+				9E3549E816D4C4DB00B471D3 /* Default-568h@2x.png */,
+				9E3549E916D4C4DB00B471D3 /* Default.png */,
+				9E3549EA16D4C4DB00B471D3 /* Default@2x.png */,
+				9E3549EB16D4C4DB00B471D3 /* nit-test-ios-Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		9E3549F216D4C59500B471D3 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				9E3549FA16D4C59600B471D3 /* libnit-mac32.dylib */,
+				9E3549FC16D4C59600B471D3 /* libnit-ios.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		9E3549F516D4C59500B471D3 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				9E3549FF16D4C59600B471D3 /* libnitplugins-ios.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		9E3549C216D4C49100B471D3 /* nit-test-ios */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9E3549E016D4C49100B471D3 /* Build configuration list for PBXNativeTarget "nit-test-ios" */;
+			buildPhases = (
+				9E3549BF16D4C49100B471D3 /* Sources */,
+				9E3549C016D4C49100B471D3 /* Frameworks */,
+				9E3549C116D4C49100B471D3 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				9E354A0D16D4C90E00B471D3 /* PBXTargetDependency */,
+				9E354A0F16D4C90E00B471D3 /* PBXTargetDependency */,
+			);
+			name = "nit-test-ios";
+			productName = "nit-test-ios";
+			productReference = 9E3549C316D4C49100B471D3 /* nit-test-ios.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		9E3549BB16D4C49100B471D3 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0460;
+				ORGANIZATIONNAME = org.nit;
+			};
+			buildConfigurationList = 9E3549BE16D4C49100B471D3 /* Build configuration list for PBXProject "nit-test-ios" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 9E3549BA16D4C49100B471D3;
+			productRefGroup = 9E3549C416D4C49100B471D3 /* Products */;
+			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 9E3549F216D4C59500B471D3 /* Products */;
+					ProjectRef = 9E3549F116D4C59500B471D3 /* nit.xcodeproj */;
+				},
+				{
+					ProductGroup = 9E3549F516D4C59500B471D3 /* Products */;
+					ProjectRef = 9E3549F416D4C59500B471D3 /* nitplugins.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				9E3549C216D4C49100B471D3 /* nit-test-ios */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		9E3549FA16D4C59600B471D3 /* libnit-mac32.dylib */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.dylib";
+			path = "libnit-mac32.dylib";
+			remoteRef = 9E3549F916D4C59600B471D3 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		9E3549FC16D4C59600B471D3 /* libnit-ios.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libnit-ios.a";
+			remoteRef = 9E3549FB16D4C59600B471D3 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		9E3549FF16D4C59600B471D3 /* libnitplugins-ios.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libnitplugins-ios.a";
+			remoteRef = 9E3549FE16D4C59600B471D3 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
+/* Begin PBXResourcesBuildPhase section */
+		9E3549C116D4C49100B471D3 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9E3549ED16D4C4DB00B471D3 /* Default-568h@2x.png in Resources */,
+				9E3549EE16D4C4DB00B471D3 /* Default.png in Resources */,
+				9E3549EF16D4C4DB00B471D3 /* Default@2x.png in Resources */,
+				9E354A1916D4CDA400B471D3 /* nit-test.app.cfg in Resources */,
+				9EE5C05716D4F6D70065F7B2 /* packs-nit in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		9E3549BF16D4C49100B471D3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9E3549EC16D4C4DB00B471D3 /* main.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		9E354A0D16D4C90E00B471D3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "nit-ios";
+			targetProxy = 9E354A0C16D4C90E00B471D3 /* PBXContainerItemProxy */;
+		};
+		9E354A0F16D4C90E00B471D3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "nitplugins-ios";
+			targetProxy = 9E354A0E16D4C90E00B471D3 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		9E3549DE16D4C49100B471D3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					../src,
+					../ext/cocos2dx,
+					../ext,
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		9E3549DF16D4C49100B471D3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					../src,
+					../ext/cocos2dx,
+					../ext,
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
+				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		9E3549E116D4C49100B471D3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++98";
+				CLANG_CXX_LIBRARY = "libstdc++";
+				GCC_C_LANGUAGE_STANDARD = gnu89;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "support/nit-test-ios/nit-test-ios-Prefix.pch";
+				INFOPLIST_FILE = "support/nit-test-ios/nit-test-ios-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		9E3549E216D4C49100B471D3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++98";
+				CLANG_CXX_LIBRARY = "libstdc++";
+				GCC_C_LANGUAGE_STANDARD = gnu89;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "support/nit-test-ios/nit-test-ios-Prefix.pch";
+				INFOPLIST_FILE = "support/nit-test-ios/nit-test-ios-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		9E3549BE16D4C49100B471D3 /* Build configuration list for PBXProject "nit-test-ios" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9E3549DE16D4C49100B471D3 /* Debug */,
+				9E3549DF16D4C49100B471D3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9E3549E016D4C49100B471D3 /* Build configuration list for PBXNativeTarget "nit-test-ios" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9E3549E116D4C49100B471D3 /* Debug */,
+				9E3549E216D4C49100B471D3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 9E3549BB16D4C49100B471D3 /* Project object */;
+}

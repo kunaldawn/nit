@@ -1,0 +1,15 @@
+* 2012-04-03
+- cocos2dx  0.9.2   : 2d sprite engine
+- ogre      1.7.1   : 3d rendering engine
+- freetype  2.4.8   : font rendering library
+- libcurl   7.25.0  : url protocol handler library for http, ftp, etc.
+- libjpeg   8d      : jpeg image codec (Read/Write)
+- libpng    1.5.10  : png image codec (Read/Write)
+- libungif  4.1.4   : gif image codec (Readonly)
+- expat     2.1.0   : SAX XML Parser
+
+* 2012-02-09
+- freetype 2.4.8
+- removed doc folder from freetype
+- moved freetype/include/freetype to freetype/freetype
+

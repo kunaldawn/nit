@@ -1,0 +1,24 @@
+//
+// Common osx prefix header for nit projects
+//
+
+// expat
+#define _IOS
+#define HAVE_EXPAT_CONFIG_H
+
+// curl
+#define HAVE_CONFIG_H
+
+// jpeg
+
+// gif
+#define _GBA_NO_FILEIO
+
+#ifdef __cplusplus
+#   include "nit/nit_pch.h"
+#   include "nit/nit.h"
+#endif
+
+// sqlite
+#define SQLITE_DEBUG defined(NIT_DEBUG) // depends nit.h
+#define SQLITE_PREFER_PROXY_LOCKING 0

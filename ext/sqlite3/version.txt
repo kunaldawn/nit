@@ -1,0 +1,13 @@
+3.7.13 sqlite-amalgamation-3071300
+
+modification to sqlite3.c:
+
+line 46:
+#define SQLITE_ENABLE_COLUMN_METADATA 1 
+
+line 26:
+# ifdef _WIN32
+#  define SQLITE_API __declspec(dllexport)
+# else
+#  define SQLITE_API
+# endif

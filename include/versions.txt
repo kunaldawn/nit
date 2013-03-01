@@ -1,0 +1,7 @@
+* 2012/04/06
+
+- bink : 1.9c (내부 win32 테스트 전용 - SHIPPING판에는 사용 불가!)
+- freeimage 3.15.2 : caddie용
+- pvrtexlib 3.23 : caddie용 (배포버전 2.0.29.0678)
+- OGLES : 2.0.28.0634 : for nitrender
+- zlib : 1.2.5 (win32에서. zlib가 이미 제공되는 플랫폼은 여기서 include하지 않도록 주의!)

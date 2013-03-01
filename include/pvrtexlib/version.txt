@@ -1,0 +1,3 @@
+- 2012/03/01 
+  pvrtexlib_2.09.29.0678, lib ver 3.23
+  from http://www.imgtec.com/powervr/insider/powervr-utilities.asp

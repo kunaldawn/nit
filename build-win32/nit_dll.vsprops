@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="ks_c_5601-1987"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="nit_dll"
+	OutputDirectory="$(SolutionDir)\bin\$(ConfigurationName)"
+	IntermediateDirectory="$(SolutionDir)\obj\$(ConfigurationName)\$(ProjectName)"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+		AdditionalIncludeDirectories="..\ext;..\src;..\include"
+		ProgramDataBaseFileName="$(IntDir)\$(TargetName).pdb"
+		AdditionalOptions="/Zm128"
+		DisableSpecificWarnings="4819"
+	/>
+	<Tool
+		Name="VCLinkerTool"
+		OutputFile=""
+		LinkIncremental="1"
+		AdditionalLibraryDirectories="extlib\debug;extlib\release"
+		ProgramDatabaseFile="$(IntDir)\$(TargetName).pdb"
+		ImportLibrary="lib\$(ConfigurationName)\$(TargetName).lib"
+	/>
+	<Tool
+		Name="VCResourceCompilerTool"
+	/>
+</VisualStudioPropertySheet>

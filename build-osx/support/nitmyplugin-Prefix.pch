@@ -1,0 +1,7 @@
+//
+// Prefix header for all source files of the 'nitmyplugin' target in the 'nitmyplugin' project
+//
+
+#ifdef __OBJC__
+    #import <Foundation/Foundation.h>
+#endif

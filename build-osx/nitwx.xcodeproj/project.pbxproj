@@ -1,0 +1,306 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		9E30D95916B9FE5700601552 /* libwx_osx_cocoa.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 9E30D95816B9FE5700601552 /* libwx_osx_cocoa.dylib */; };
+		9E79D5F316D497490007AB59 /* libnit-mac32.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 9E79D5F216D497490007AB59 /* libnit-mac32.dylib */; };
+		9EA3021016B8FB2C0060805A /* NitLibWx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9EA301F916B8FB2C0060805A /* NitLibWx.cpp */; };
+		9EA3021216B8FB2C0060805A /* NitLibWxAui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9EA301FB16B8FB2C0060805A /* NitLibWxAui.cpp */; };
+		9EA3021316B8FB2C0060805A /* NitLibWxBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9EA301FC16B8FB2C0060805A /* NitLibWxBase.cpp */; };
+		9EA3021416B8FB2C0060805A /* NitLibWxControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9EA301FD16B8FB2C0060805A /* NitLibWxControl.cpp */; };
+		9EA3021516B8FB2C0060805A /* NitLibWxDataView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9EA301FE16B8FB2C0060805A /* NitLibWxDataView.cpp */; };
+		9EA3021616B8FB2C0060805A /* NitLibWxDialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9EA301FF16B8FB2C0060805A /* NitLibWxDialog.cpp */; };
+		9EA3021716B8FB2C0060805A /* NitLibWxDragDrop.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9EA3020016B8FB2C0060805A /* NitLibWxDragDrop.cpp */; };
+		9EA3021816B8FB2C0060805A /* NitLibWxEvent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9EA3020116B8FB2C0060805A /* NitLibWxEvent.cpp */; };
+		9EA3021916B8FB2C0060805A /* NitLibWxGraphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9EA3020216B8FB2C0060805A /* NitLibWxGraphics.cpp */; };
+		9EA3021A16B8FB2C0060805A /* NitLibWxGrid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9EA3020316B8FB2C0060805A /* NitLibWxGrid.cpp */; };
+		9EA3021B16B8FB2C0060805A /* NitLibWxNit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9EA3020416B8FB2C0060805A /* NitLibWxNit.cpp */; };
+		9EA3021D16B8FB2C0060805A /* NitLibWxNitApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9EA3020616B8FB2C0060805A /* NitLibWxNitApp.cpp */; };
+		9EA3021F16B8FB2C0060805A /* NitLibWxPropGrid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9EA3020816B8FB2C0060805A /* NitLibWxPropGrid.cpp */; };
+		9EA3022116B8FB2C0060805A /* NitLibWxTextCtrl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9EA3020A16B8FB2C0060805A /* NitLibWxTextCtrl.cpp */; };
+		9EA3022316B8FB2C0060805A /* nitwx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9EA3020C16B8FB2C0060805A /* nitwx.cpp */; };
+		9EACDB4916B9161200335211 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9EACDB4816B9161200335211 /* Foundation.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		9E30D95816B9FE5700601552 /* libwx_osx_cocoa.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libwx_osx_cocoa.dylib; path = ../../../Desktop/libwx_osx_cocoa.dylib; sourceTree = "<group>"; };
+		9E35459C16D4A73800B471D3 /* nitwx-prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "nitwx-prefix.pch"; path = "support/nitwx-prefix.pch"; sourceTree = "<group>"; };
+		9E35459D16D4A73800B471D3 /* nit_debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = nit_debug.xcconfig; path = support/nit_debug.xcconfig; sourceTree = "<group>"; };
+		9E35459E16D4A73800B471D3 /* nit_release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = nit_release.xcconfig; path = support/nit_release.xcconfig; sourceTree = "<group>"; };
+		9E35459F16D4A73800B471D3 /* nit.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = nit.xcconfig; path = support/nit.xcconfig; sourceTree = "<group>"; };
+		9E3545A016D4A73800B471D3 /* nitwx.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = nitwx.xcconfig; path = support/nitwx.xcconfig; sourceTree = "<group>"; };
+		9E79D5F216D497490007AB59 /* libnit-mac32.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libnit-mac32.dylib"; path = "build/Release/libnit-mac32.dylib"; sourceTree = "<group>"; };
+		9EA301D916B8F86C0060805A /* libnitwx-mac32.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = "libnitwx-mac32.dylib"; sourceTree = BUILT_PRODUCTS_DIR; };
+		9EA301F916B8FB2C0060805A /* NitLibWx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NitLibWx.cpp; sourceTree = "<group>"; };
+		9EA301FA16B8FB2C0060805A /* NitLibWx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NitLibWx.h; sourceTree = "<group>"; };
+		9EA301FB16B8FB2C0060805A /* NitLibWxAui.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NitLibWxAui.cpp; sourceTree = "<group>"; };
+		9EA301FC16B8FB2C0060805A /* NitLibWxBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NitLibWxBase.cpp; sourceTree = "<group>"; };
+		9EA301FD16B8FB2C0060805A /* NitLibWxControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NitLibWxControl.cpp; sourceTree = "<group>"; };
+		9EA301FE16B8FB2C0060805A /* NitLibWxDataView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NitLibWxDataView.cpp; sourceTree = "<group>"; };
+		9EA301FF16B8FB2C0060805A /* NitLibWxDialog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NitLibWxDialog.cpp; sourceTree = "<group>"; };
+		9EA3020016B8FB2C0060805A /* NitLibWxDragDrop.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NitLibWxDragDrop.cpp; sourceTree = "<group>"; };
+		9EA3020116B8FB2C0060805A /* NitLibWxEvent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NitLibWxEvent.cpp; sourceTree = "<group>"; };
+		9EA3020216B8FB2C0060805A /* NitLibWxGraphics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NitLibWxGraphics.cpp; sourceTree = "<group>"; };
+		9EA3020316B8FB2C0060805A /* NitLibWxGrid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NitLibWxGrid.cpp; sourceTree = "<group>"; };
+		9EA3020416B8FB2C0060805A /* NitLibWxNit.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NitLibWxNit.cpp; sourceTree = "<group>"; };
+		9EA3020516B8FB2C0060805A /* NitLibWxNit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NitLibWxNit.h; sourceTree = "<group>"; };
+		9EA3020616B8FB2C0060805A /* NitLibWxNitApp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NitLibWxNitApp.cpp; sourceTree = "<group>"; };
+		9EA3020716B8FB2C0060805A /* NitLibWxNitApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NitLibWxNitApp.h; sourceTree = "<group>"; };
+		9EA3020816B8FB2C0060805A /* NitLibWxPropGrid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NitLibWxPropGrid.cpp; sourceTree = "<group>"; };
+		9EA3020916B8FB2C0060805A /* NitLibWxSF.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NitLibWxSF.cpp; sourceTree = "<group>"; };
+		9EA3020A16B8FB2C0060805A /* NitLibWxTextCtrl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NitLibWxTextCtrl.cpp; sourceTree = "<group>"; };
+		9EA3020B16B8FB2C0060805A /* NitLibWxTextCtrl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NitLibWxTextCtrl.h; sourceTree = "<group>"; };
+		9EA3020C16B8FB2C0060805A /* nitwx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = nitwx.cpp; sourceTree = "<group>"; };
+		9EA3020D16B8FB2C0060805A /* nitwx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = nitwx.h; sourceTree = "<group>"; };
+		9EA3020F16B8FB2C0060805A /* nitwx_pch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = nitwx_pch.h; sourceTree = "<group>"; };
+		9EACDB4816B9161200335211 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = ../../../../../../System/Library/Frameworks/Foundation.framework; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		9EA301D616B8F86C0060805A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9E79D5F316D497490007AB59 /* libnit-mac32.dylib in Frameworks */,
+				9EACDB4916B9161200335211 /* Foundation.framework in Frameworks */,
+				9E30D95916B9FE5700601552 /* libwx_osx_cocoa.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		9EA301CE16B8F86C0060805A = {
+			isa = PBXGroup;
+			children = (
+				9E35459C16D4A73800B471D3 /* nitwx-prefix.pch */,
+				9E35459D16D4A73800B471D3 /* nit_debug.xcconfig */,
+				9E35459E16D4A73800B471D3 /* nit_release.xcconfig */,
+				9E35459F16D4A73800B471D3 /* nit.xcconfig */,
+				9E3545A016D4A73800B471D3 /* nitwx.xcconfig */,
+				9E79D5F216D497490007AB59 /* libnit-mac32.dylib */,
+				9E30D95816B9FE5700601552 /* libwx_osx_cocoa.dylib */,
+				9EACDB4816B9161200335211 /* Foundation.framework */,
+				9EA301DA16B8F86C0060805A /* Products */,
+				9EA301F816B8FB2C0060805A /* nitwx */,
+			);
+			sourceTree = "<group>";
+		};
+		9EA301DA16B8F86C0060805A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				9EA301D916B8F86C0060805A /* libnitwx-mac32.dylib */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		9EA301F816B8FB2C0060805A /* nitwx */ = {
+			isa = PBXGroup;
+			children = (
+				9EA301F916B8FB2C0060805A /* NitLibWx.cpp */,
+				9EA301FB16B8FB2C0060805A /* NitLibWxAui.cpp */,
+				9EA301FC16B8FB2C0060805A /* NitLibWxBase.cpp */,
+				9EA301FD16B8FB2C0060805A /* NitLibWxControl.cpp */,
+				9EA301FE16B8FB2C0060805A /* NitLibWxDataView.cpp */,
+				9EA301FF16B8FB2C0060805A /* NitLibWxDialog.cpp */,
+				9EA3020016B8FB2C0060805A /* NitLibWxDragDrop.cpp */,
+				9EA3020116B8FB2C0060805A /* NitLibWxEvent.cpp */,
+				9EA3020216B8FB2C0060805A /* NitLibWxGraphics.cpp */,
+				9EA3020316B8FB2C0060805A /* NitLibWxGrid.cpp */,
+				9EA3020416B8FB2C0060805A /* NitLibWxNit.cpp */,
+				9EA3020616B8FB2C0060805A /* NitLibWxNitApp.cpp */,
+				9EA3020816B8FB2C0060805A /* NitLibWxPropGrid.cpp */,
+				9EA3020916B8FB2C0060805A /* NitLibWxSF.cpp */,
+				9EA3020A16B8FB2C0060805A /* NitLibWxTextCtrl.cpp */,
+				9EA3020C16B8FB2C0060805A /* nitwx.cpp */,
+				9EA301FA16B8FB2C0060805A /* NitLibWx.h */,
+				9EA3020516B8FB2C0060805A /* NitLibWxNit.h */,
+				9EA3020716B8FB2C0060805A /* NitLibWxNitApp.h */,
+				9EA3020B16B8FB2C0060805A /* NitLibWxTextCtrl.h */,
+				9EA3020D16B8FB2C0060805A /* nitwx.h */,
+				9EA3020F16B8FB2C0060805A /* nitwx_pch.h */,
+			);
+			name = nitwx;
+			path = ../src/nitwx;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		9EA301D716B8F86C0060805A /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		9EA301D816B8F86C0060805A /* nitwx-mac32 */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9EA301EA16B8F86C0060805A /* Build configuration list for PBXNativeTarget "nitwx-mac32" */;
+			buildPhases = (
+				9EA301D516B8F86C0060805A /* Sources */,
+				9EA301D616B8F86C0060805A /* Frameworks */,
+				9EA301D716B8F86C0060805A /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "nitwx-mac32";
+			productName = nitwx;
+			productReference = 9EA301D916B8F86C0060805A /* libnitwx-mac32.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		9EA301D016B8F86C0060805A /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0450;
+				ORGANIZATIONNAME = org.nit;
+			};
+			buildConfigurationList = 9EA301D316B8F86C0060805A /* Build configuration list for PBXProject "nitwx" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 9EA301CE16B8F86C0060805A;
+			productRefGroup = 9EA301DA16B8F86C0060805A /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				9EA301D816B8F86C0060805A /* nitwx-mac32 */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		9EA301D516B8F86C0060805A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9EA3021016B8FB2C0060805A /* NitLibWx.cpp in Sources */,
+				9EA3021216B8FB2C0060805A /* NitLibWxAui.cpp in Sources */,
+				9EA3021316B8FB2C0060805A /* NitLibWxBase.cpp in Sources */,
+				9EA3021416B8FB2C0060805A /* NitLibWxControl.cpp in Sources */,
+				9EA3021516B8FB2C0060805A /* NitLibWxDataView.cpp in Sources */,
+				9EA3021616B8FB2C0060805A /* NitLibWxDialog.cpp in Sources */,
+				9EA3021716B8FB2C0060805A /* NitLibWxDragDrop.cpp in Sources */,
+				9EA3021816B8FB2C0060805A /* NitLibWxEvent.cpp in Sources */,
+				9EA3021916B8FB2C0060805A /* NitLibWxGraphics.cpp in Sources */,
+				9EA3021A16B8FB2C0060805A /* NitLibWxGrid.cpp in Sources */,
+				9EA3021B16B8FB2C0060805A /* NitLibWxNit.cpp in Sources */,
+				9EA3021D16B8FB2C0060805A /* NitLibWxNitApp.cpp in Sources */,
+				9EA3021F16B8FB2C0060805A /* NitLibWxPropGrid.cpp in Sources */,
+				9EA3022116B8FB2C0060805A /* NitLibWxTextCtrl.cpp in Sources */,
+				9EA3022316B8FB2C0060805A /* nitwx.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		9EA301E816B8F86C0060805A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9E3545A016D4A73800B471D3 /* nitwx.xcconfig */;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		9EA301E916B8F86C0060805A /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9E3545A016D4A73800B471D3 /* nitwx.xcconfig */;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		9EA301EB16B8F86C0060805A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9E35459D16D4A73800B471D3 /* nit_debug.xcconfig */;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
+				CLANG_CXX_LIBRARY = "compiler-default";
+				EXECUTABLE_PREFIX = lib;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "support/nitwx-prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					__WX__,
+					"wxUSE_BASE=1",
+					"_FILE_OFFSET_BITS=64",
+					_LARGE_FILES,
+					MACOS_CLASSIC,
+					"__WXMAC_XCODE__=1",
+					SCI_LEXER,
+					"WX_PRECOMP=1",
+					"wxUSE_UNICODE_UTF8=1",
+					__WXOSX_COCOA__,
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)\"",
+					"\"/Users/ellon/Library/Developer/Xcode/DerivedData/nit-shell-ewutnhmfzqhlgsaencsnpjdlyiix/Build/Products/Debug\"",
+					"\"$(SRCROOT)/../../../Desktop/wx_cocoa_dylib/Debug\"",
+					"\"$(SRCROOT)/../../../Library/Developer/Xcode/DerivedData/nit-shell-aeucfzoqzqpclyfsdtbqvoqfwyis/Build/Products/Debug\"",
+					"\"$(SRCROOT)/../../../Desktop\"",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		9EA301EC16B8F86C0060805A /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9E35459E16D4A73800B471D3 /* nit_release.xcconfig */;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
+				CLANG_CXX_LIBRARY = "compiler-default";
+				EXECUTABLE_PREFIX = lib;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "support/nitwx-prefix.pch";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)\"",
+					"\"/Users/ellon/Library/Developer/Xcode/DerivedData/nit-shell-ewutnhmfzqhlgsaencsnpjdlyiix/Build/Products/Debug\"",
+					"\"$(SRCROOT)/../../../Desktop/wx_cocoa_dylib/Debug\"",
+					"\"$(SRCROOT)/../../../Library/Developer/Xcode/DerivedData/nit-shell-aeucfzoqzqpclyfsdtbqvoqfwyis/Build/Products/Debug\"",
+					"\"$(SRCROOT)/../../../Desktop\"",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		9EA301D316B8F86C0060805A /* Build configuration list for PBXProject "nitwx" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9EA301E816B8F86C0060805A /* Debug */,
+				9EA301E916B8F86C0060805A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9EA301EA16B8F86C0060805A /* Build configuration list for PBXNativeTarget "nitwx-mac32" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9EA301EB16B8F86C0060805A /* Debug */,
+				9EA301EC16B8F86C0060805A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 9EA301D016B8F86C0060805A /* Project object */;
+}

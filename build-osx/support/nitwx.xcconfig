@@ -1,0 +1,7 @@
+#include "nit.xcconfig"
+
+WX_ROOT = ~/proj/wx
+
+HEADER_SEARCH_PATHS = $(NIT_ROOT)/ext $(WX_ROOT)/include $(WX_ROOT)/build/osx/setup/cocoa/include
+
+GCC_PREPROCESSOR_DEFINITIONS = __WX__ wxUSE_BASE=1 _FILE_OFFSET_BITS=64 _LARGE_FILES MACOS_CLASSIC __WXMAC_XCODE__=1 SCI_LEXER WX_PRECOMP=1 wxUSE_UNICODE_UTF8=1

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="ks_c_5601-1987"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="nit_dll_debug"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+		Optimization="0"
+		EnableIntrinsicFunctions="true"
+		PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG"
+		BasicRuntimeChecks="3"
+		RuntimeLibrary="3"
+		WarningLevel="3"
+		DebugInformationFormat="3"
+	/>
+	<Tool
+		Name="VCLibrarianTool"
+		OutputFile="lib\$(ConfigurationName)\$(ProjectName)_d.lib"
+	/>
+	<Tool
+		Name="VCLinkerTool"
+		OutputFile="$(OutDir)\$(ProjectName)_d.dll"
+		GenerateDebugInformation="true"
+		SubSystem="2"
+	/>
+</VisualStudioPropertySheet>

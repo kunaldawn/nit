@@ -1,0 +1,209 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		9E35456B16D4A5F300B471D3 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9E35456A16D4A5F300B471D3 /* Foundation.framework */; };
+		9E3545B816D4AB2700B471D3 /* nitmyplugin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9E3545B616D4AB2700B471D3 /* nitmyplugin.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		9E35456516D4A5F300B471D3 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/${PRODUCT_NAME}";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		9E35456716D4A5F300B471D3 /* libnitmyplugin_ios.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libnitmyplugin_ios.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		9E35456A16D4A5F300B471D3 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		9E3545B016D4A9D100B471D3 /* nit_debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = nit_debug.xcconfig; path = support/nit_debug.xcconfig; sourceTree = "<group>"; };
+		9E3545B116D4A9D100B471D3 /* nit_release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = nit_release.xcconfig; path = support/nit_release.xcconfig; sourceTree = "<group>"; };
+		9E3545B216D4A9D100B471D3 /* nit.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = nit.xcconfig; path = support/nit.xcconfig; sourceTree = "<group>"; };
+		9E3545B316D4A9D700B471D3 /* nitmyplugin-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "nitmyplugin-Prefix.pch"; path = "support/nitmyplugin-Prefix.pch"; sourceTree = "<group>"; };
+		9E3545B516D4AB2700B471D3 /* nitmyplugin_pch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = nitmyplugin_pch.h; path = ../src/nitmyplugin/nitmyplugin_pch.h; sourceTree = "<group>"; };
+		9E3545B616D4AB2700B471D3 /* nitmyplugin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = nitmyplugin.cpp; path = ../src/nitmyplugin/nitmyplugin.cpp; sourceTree = "<group>"; };
+		9E3545B716D4AB2700B471D3 /* nitmyplugin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = nitmyplugin.h; path = ../src/nitmyplugin/nitmyplugin.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		9E35456416D4A5F300B471D3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9E35456B16D4A5F300B471D3 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		9E35455E16D4A5F300B471D3 = {
+			isa = PBXGroup;
+			children = (
+				9E3545B416D4AB1900B471D3 /* nitmyplugin */,
+				9E3545B016D4A9D100B471D3 /* nit_debug.xcconfig */,
+				9E3545B116D4A9D100B471D3 /* nit_release.xcconfig */,
+				9E3545B216D4A9D100B471D3 /* nit.xcconfig */,
+				9E3545B316D4A9D700B471D3 /* nitmyplugin-Prefix.pch */,
+				9E35456916D4A5F300B471D3 /* Frameworks */,
+				9E35456816D4A5F300B471D3 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		9E35456816D4A5F300B471D3 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				9E35456716D4A5F300B471D3 /* libnitmyplugin_ios.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		9E35456916D4A5F300B471D3 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				9E35456A16D4A5F300B471D3 /* Foundation.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		9E3545B416D4AB1900B471D3 /* nitmyplugin */ = {
+			isa = PBXGroup;
+			children = (
+				9E3545B516D4AB2700B471D3 /* nitmyplugin_pch.h */,
+				9E3545B616D4AB2700B471D3 /* nitmyplugin.cpp */,
+				9E3545B716D4AB2700B471D3 /* nitmyplugin.h */,
+			);
+			name = nitmyplugin;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		9E35456616D4A5F300B471D3 /* nitmyplugin_ios */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9E35457516D4A5F300B471D3 /* Build configuration list for PBXNativeTarget "nitmyplugin_ios" */;
+			buildPhases = (
+				9E35456316D4A5F300B471D3 /* Sources */,
+				9E35456416D4A5F300B471D3 /* Frameworks */,
+				9E35456516D4A5F300B471D3 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = nitmyplugin_ios;
+			productName = nitmyplugin;
+			productReference = 9E35456716D4A5F300B471D3 /* libnitmyplugin_ios.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		9E35455F16D4A5F300B471D3 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0460;
+				ORGANIZATIONNAME = org.nit;
+			};
+			buildConfigurationList = 9E35456216D4A5F300B471D3 /* Build configuration list for PBXProject "nitmyplugin" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 9E35455E16D4A5F300B471D3;
+			productRefGroup = 9E35456816D4A5F300B471D3 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				9E35456616D4A5F300B471D3 /* nitmyplugin_ios */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		9E35456316D4A5F300B471D3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9E3545B816D4AB2700B471D3 /* nitmyplugin.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		9E35457316D4A5F300B471D3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9E3545B216D4A9D100B471D3 /* nit.xcconfig */;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		9E35457416D4A5F300B471D3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9E3545B216D4A9D100B471D3 /* nit.xcconfig */;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		9E35457616D4A5F300B471D3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9E3545B016D4A9D100B471D3 /* nit_debug.xcconfig */;
+			buildSettings = {
+				DSTROOT = /tmp/nitmyplugin_ios.dst;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos6.1;
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		9E35457716D4A5F300B471D3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9E3545B116D4A9D100B471D3 /* nit_release.xcconfig */;
+			buildSettings = {
+				DSTROOT = /tmp/nitmyplugin_ios.dst;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos6.1;
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		9E35456216D4A5F300B471D3 /* Build configuration list for PBXProject "nitmyplugin" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9E35457316D4A5F300B471D3 /* Debug */,
+				9E35457416D4A5F300B471D3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9E35457516D4A5F300B471D3 /* Build configuration list for PBXNativeTarget "nitmyplugin_ios" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9E35457616D4A5F300B471D3 /* Debug */,
+				9E35457716D4A5F300B471D3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 9E35455F16D4A5F300B471D3 /* Project object */;
+}
