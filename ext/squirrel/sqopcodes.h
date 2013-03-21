@@ -97,6 +97,7 @@ enum SQOpcode
 	_OP_ASSIGN=				0x40,
 	_OP_SWAP=				0x41,
 	_OP_DSWAP=				0x42,
+	_OP_RETTRAP=			0x43,
 };							  
 
 struct SQInstructionDesc {	  

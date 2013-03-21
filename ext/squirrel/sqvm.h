@@ -14,12 +14,13 @@ void sq_base_register(HSQUIRRELVM v);
 
 struct SQExceptionTrap{
 	SQExceptionTrap() {}
-	SQExceptionTrap(SQInteger ss, SQInteger stackbase,SQInstruction *ip, SQInteger ex_target){ _stacksize = ss; _stackbase = stackbase; _ip = ip; _extarget = ex_target;}
+	SQExceptionTrap(SQInteger ss, SQInteger stackbase,SQInstruction *ip, SQInteger ex_target, SQInstruction* finally_pos){ _stacksize = ss; _stackbase = stackbase; _ip = ip; _extarget = ex_target; _finallyPos = finally_pos; }
 	SQExceptionTrap(const SQExceptionTrap &et) { (*this) = et;	}
 	SQInteger _stackbase;
 	SQInteger _stacksize;
 	SQInstruction *_ip;
 	SQInteger _extarget;
+	SQInstruction* _finallyPos;
 };
 
 #define _INLINE 
@@ -124,6 +125,9 @@ public:
 		_callsstack = &_callstackdata[0];
 		_alloccallsstacksize = newsize;
 	}
+	bool ExceptionTrap(SQInteger& traps, SQObjectPtr currerror, SQInteger last_top, SQBool raiseerror);
+	bool UnwindTrap(SQInteger& traps, SQObjectPtr currerror, SQInteger last_top);
+
 	bool EnterFrame(SQInteger newbase, SQInteger newtop, bool tailcall);
 	void LeaveFrame();
 	void Release(){ sq_delete(this,SQVM); } //does nothing
@@ -142,7 +146,6 @@ public:
 	SQObjectPtr &PopGet();
 	SQObjectPtr &GetUp(SQInteger n);
 	SQObjectPtr &GetAt(SQInteger n);
-
 	SQObjectPtrVec _stack;
 
 	SQInteger _top;
@@ -161,7 +164,7 @@ public:
 	SQObjectPtr _debughook_closure;
 
 	SQObjectPtr temp_reg;
-	
+	SQObjectPtr temp_ret;
 
 	CallInfo* _callsstack;
 	SQInteger _callsstacksize;
@@ -170,6 +173,7 @@ public:
 
 	ExceptionsTraps _etraps;
 	CallInfo *ci;
+	sqvector<SQInstruction*> _traprets;
 	void *_foreignptr;
 	//VMs sharing the same state
 	SQSharedState *_sharedstate;

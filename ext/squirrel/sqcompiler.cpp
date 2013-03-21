@@ -239,11 +239,17 @@ public:
 			if(!IsEndOfStatement()) {
 				SQInteger retexp = _fs->GetCurrentPos()+1;
 				CommaExpr();
-				if(op == _OP_RETURN && _fs->_traps > 0)
-					_fs->AddInstruction(_OP_POPTRAP, _fs->_traps, 0);
-				_fs->_returnexp = retexp;
 				SQInteger stackSize = _fs->GetStackSize();
-				_fs->AddInstruction(op, 1, _fs->PopTarget(),stackSize);
+				_fs->_returnexp = retexp;
+				if(op == _OP_RETURN && _fs->_traps > 0)
+				{
+					_fs->AddInstruction(_OP_POPTRAP, _fs->_traps, _fs->TopTarget());
+					_fs->AddInstruction(op, 0xFE, 0,stackSize);
+				}
+				else
+				{
+					_fs->AddInstruction(op, 1, _fs->PopTarget(),stackSize);
+				}
 			}
 			else{ 
 				if(op == _OP_RETURN && _fs->_traps > 0)
@@ -1804,7 +1810,7 @@ public:
 	{
 		SQObject exid;
 		Lex();
-		_fs->AddInstruction(_OP_PUSHTRAP,0,0);
+		_fs->AddInstruction(_OP_PUSHTRAP,0,0,0);
 		_fs->_traps++;
 		if(_fs->_breaktargets.size()) _fs->_breaktargets.top()++;
 		if(_fs->_continuetargets.size()) _fs->_continuetargets.top()++;
@@ -1820,39 +1826,71 @@ public:
 		if(_fs->_continuetargets.size()) _fs->_continuetargets.top()--;
 		_fs->AddInstruction(_OP_JMP, 0, 0);
 		SQInteger jmppos = _fs->GetCurrentPos();
-		_fs->SetIntructionParam(trappos, 1, (_fs->GetCurrentPos() - trappos));
 
 		if (_token == TK_CATCH)
 		{
 			Lex();Expect(_SC('(')); exid = Expect(TK_IDENTIFIER); Expect(_SC(')'));
 			{
+				_fs->SetIntructionParam(trappos, 1, (_fs->GetCurrentPos() - trappos));
 				BEGIN_SCOPE();
 				SQInteger ex_target = _fs->PushLocalVariable(exid);
+				_fs->_traps++;
 				_fs->SetIntructionParam(trappos, 0, ex_target);
 				Statement();
+				_fs->_traps--;
+				_fs->AddInstruction(_OP_POPTRAP, 1, 0);
+				_fs->AddInstruction(_OP_JMP, 0, jmppos - _fs->GetCurrentPos() - 2);
 				_fs->SetIntructionParams(jmppos, 0, (_fs->GetCurrentPos() - jmppos), 0);
 				END_SCOPE();
 			}
+			if (_token == TK_FINALLY)
+				FinallyStmt(trappos, jmppos);
+			else
+				EmptyFinallyStmt(trappos, jmppos);
 		}
 		else if (_token == ':')
 		{
 			Lex();
+			_fs->SetIntructionParam(trappos, 1, (_fs->GetCurrentPos() - trappos));
 			BEGIN_SCOPE();
 			SQInteger ex_target = _fs->PushLocalVariable(_fs->CreateString(""));
 			_fs->SetIntructionParam(trappos, 0, ex_target);
 			Statement();
+			_fs->AddInstruction(_OP_RETTRAP);
 			_fs->SetIntructionParams(jmppos, 0, (_fs->GetCurrentPos() - jmppos), 0);
 			END_SCOPE();
+		}
+		else if (_token == TK_FINALLY)
+		{
+			FinallyStmt(trappos, jmppos);
 		}
 		else
 		{
-			// if no catch provided
+			// if no catch or finally provided
 			BEGIN_SCOPE();
+			_fs->SetIntructionParam(trappos, 1, (_fs->GetCurrentPos() - trappos));
 			SQInteger ex_target = _fs->PushLocalVariable(_fs->CreateString(""));
 			_fs->SetIntructionParam(trappos, 0, ex_target);
+			_fs->AddInstruction(_OP_RETTRAP, 1, 0);
 			_fs->SetIntructionParams(jmppos, 0, (_fs->GetCurrentPos() - jmppos), 0);
 			END_SCOPE();
 		}
+	}
+	void FinallyStmt(SQInteger trappos, SQInteger jmppos)
+	{
+		Lex();
+		BEGIN_SCOPE();
+		_fs->SetIntructionParam(trappos, 2, (_fs->GetCurrentPos() - trappos));
+		Statement();
+		_fs->AddInstruction(_OP_RETTRAP);
+		_fs->SetIntructionParams(jmppos, 0, (_fs->GetCurrentPos() - jmppos), 0);
+		END_SCOPE();
+	}
+	void EmptyFinallyStmt(SQInteger trappos, SQInteger jmppos)
+	{
+		_fs->SetIntructionParam(trappos, 2, (_fs->GetCurrentPos() - trappos));
+		_fs->AddInstruction(_OP_RETTRAP);
+		_fs->SetIntructionParams(jmppos, 0, (_fs->GetCurrentPos() - jmppos), 0);
 	}
 	void TryExpr()
 	{

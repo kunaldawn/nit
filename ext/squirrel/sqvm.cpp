@@ -551,7 +551,15 @@ bool SQVM::Return(SQInteger _arg0, SQInteger _arg1, SQObjectPtr &retval)
 		dest = &_stack._vals[callerbase + ci->_target];
 	}
 	if (dest) {
-		*dest = (_arg0 != 0xFF) ? _stack._vals[_stackbase+_arg1] : _null_;
+		if (_arg0 == 0xFE)
+		{
+			*dest = temp_ret;
+			temp_ret.Null();
+		}
+		else if (_arg0 == 0xFF)
+			dest->Null();
+		else
+			*dest = _stack._vals[_stackbase+_arg1];
 	}
 	LeaveFrame();
 
@@ -995,7 +1003,8 @@ exception_restore:
 				if((ci)->_generator) {
 					(ci)->_generator->Kill();
 				}
-				if(Return(arg0, arg1, temp_reg)){
+				if(Return(arg0, arg1, temp_reg))
+				{
 					assert(traps==0);
 					outres = temp_reg;
 					return true;
@@ -1129,18 +1138,64 @@ exception_restore:
 				continue;
 			case _OP_TYPEOF: TypeOf(STK(arg1), TARGET); continue;
 			case _OP_PUSHTRAP:{
-				SQInstruction *_iv = sqi_closure(ci->_closure)->_function->_instructions;
-				_etraps.push_back(SQExceptionTrap(_top,_stackbase, &_iv[(ci->_ip-_iv)+arg1], arg0)); traps++;
+				SQInstruction* iv = sqi_closure(ci->_closure)->_function->_instructions;
+				SQInstruction *ip = NULL;
+				SQInstruction* finpos = NULL;
+				if (arg1) ip = &iv[(ci->_ip-iv)+arg1];
+				if (arg2) finpos = &iv[(ci->_ip-iv)+arg2];
+				_etraps.push_back(SQExceptionTrap(_top,_stackbase, ip, arg0, finpos)); traps++;
 				ci->_etraps++;
 							  }
 				continue;
-			case _OP_POPTRAP: {
-				for(SQInteger i = 0; i < arg0; i++) {
-					_etraps.pop_back(); traps--;
-					ci->_etraps--;
+			case _OP_POPTRAP: 
+				if (arg1) temp_ret = STK(arg1);
+				if (arg0 == 1)
+				{
+					--traps; --ci->_etraps;
+					SQInstruction* finPos = _etraps.top()._finallyPos;
+					if (finPos)
+					{
+						_traprets.push_back(ci->_ip);
+						ci->_ip = finPos;
+					}
+					_etraps.pop_back();
 				}
-							  }
+				else if (arg0)
+				{
+					SQUnsignedInteger numTraps = _etraps.size();
+					traps -= arg0;
+					ci->_etraps -= arg0;
+					for (SQUnsignedInteger i=numTraps-arg0; i < numTraps; ++i)
+					{
+						SQInstruction* finPos = _etraps[i]._finallyPos;
+						if (finPos)
+						{
+							_traprets.push_back(ci->_ip);
+							ci->_ip = finPos;
+						}
+					}
+					_etraps.resize(numTraps-arg0);
+				}
 				continue;
+
+			case _OP_RETTRAP:
+				{
+					if (!_traprets.empty())
+					{
+						SQInstruction* retpos = _traprets.top();
+						_traprets.pop_back();
+						if (retpos)
+							ci->_ip = retpos;
+					}
+					else
+					{
+						bool restore = UnwindTrap(traps, _lasterror, _top);
+						if (restore) goto exception_restore;
+						return false;
+					}
+				}
+				continue;
+
 			case _OP_THROW:	Raise_Error(TARGET); SQ_THROW(); continue;
 			case _OP_NEWSLOTA: {
 				bool bstatic = (arg0&NEW_SLOT_STATIC_FLAG)?true:false;
@@ -1194,42 +1249,81 @@ exception_restore:
 			} // switch(_i_.op)
 		} // for (;;)
 	}
+
 exception_trap:
 	{
-		SQObjectPtr currerror = _lasterror;
-//		dumpstack(_stackbase);
-//		SQInteger n = 0;
-		SQInteger last_top = _top;
-
-		if(_ss(this)->_notifyallexceptions || (!traps && raiseerror)) 
-		{
-			if (_debughook)
-				CallDebugHook(_SC('e'));
-
-			CallErrorHandler(currerror);
-		}
-
-		while( ci ) {
-			if(ci->_etraps > 0) {
-				SQExceptionTrap &et = _etraps.top();
-				ci->_ip = et._ip;
-				_top = et._stacksize;
-				_stackbase = et._stackbase;
-				_stack._vals[_stackbase + et._extarget] = currerror;
-				_etraps.pop_back(); traps--; ci->_etraps--;
-				while(last_top >= _top) _stack._vals[last_top--].Null();
-				goto exception_restore;
-			}
-			if(ci->_generator) ci->_generator->Kill();
-			bool mustbreak = ci && ci->_root;
-			LeaveFrame();
-			if(mustbreak) break;
-		}
-						
-		_lasterror = currerror;
+		bool restore = ExceptionTrap(traps, _lasterror, _top, raiseerror);
+		if (restore) goto exception_restore;
 		return false;
 	}
 	assert(0);
+}
+
+bool SQVM::ExceptionTrap(SQInteger& traps, SQObjectPtr currerror, SQInteger last_top, SQBool raiseerror)
+{
+//	dumpstack(_stackbase);
+//	SQInteger n = 0;
+
+	if(_ss(this)->_notifyallexceptions || (!traps && raiseerror)) 
+	{
+		if (_debughook)
+			CallDebugHook(_SC('e'));
+
+		CallErrorHandler(currerror);
+	}
+
+	return UnwindTrap(traps, currerror, last_top);
+}
+
+bool SQVM::UnwindTrap(SQInteger& traps, SQObjectPtr currerror, SQInteger last_top)
+{
+	if (!_traprets.empty())
+	{
+		SQInstruction* retpos = _traprets.top();
+		_traprets.pop_back();
+		if (retpos)
+			ci->_ip = retpos;
+		return true;
+	}
+
+	while( ci ) {
+		if(ci->_etraps > 0) {
+			SQExceptionTrap &et = _etraps.top();
+
+			assert(et._ip || et._finallyPos);
+	
+			if (et._ip && et._finallyPos)
+			{
+				SQExceptionTrap catchTrap(et._stacksize, et._stackbase, et._ip, et._extarget, NULL);
+				et._ip = NULL;
+				_etraps.push_back(catchTrap);
+				++traps; ++ci->_etraps;
+				continue;
+			}
+
+			if (et._ip)
+			{
+				ci->_ip = et._ip;
+			}
+			else
+			{
+				ci->_ip = et._finallyPos;
+			}
+			_top = et._stacksize;
+			_stackbase = et._stackbase;
+			_stack._vals[_stackbase + et._extarget] = currerror;
+			while(last_top >= _top) _stack._vals[last_top--].Null();
+			--traps; --ci->_etraps; _etraps.pop_back();
+			return true;
+		}
+		if(ci->_generator) ci->_generator->Kill();
+		bool mustbreak = ci && ci->_root;
+		LeaveFrame();
+		if(mustbreak) break;
+	}
+
+	_lasterror = currerror;
+	return false;
 }
 
 void SQVM::CallErrorHandler(SQObjectPtr &error)
