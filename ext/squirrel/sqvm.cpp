@@ -1189,7 +1189,7 @@ exception_restore:
 					}
 					else
 					{
-						bool restore = UnwindTrap(traps, _lasterror, _top);
+						bool restore = UnwindTrap(traps, _traperror, _top);
 						if (restore) goto exception_restore;
 						return false;
 					}
@@ -1277,14 +1277,7 @@ bool SQVM::ExceptionTrap(SQInteger& traps, SQObjectPtr currerror, SQInteger last
 
 bool SQVM::UnwindTrap(SQInteger& traps, SQObjectPtr currerror, SQInteger last_top)
 {
-	if (!_traprets.empty())
-	{
-		SQInstruction* retpos = _traprets.top();
-		_traprets.pop_back();
-		if (retpos)
-			ci->_ip = retpos;
-		return true;
-	}
+	assert(_traprets.empty());
 
 	while( ci ) {
 		if(ci->_etraps > 0) {
@@ -1311,7 +1304,7 @@ bool SQVM::UnwindTrap(SQInteger& traps, SQObjectPtr currerror, SQInteger last_to
 			}
 			_top = et._stacksize;
 			_stackbase = et._stackbase;
-			_stack._vals[_stackbase + et._extarget] = currerror;
+			_stack._vals[_stackbase + et._extarget] = _traperror = currerror;
 			while(last_top >= _top) _stack._vals[last_top--].Null();
 			--traps; --ci->_etraps; _etraps.pop_back();
 			return true;

@@ -174,6 +174,7 @@ public:
 	ExceptionsTraps _etraps;
 	CallInfo *ci;
 	sqvector<SQInstruction*> _traprets;
+	SQObjectPtr _traperror;
 	void *_foreignptr;
 	//VMs sharing the same state
 	SQSharedState *_sharedstate;
