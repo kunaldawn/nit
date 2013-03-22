@@ -1504,10 +1504,25 @@ public:
 		BEGIN_SCOPE();
 		Statement();
 		END_SCOPE();
-		Expect(TK_WHILE);
+
 		SQInteger continuetrg = _fs->GetCurrentPos();
-		Expect(_SC('(')); CommaExpr(); Expect(_SC(')'));
-		_fs->AddInstruction(_OP_JNZ, _fs->PopTarget(), jzpos - _fs->GetCurrentPos() - 1);
+
+		// You can omit while - interpreted as 'do {} while(false)'
+
+		if (_token == TK_WHILE)
+		{
+			Lex();
+			Expect(_SC('(')); CommaExpr(); Expect(_SC(')'));
+			_fs->AddInstruction(_OP_JNZ, _fs->PopTarget(), jzpos - _fs->GetCurrentPos() - 1);
+		}
+		else
+		{
+			if (_fs->_unresolvedcontinues.size())
+			{
+				Error(_SC("'do' without 'while' does not support 'continue'"));
+			}
+		}
+
 		END_BREAKBLE_BLOCK(continuetrg);
 	}
 
