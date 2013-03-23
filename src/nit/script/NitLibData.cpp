@@ -40,6 +40,9 @@
 #include "squirrel/sqclass.h"
 #include "squirrel/sqstdblob.h"
 
+#define XML_BUILDING_EXPAT 1
+#include "expat/expat.h"
+
 NS_NIT_BEGIN;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2550,6 +2553,525 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 
+class ScriptExpat : public RefCounted
+{
+public:
+	ScriptExpat()
+	{
+		_parser = NULL;
+
+		XML_Memory_Handling_Suite mm;
+		mm.malloc_fcn	= expat_malloc;
+		mm.realloc_fcn	= expat_realloc;
+		mm.free_fcn		= expat_free;
+
+		_parser = XML_ParserCreate_MM(NULL, &mm, NULL);
+
+		_needReset = true;
+	}
+
+	virtual ~ScriptExpat()
+	{
+		if (_parser)
+			XML_ParserFree(_parser);
+	}
+
+	static void startElement(void* ctx, const char* name, const char** attrs)
+	{
+		ScriptExpat* self = (ScriptExpat*)ctx;
+		ScriptClosure* closure = self->_onStartElement;
+		if (closure == NULL) return;
+
+		HSQUIRRELVM v = closure->getRuntime()->getWorker();
+
+		NitBind::push(v, name); // arg 1 : name
+		
+		sq_newtable(v); // arg 2 : attrs
+
+		for (const char** itr = attrs; *itr; ++itr)
+		{
+			const char* attrName = *itr++;
+			const char* attrValue = *itr;
+
+			NitBind::newSlot(v, -1, attrName, attrValue);
+		}
+
+		closure->call(2);
+	}
+
+	static void endElement(void* ctx, const char* name)
+	{
+		ScriptExpat* self = (ScriptExpat*)ctx;
+		ScriptClosure* closure = self->_onEndElement;
+		if (closure == NULL) return;
+
+		HSQUIRRELVM v = closure->getRuntime()->getWorker();
+
+		NitBind::push(v, name); // arg 1 : name
+
+		closure->call(1);
+	}
+
+	static void characterData(void* ctx, const char* s, int len)
+	{
+		ScriptExpat* self = (ScriptExpat*)ctx;
+		ScriptClosure* closure = self->_onText;
+		if (closure == NULL) return;
+
+		HSQUIRRELVM v = closure->getRuntime()->getWorker();
+
+		sq_pushstring(v, s, len); // arg 1 : string
+
+		closure->call(1);
+	}
+
+	static void comment(void* ctx, const char* data)
+	{
+		ScriptExpat* self = (ScriptExpat*)ctx;
+		ScriptClosure* closure = self->_onComment;
+		if (closure == NULL) return;
+
+		HSQUIRRELVM v = closure->getRuntime()->getWorker();
+
+		sq_pushstring(v, data, -1); // arg 1 : data
+
+		closure->call(1);
+	}
+
+	static void processingInstruction(void* ctx, const char* target, const char* data)
+	{
+		ScriptExpat* self = (ScriptExpat*)ctx;
+		ScriptClosure* closure = self->_onProcessingInstruction;
+		if (closure == NULL) return;
+
+		HSQUIRRELVM v = closure->getRuntime()->getWorker();
+
+		sq_pushstring(v, target, -1); // arg 1 : target
+		sq_pushstring(v, data, -1); // arg 2 : data
+
+		closure->call(2);
+	}
+
+	static void startCdataSection(void* ctx)
+	{
+		ScriptExpat* self = (ScriptExpat*)ctx;
+		ScriptClosure* closure = self->_onStartCdata;
+		if (closure == NULL) return;
+
+		HSQUIRRELVM v = closure->getRuntime()->getWorker();
+
+		closure->call(0);
+	}
+
+	static void endCdataSection(void* ctx)
+	{
+		ScriptExpat* self = (ScriptExpat*)ctx;
+		ScriptClosure* closure = self->_onEndCdata;
+		if (closure == NULL) return;
+
+		HSQUIRRELVM v = closure->getRuntime()->getWorker();
+
+		closure->call(0);
+	}
+
+	static void startNamespaceDecl(void* ctx, const char* prefix, const char* uri)
+	{
+		ScriptExpat* self = (ScriptExpat*)ctx;
+		ScriptClosure* closure = self->_onStartNamespaceDecl;
+		if (closure == NULL) return;
+
+		HSQUIRRELVM v = closure->getRuntime()->getWorker();
+
+		sq_pushstring(v, prefix, -1); // arg 1 : prefix
+		sq_pushstring(v, uri, -1); // arg 2 : uri
+
+		closure->call(2);
+	}
+
+	static void endNamespaceDecl(void* ctx, const char* prefix)
+	{
+		ScriptExpat* self = (ScriptExpat*)ctx;
+		ScriptClosure* closure = self->_onEndNamespaceDecl;
+		if (closure == NULL) return;
+
+		HSQUIRRELVM v = closure->getRuntime()->getWorker();
+
+		sq_pushstring(v, prefix, -1); // arg 1 : target
+
+		closure->call(1);
+	}
+
+	static void defaultHandler(void* ctx, const char* s, int len)
+	{
+		ScriptExpat* self = (ScriptExpat*)ctx;
+		ScriptClosure* closure = self->_onDefault;
+		if (closure == NULL) return;
+
+		HSQUIRRELVM v = closure->getRuntime()->getWorker();
+
+		sq_pushstring(v, s, len); // arg 1 : string
+
+		closure->call(1);
+	}
+
+	static void* expat_malloc(size_t size)
+	{
+		return NIT_ALLOC(size);
+	}
+
+	static void* expat_realloc(void* ptr, size_t size)
+	{
+		return NIT_REALLOC(ptr, 0, size);
+	}
+
+	static void expat_free(void* ptr)
+	{
+		NIT_DEALLOC(ptr, 0);
+	}
+
+	SQRESULT getOnStartElement(HSQUIRRELVM v)
+	{
+		return _onStartElement ? _onStartElement->pushClosure(v) : 0;
+	}
+
+	SQRESULT getOnEndElement(HSQUIRRELVM v)
+	{
+		return _onEndElement ? _onEndElement->pushClosure(v) : 0;
+	}
+
+	SQRESULT getOnCharacterData(HSQUIRRELVM v)
+	{
+		return _onText ? _onText->pushClosure(v) : 0;
+	}
+
+	SQRESULT getOnComment(HSQUIRRELVM v)
+	{
+		return _onComment ? _onComment->pushClosure(v) : 0;
+	}
+
+	SQRESULT getOnProcessingInstruction(HSQUIRRELVM v)
+	{
+		return _onProcessingInstruction ? _onProcessingInstruction->pushClosure(v) : 0;
+	}
+
+	SQRESULT getOnStartCdata(HSQUIRRELVM v)
+	{
+		return _onStartCdata ? _onStartCdata->pushClosure(v) : 0;
+	}
+
+	SQRESULT getOnEndCdata(HSQUIRRELVM v)
+	{
+		return _onEndCdata ? _onEndCdata->pushClosure(v) : 0;
+	}
+
+	SQRESULT getOnStartNamespaceDecl(HSQUIRRELVM v)
+	{
+		return _onStartNamespaceDecl ? _onStartNamespaceDecl->pushClosure(v) : 0;
+	}
+
+	SQRESULT getOnEndNamespaceDecl(HSQUIRRELVM v)
+	{
+		return _onEndNamespaceDecl ? _onEndNamespaceDecl->pushClosure(v) : 0;
+	}
+
+	SQRESULT getOnDefault(HSQUIRRELVM v)
+	{
+		return _onDefault ? _onDefault->pushClosure(v) : 0;
+	}
+
+	void setOnStartElement(HSQUIRRELVM v, SQInteger idx)
+	{
+		if (sq_gettype(v, idx) != OT_NULL)
+			_onStartElement = new ScriptClosure(v, idx);
+		else
+			_onStartElement = NULL;
+	}
+
+	void setOnEndElement(HSQUIRRELVM v, SQInteger idx)
+	{
+		if (sq_gettype(v, idx) != OT_NULL)
+			_onEndElement = new ScriptClosure(v, idx);
+		else
+			_onEndElement = NULL;
+	}
+
+	void setOnCharacterData(HSQUIRRELVM v, SQInteger idx)
+	{
+		if (sq_gettype(v, idx) != OT_NULL)
+			_onText = new ScriptClosure(v, idx);
+		else
+			_onText = NULL;
+	}
+
+	void setOnComment(HSQUIRRELVM v, SQInteger idx)
+	{
+		if (sq_gettype(v, idx) != OT_NULL)
+			_onComment = new ScriptClosure(v, idx);
+		else
+			_onComment = NULL;
+	}
+
+	void setOnProcessingInstruction(HSQUIRRELVM v, SQInteger idx)
+	{
+		if (sq_gettype(v, idx) != OT_NULL)
+			_onProcessingInstruction = new ScriptClosure(v, idx);
+		else
+			_onProcessingInstruction = NULL;
+	}
+
+	void setOnStartCdata(HSQUIRRELVM v, SQInteger idx)
+	{
+		if (sq_gettype(v, idx) != OT_NULL)
+			_onStartCdata = new ScriptClosure(v, idx);
+		else
+			_onStartCdata = NULL;
+	}
+
+	void setOnEndCdata(HSQUIRRELVM v, SQInteger idx)
+	{
+		if (sq_gettype(v, idx) != OT_NULL)
+			_onEndCdata = new ScriptClosure(v, idx);
+		else
+			_onEndCdata = NULL;
+	}
+
+	void setOnStartNamespaceDecl(HSQUIRRELVM v, SQInteger idx)
+	{
+		if (sq_gettype(v, idx) != OT_NULL)
+			_onStartNamespaceDecl = new ScriptClosure(v, idx);
+		else
+			_onStartNamespaceDecl = NULL;
+	}
+
+	void setOnEndNamespaceDecl(HSQUIRRELVM v, SQInteger idx)
+	{
+		if (sq_gettype(v, idx) != OT_NULL)
+			_onEndNamespaceDecl = new ScriptClosure(v, idx);
+		else
+			_onEndNamespaceDecl = NULL;
+	}
+
+	void setOnDefault(HSQUIRRELVM v, SQInteger idx)
+	{
+		if (sq_gettype(v, idx) != OT_NULL)
+			_onDefault = new ScriptClosure(v, idx);
+		else
+			_onDefault = NULL;
+	}
+
+	XML_Parser reset()
+	{
+		XML_ParserReset(_parser, NULL);
+		XML_SetUserData(_parser, this);
+
+		if (_onStartElement)			XML_SetStartElementHandler(_parser, startElement);
+		if (_onEndElement)				XML_SetEndElementHandler(_parser, endElement);
+		if (_onText)					XML_SetCharacterDataHandler(_parser, characterData);
+		if (_onComment)					XML_SetCommentHandler(_parser, comment);
+		if (_onProcessingInstruction)	XML_SetProcessingInstructionHandler(_parser, processingInstruction);
+		if (_onStartCdata)				XML_SetStartCdataSectionHandler(_parser, startCdataSection);
+		if (_onEndCdata)				XML_SetEndCdataSectionHandler(_parser, endCdataSection);
+		if (_onStartNamespaceDecl)		XML_SetStartNamespaceDeclHandler(_parser, startNamespaceDecl);
+		if (_onEndNamespaceDecl)		XML_SetEndNamespaceDeclHandler(_parser, endNamespaceDecl);
+		if (_onDefault)					XML_SetDefaultHandler(_parser, defaultHandler);
+
+		_needReset = false;
+
+		return _parser;
+	}
+
+	SQRESULT status(HSQUIRRELVM v, XML_Status status)
+	{
+		XML_ParsingStatus ss;
+		XML_GetParsingStatus(_parser, &ss);
+
+		if (ss.parsing == XML_FINISHED)
+			_needReset = true;
+
+		if (status == XML_STATUS_ERROR)
+		{
+			_needReset = true;
+
+			XML_Error err = XML_GetErrorCode(_parser);
+			const char* msg = XML_ErrorString(err);
+			if (msg == NULL) msg = "<unknown>";
+			return sq_throwfmt(v, "xml: %s error(%d) at line %d column %d", msg, err, XML_GetCurrentLineNumber(_parser), XML_GetCurrentColumnNumber(_parser));
+		}
+		return NitBind::push(v, (int)status);
+	}
+
+	SQRESULT parse(HSQUIRRELVM v, const char* xml, int len, bool isFinal)
+	{
+		if (_needReset) reset();
+
+		return status(v, XML_Parse(_parser, xml, len, isFinal));
+	}
+
+	SQRESULT parse(HSQUIRRELVM v, StreamReader* reader)
+	{
+		if (_needReset) reset();
+
+		while (true)
+		{
+			int bufSize = 4096; // TODO: remove magic number
+			void* buf = XML_GetBuffer(_parser, bufSize); 
+			if (buf == NULL)
+				return sq_throwerror(v, "xml: can't obtain buffer");
+
+			int bytesRead = reader->readRaw(buf, bufSize);
+
+			if (bytesRead < 0)
+				return sq_throwerror(v, "xml: read error");
+
+			bool isFinal = bytesRead == 0;
+
+			XML_Status st = XML_ParseBuffer(_parser, bytesRead, isFinal);
+
+			if (isFinal)
+				return status(v, st);
+		}
+	}
+
+	SQRESULT stop(HSQUIRRELVM v)
+	{
+		return status(v, XML_StopParser(_parser, false));
+	}
+
+	SQRESULT suspend(HSQUIRRELVM v)
+	{
+		return status(v, XML_StopParser(_parser, true));
+	}
+
+	SQRESULT resume(HSQUIRRELVM v)
+	{
+		return status(v, XML_ResumeParser(_parser));
+	}
+
+	XML_Parser							_parser;
+
+	Ref<ScriptClosure>					_onStartElement;
+	Ref<ScriptClosure>					_onEndElement;
+	Ref<ScriptClosure>					_onText;
+	Ref<ScriptClosure>					_onComment;
+	Ref<ScriptClosure>					_onProcessingInstruction;
+	Ref<ScriptClosure>					_onStartCdata;
+	Ref<ScriptClosure>					_onEndCdata;
+	Ref<ScriptClosure>					_onStartNamespaceDecl;
+	Ref<ScriptClosure>					_onEndNamespaceDecl;
+	Ref<ScriptClosure>					_onDefault;
+
+	Ref<StreamReader>					_reader;
+
+	bool								_needReset;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
+NB_TYPE_REF(NIT_API, nit::ScriptExpat, RefCounted, incRefCount, decRefCount);
+
+class NB_ScriptExpat : public TNitClass<ScriptExpat>
+{
+public:
+	static void Register(HSQUIRRELVM v)
+	{
+		PropEntry props[] =
+		{
+			PROP_ENTRY_R(line),
+			PROP_ENTRY_R(column),
+			PROP_ENTRY_R(byteIndex),
+			PROP_ENTRY_R(byteCount),
+			PROP_ENTRY_R(errorCode),
+
+			PROP_ENTRY_R(VERSION),
+
+			PROP_ENTRY	(onStartElement),
+			PROP_ENTRY	(onEndElement),
+			PROP_ENTRY	(onText),
+			PROP_ENTRY	(onComment),
+			PROP_ENTRY	(onProcessingInstruction),
+			PROP_ENTRY	(onStartCdata),
+			PROP_ENTRY	(onEndCdata),
+			PROP_ENTRY	(onStartNamespaceDecl),
+			PROP_ENTRY	(onEndNamespaceDecl),
+			PROP_ENTRY	(onDefault),
+			NULL
+		};
+
+		FuncEntry funcs[] =
+		{
+			CONS_ENTRY_H(				"()"),
+
+			FUNC_ENTRY_H(reset,			"()"),
+			FUNC_ENTRY_H(parse,			"(xml: string, isFinal=true): STATUS"),
+			FUNC_ENTRY_H(stop,			"(): STATUS"),
+			FUNC_ENTRY_H(suspend,		"(): STATUS"),
+			FUNC_ENTRY_H(resume,		"(): STATUS"),
+			NULL
+		};
+
+		bind(v, props, funcs);
+
+		addStaticTable(v, "STATUS");
+		newSlot(v, -1, "ERROR",			(int)XML_STATUS_ERROR);
+		newSlot(v, -1, "OK",			(int)XML_STATUS_OK);
+		newSlot(v, -1, "SUSPENDED",		(int)XML_STATUS_SUSPENDED);
+		sq_poptop(v);
+	}
+
+	NB_PROP_GET(line)					{ return push(v, XML_GetCurrentLineNumber(self(v)->_parser)); }
+	NB_PROP_GET(column)					{ return push(v, XML_GetCurrentColumnNumber(self(v)->_parser)); }
+	NB_PROP_GET(byteIndex)				{ return push(v, XML_GetCurrentByteIndex(self(v)->_parser)); }
+	NB_PROP_GET(byteCount)				{ return push(v, XML_GetCurrentByteCount(self(v)->_parser)); }
+	NB_PROP_GET(errorCode)				{ return push(v, (int)XML_GetErrorCode(self(v)->_parser)); }
+
+	NB_PROP_GET(VERSION)				{ return push(v, XML_ExpatVersion()); }
+
+	NB_PROP_GET(onStartElement)			{ return self(v)->getOnStartElement(v); }
+	NB_PROP_GET(onEndElement)			{ return self(v)->getOnEndElement(v); }
+	NB_PROP_GET(onText)					{ return self(v)->getOnCharacterData(v); }
+	NB_PROP_GET(onComment)				{ return self(v)->getOnComment(v); }
+	NB_PROP_GET(onProcessingInstruction){ return self(v)->getOnProcessingInstruction(v); }
+	NB_PROP_GET(onStartCdata)			{ return self(v)->getOnStartCdata(v); }
+	NB_PROP_GET(onEndCdata)				{ return self(v)->getOnEndCdata(v); }
+	NB_PROP_GET(onStartNamespaceDecl)	{ return self(v)->getOnStartNamespaceDecl(v); }
+	NB_PROP_GET(onEndNamespaceDecl)		{ return self(v)->getOnEndNamespaceDecl(v); }
+	NB_PROP_GET(onDefault)				{ return self(v)->getOnDefault(v); }
+
+	NB_PROP_SET(onStartElement)			{ self(v)->setOnStartElement(v, 2); return 0; }
+	NB_PROP_SET(onEndElement)			{ self(v)->setOnEndElement(v, 2); return 0; }
+	NB_PROP_SET(onText)					{ self(v)->setOnCharacterData(v, 2); return 0; }
+	NB_PROP_SET(onComment)				{ self(v)->setOnComment(v, 2); return 0; }
+	NB_PROP_SET(onProcessingInstruction){ self(v)->setOnProcessingInstruction(v, 2); return 0; }
+	NB_PROP_SET(onStartCdata)			{ self(v)->setOnStartCdata(v, 2); return 0; }
+	NB_PROP_SET(onEndCdata)				{ self(v)->setOnEndCdata(v, 2); return 0; }
+	NB_PROP_SET(onStartNamespaceDecl)	{ self(v)->setOnEndNamespaceDecl(v, 2); return 0; }
+	NB_PROP_SET(onEndNamespaceDecl)		{ self(v)->setOnEndNamespaceDecl(v, 2); return 0; }
+	NB_PROP_SET(onDefault)				{ self(v)->setOnDefault(v, 2); return 0; }
+
+	NB_CONS()							{ setSelf(v, new ScriptExpat()); return SQ_OK; }
+
+	NB_FUNC(parse)
+	{ 
+		if (isString(v, 2))
+		{
+			const char* xml = getString(v, 2);
+			bool isFinal = optBool(v, 3, true);
+			int len = sq_getsize(v, 2);
+
+			return self(v)->parse(v, xml, len, isFinal);
+		}
+		else return self(v)->parse(v, get<StreamReader>(v, 2));
+	}
+
+	NB_FUNC(reset)						{ self(v)->reset(); return 0; }
+
+	NB_FUNC(stop)						{ return self(v)->stop(v); }
+	NB_FUNC(suspend)					{ return self(v)->suspend(v); }
+	NB_FUNC(resume)						{ return self(v)->resume(v); }
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
 SQRESULT NitLibData(HSQUIRRELVM v)
 {
 	NB_DataValue::Register(v);
@@ -2574,6 +3096,8 @@ SQRESULT NitLibData(HSQUIRRELVM v)
 	NB_DatabaseQuery::Register(v);
 	NB_BlobLocator::Register(v);
 	NB_BlobSource::Register(v);
+
+	NB_ScriptExpat::Register(v);
 
 	return SQ_OK;
 }
