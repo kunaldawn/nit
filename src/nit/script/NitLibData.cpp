@@ -3086,6 +3086,9 @@ public:
 		{
 			PROP_ENTRY_R(tag),
 			PROP_ENTRY_R(attrs),
+			PROP_ENTRY_R(line),
+			PROP_ENTRY_R(column),
+			PROP_ENTRY_R(bytes),
 			NULL
 		};
 
@@ -3108,6 +3111,9 @@ public:
 
 	NB_PROP_GET(tag)					{ return push(v, self(v)->getTag()); }
 	NB_PROP_GET(attrs)					{ return push(v, self(v)->getAttrs()); }
+	NB_PROP_GET(line)					{ return push(v, self(v)->getLine()); }
+	NB_PROP_GET(column)					{ return push(v, self(v)->getColumn()); }
+	NB_PROP_GET(bytes)					{ return push(v, self(v)->getBytes()); }
 
 	NB_CONS()							{ setSelf(v, new XmlParser()); return SQ_OK; }
 

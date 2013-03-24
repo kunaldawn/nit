@@ -1532,6 +1532,34 @@ void XmlParser::reset()
 	XML_SetCharacterDataHandler(parser, characterDataHandler);
 	XML_SetCommentHandler(parser, commentHandler);
 
+	cleanup();
+}
+
+void XmlParser::checkStatus(int st)
+{
+	XML_Parser parser = (XML_Parser)_parser;
+
+	if (st == XML_STATUS_OK)
+	{
+		if (_next.type == Token::INITIAL)
+		{
+			_next.type = Token::FINISH;
+			cleanup();
+		}
+	}
+	else if (st == XML_STATUS_ERROR)
+	{
+		XML_Error err = XML_GetErrorCode(parser);
+
+		NIT_THROW_FMT(EX_SYNTAX, "xml: %s error(%d) at line %d column %d",
+			XML_ErrorString(err), err, XML_GetErrorLineNumber(parser), XML_GetErrorColumnNumber(parser));
+	}
+}
+
+void XmlParser::cleanup()
+{
+	_reader = NULL;
+
 	_tagStack.clear();
 	_attrsStack.clear();
 
@@ -1542,24 +1570,10 @@ void XmlParser::reset()
 	_next.type = Token::INITIAL;
 	_next.text.clear();
 	_next.attrs = NULL;
-}
 
-void XmlParser::checkStatus(int st)
-{
-	XML_Parser parser = (XML_Parser)_parser;
-
-	if (st == XML_STATUS_OK)
-	{
-		if (_next.type == Token::INITIAL)
-			_next.type = Token::FINISH;
-	}
-	else if (st == XML_STATUS_ERROR)
-	{
-		XML_Error err = XML_GetErrorCode(parser);
-
-		NIT_THROW_FMT(EX_SYNTAX, "xml: %s error(%d) at line %d column %d",
-			XML_ErrorString(err), err, XML_GetErrorLineNumber(parser), XML_GetErrorColumnNumber(parser));
-	}
+	_line = 0;
+	_column = 0;
+	_bytes = 0;
 }
 
 void XmlParser::init(const char* xml, int len)
@@ -1575,40 +1589,66 @@ void XmlParser::init(StreamReader* reader)
 {
 	reset();
 
+	XML_Parser parser = (XML_Parser)_parser;
+
+	_reader = reader;
+
+	XML_Status st = (XML_Status)feedParser();
+
+	checkStatus(st);
+}
+
+int XmlParser::feedParser()
+{
+	XML_Parser parser = (XML_Parser)_parser;
+
 	XML_Status st;
 
-	XML_Parser parser = (XML_Parser)_parser;
+	static const int bufSize = 32; // TODO: remove magic number
 
 	while (true)
 	{
-		int bufSize = 4096; // TODO: remove magic number
-		void* buf = XML_GetBuffer(parser, bufSize); 
+		void* buf = XML_GetBuffer(parser, bufSize);
 		if (buf == NULL)
+		{
+			_reader = NULL;
 			NIT_THROW_FMT(EX_MEMORY, "xml: can't obtain buffer");
+		}
 
-		int bytesRead = reader->readRaw(buf, bufSize);
-
+		int bytesRead = _reader->readRaw(buf, bufSize);
 		if (bytesRead < 0)
+		{
+			_reader = NULL;
 			NIT_THROW_FMT(EX_READ, "xml: read error");
+		}
 
 		bool isFinal = bytesRead == 0;
-
 		st = XML_ParseBuffer(parser, bytesRead, isFinal);
 
-		if (isFinal)
+		if (isFinal || st != XML_STATUS_OK)
 			break;
 	}
 
-	checkStatus(st);
+	return st;
 }
 
 bool XmlParser::next()
 {
 	if (_next.type == Token::FINISH) return false;
 
+	XML_Parser parser = (XML_Parser)_parser;
+
 	_next.type = Token::INITIAL;
 	_hasText = false;
-	XML_Status st = XML_ResumeParser((XML_Parser)_parser);
+	XML_Status st = XML_ResumeParser(parser);
+
+	if (st == XML_STATUS_OK)
+	{
+		XML_ParsingStatus ps;
+		XML_GetParsingStatus(parser, &ps);
+		if (!ps.finalBuffer && _reader)
+			st = (XML_Status) feedParser();
+	}
 
 	checkStatus(st);
 
@@ -1637,6 +1677,9 @@ bool XmlParser::open(const char* tag, bool throwEx)
 			{
 				_tagStack.push_back(_next.text);
 				_attrsStack.push_back(_next.attrs);
+				_line = _next.line;
+				_column = _next.column;
+				_bytes = _next.bytes;
 
 				if (_next.type == Token::TAG_OPENCLOSE)
 					_next.type = Token::TAG_CLOSE;
@@ -1682,6 +1725,9 @@ bool XmlParser::openAny(const char** tagPatterns, int numPatterns, bool throwEx)
 				{
 					_tagStack.push_back(_next.text);
 					_attrsStack.push_back(_next.attrs);
+					_line = _next.line;
+					_column = _next.column;
+					_bytes = _next.bytes;
 
 					if (_next.type == Token::TAG_OPENCLOSE)
 						_next.type = Token::TAG_CLOSE;
@@ -1744,6 +1790,10 @@ bool XmlParser::close(const char* tag, bool throwEx)
 			if (tag && strcmp(tag, _next.text.c_str()) != 0)
 				break;
 
+			_line = _next.line;
+			_column = _next.column;
+			_bytes = _next.bytes;
+
 			_tagStack.pop_back();
 			_attrsStack.pop_back();
 			next();
@@ -1781,6 +1831,21 @@ DataRecord* XmlParser::getAttrs()
 	return _attrsStack.back();
 }
 
+int XmlParser::getLine()
+{
+	return _line;
+}
+
+int XmlParser::getColumn()
+{
+	return _column;
+}
+
+int XmlParser::getBytes()
+{
+	return _bytes;
+}
+
 const String& XmlParser::text()
 {
 	if (_next.type == Token::INITIAL)
@@ -1809,6 +1874,9 @@ const String& XmlParser::comment()
 	if (_next.type == Token::COMMENT)
 	{
 		_comment = _next.text;
+		_line = _next.line;
+		_column = _next.column;
+		_bytes = _next.bytes;
 		next();
 		return _comment;
 	}
@@ -1816,10 +1884,15 @@ const String& XmlParser::comment()
 	return StringUtil::BLANK();
 }
 
-void XmlParser::onStartElement( const char* name, const char** attrs )
+void XmlParser::onStartElement(const char* name, const char** attrs)
 {
+	XML_Parser parser = (XML_Parser)_parser;
+
 	_next.type = Token::TAG_OPEN;
 	_next.text = name;
+	_next.line = XML_GetCurrentLineNumber(parser);
+	_next.column = XML_GetCurrentColumnNumber(parser);
+	_next.bytes = XML_GetCurrentByteCount(parser);
 
 	_next.attrs = NULL;
 
@@ -1835,74 +1908,90 @@ void XmlParser::onStartElement( const char* name, const char** attrs )
 		}
 	}
 
-	XML_StopParser((XML_Parser)_parser, true);
+	XML_StopParser(parser, true);
 }
 
-void XmlParser::onEndElement( const char* name )
+void XmlParser::onEndElement(const char* name)
 {
+	XML_Parser parser = (XML_Parser)_parser;
+
 	if (_next.type == Token::TAG_OPEN)
 		_next.type = Token::TAG_OPENCLOSE;
 	else
 		_next.type = Token::TAG_CLOSE;
 
 	_next.text = name;
+	_next.attrs = NULL;
 
-	XML_StopParser((XML_Parser)_parser, true);
+	_next.line = XML_GetCurrentLineNumber(parser);
+	_next.column = XML_GetCurrentColumnNumber(parser);
+	_next.bytes = XML_GetCurrentByteCount(parser);
+
+	XML_StopParser(parser, true);
 }
 
-void XmlParser::onText( const char* s, int len )
+void XmlParser::onText(const char* s, int len)
 {
 	if (_next.type != Token::TEXT)
 		_text.resize(0);
 
 	_hasText = true;
 	_next.type = Token::TEXT;
+	_next.attrs = NULL;
+
 	_text.append(s, len);
 }
 
-void XmlParser::onComment( const char* data )
+void XmlParser::onComment(const char* data)
 {
+	XML_Parser parser = (XML_Parser)_parser;
+
 	_next.type = Token::COMMENT;
 	_next.text = data;
+	_next.attrs = NULL;
 
-	XML_StopParser((XML_Parser)_parser, true);
+	_next.line = XML_GetCurrentLineNumber(parser);
+	_next.column = XML_GetCurrentColumnNumber(parser);
+	_next.bytes = XML_GetCurrentByteCount(parser);
+
+	XML_StopParser(parser, true);
 }
 
-void XmlParser::startElementHandler( void* ctx, const char* name, const char** attrs )
+void XmlParser::startElementHandler(void* ctx, const char* name, const char** attrs)
 {
 	XmlParser* self = (XmlParser*)ctx;
 	return self->onStartElement(name, attrs);
 }
 
-void XmlParser::endElementHandler( void* ctx, const char* name )
+void XmlParser::endElementHandler(void* ctx, const char* name)
 {
 	XmlParser* self = (XmlParser*)ctx;
 	return self->onEndElement(name);
 }
 
-void XmlParser::characterDataHandler( void* ctx, const char* s, int len )
+void XmlParser::characterDataHandler(void* ctx, const char* s, int len)
 {
 	XmlParser* self = (XmlParser*)ctx;
 	return self->onText(s, len);
 }
 
-void XmlParser::commentHandler( void* ctx, const char* data )
+void XmlParser::commentHandler(void* ctx, const char* data)
 {
 	XmlParser* self = (XmlParser*)ctx;
 	return self->onComment(data);
 }
 
-void* XmlParser::expat_malloc( size_t size )
+void* XmlParser::expat_malloc(size_t size)
 {
 	return NIT_ALLOC(size);
 }
 
-void* XmlParser::expat_realloc( void* ptr, size_t size )
+void* XmlParser::expat_realloc(void* ptr, size_t size)
 {
 	return NIT_REALLOC(ptr, 0, size);
 }
 
-void XmlParser::expat_free( void* ptr )
+void XmlParser::expat_free(void* ptr)
 {
 	NIT_DEALLOC(ptr, 0);
 }

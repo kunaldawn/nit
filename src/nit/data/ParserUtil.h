@@ -313,6 +313,7 @@ public:
 public:
 	int									getLine();
 	int									getColumn();
+	int									getBytes();
 
 private:
 	void								onStartElement(const char* name, const char** attrs);
@@ -349,7 +350,12 @@ private:
 		TokenType						type;
 		String							text;
 		Ref<DataRecord>					attrs;
+		int								line;
+		int								column;
+		int								bytes;
 	};
+
+	Ref<StreamReader>					_reader;
 
 	StringVector						_tagStack;
 	vector<Ref<DataRecord> >::type		_attrsStack;
@@ -357,10 +363,15 @@ private:
 	bool								_hasText;
 	String								_text;
 	String								_comment;
+	int									_line;
+	int									_column;
+	int									_bytes;
 
 	Token								_next;
 
 	void								reset();
+	void								cleanup();
+	int									feedParser();
 	void								checkStatus(int st);
 	bool								next();
 };
