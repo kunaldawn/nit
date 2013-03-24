@@ -1610,7 +1610,7 @@ int XmlParser::feedParser()
 
 	XML_Status st;
 
-	static const int bufSize = 32; // TODO: remove magic number
+	static const int bufSize = 4096; // TODO: remove magic number
 
 	while (true)
 	{
