@@ -338,21 +338,23 @@ private:
 	{
 		enum TokenType
 		{
-			INITIAL,
+			NONE,
 			TAG_OPEN,
 			TAG_CLOSE,
-			TAG_OPENCLOSE,
 			TEXT,
 			COMMENT,
 			FINISH
 		};
 
+		Token*							ahead;
 		TokenType						type;
 		String							text;
 		Ref<DataRecord>					attrs;
 		int								line;
 		int								column;
 		int								bytes;
+
+		void							clear()		{ type = NONE; text.clear(); attrs = NULL; }
 	};
 
 	Ref<StreamReader>					_reader;
@@ -360,14 +362,15 @@ private:
 	StringVector						_tagStack;
 	vector<Ref<DataRecord> >::type		_attrsStack;
 
-	bool								_hasText;
 	String								_text;
 	String								_comment;
 	int									_line;
 	int									_column;
 	int									_bytes;
 
-	Token								_next;
+	Token								_tokens[3];
+	Token*								_next;
+	Token*								_ahead;
 
 	void								reset();
 	void								cleanup();

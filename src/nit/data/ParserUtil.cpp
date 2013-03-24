@@ -1512,6 +1512,11 @@ XmlParser::XmlParser()
 	mm.free_fcn		= expat_free;
 
 	_parser = XML_ParserCreate_MM(NULL, &mm, NULL);
+
+	// make a circular queue
+	for (int i = 0; i < COUNT_OF(_tokens) - 1; ++i)
+		_tokens[i].ahead = &_tokens[i+1];
+	_tokens[COUNT_OF(_tokens)-1].ahead = &_tokens[0];
 }
 
 XmlParser::~XmlParser()
@@ -1541,9 +1546,9 @@ void XmlParser::checkStatus(int st)
 
 	if (st == XML_STATUS_OK)
 	{
-		if (_next.type == Token::INITIAL)
+		if (_next->type == Token::NONE)
 		{
-			_next.type = Token::FINISH;
+			_next->type = Token::FINISH;
 			cleanup();
 		}
 	}
@@ -1563,13 +1568,14 @@ void XmlParser::cleanup()
 	_tagStack.clear();
 	_attrsStack.clear();
 
-	_hasText = false;
 	_text.clear();
 	_comment.clear();
 
-	_next.type = Token::INITIAL;
-	_next.text.clear();
-	_next.attrs = NULL;
+	for (int i=0; i < COUNT_OF(_tokens); ++i)
+		_tokens[i].clear();
+
+	_next = &_tokens[0];
+	_ahead = _next;
 
 	_line = 0;
 	_column = 0;
@@ -1634,12 +1640,18 @@ int XmlParser::feedParser()
 
 bool XmlParser::next()
 {
-	if (_next.type == Token::FINISH) return false;
+	if (_next->type == Token::FINISH) return false;
+
+	if (_next->ahead->type != Token::NONE)
+	{
+		_next->clear();
+		_next = _next->ahead;
+		return _next->type != Token::FINISH;
+	}
 
 	XML_Parser parser = (XML_Parser)_parser;
 
-	_next.type = Token::INITIAL;
-	_hasText = false;
+	_next->type = Token::NONE;
 	XML_Status st = XML_ResumeParser(parser);
 
 	if (st == XML_STATUS_OK)
@@ -1652,18 +1664,18 @@ bool XmlParser::next()
 
 	checkStatus(st);
 
-	return _next.type != Token::FINISH;
+	return _next->type != Token::FINISH;
 }
 
 bool XmlParser::open(const char* tag, bool throwEx)
 {
-	if (_next.type == Token::INITIAL)
+	if (_next->type == Token::NONE)
 	{
 		if (!throwEx) return false;
 		NIT_THROW_FMT(EX_INVALID_STATE, "xml: parser not started");
 	}
 
-	if (_next.type == Token::FINISH)
+	if (_next->type == Token::FINISH)
 	{
 		if (!throwEx) return false;
 		NIT_THROW_FMT(EX_INVALID_STATE, "xml: parser finished");
@@ -1671,20 +1683,17 @@ bool XmlParser::open(const char* tag, bool throwEx)
 
 	do
 	{
-		if (_next.type == Token::TAG_OPEN || _next.type == Token::TAG_OPENCLOSE)
+		if (_next->type == Token::TAG_OPEN)
 		{
-			if (strcmp(_next.text.c_str(), tag) == 0)
+			if (strcmp(_next->text.c_str(), tag) == 0)
 			{
-				_tagStack.push_back(_next.text);
-				_attrsStack.push_back(_next.attrs);
-				_line = _next.line;
-				_column = _next.column;
-				_bytes = _next.bytes;
+				_tagStack.push_back(_next->text);
+				_attrsStack.push_back(_next->attrs);
+				_line = _next->line;
+				_column = _next->column;
+				_bytes = _next->bytes;
 
-				if (_next.type == Token::TAG_OPENCLOSE)
-					_next.type = Token::TAG_CLOSE;
-				else
-					next();
+				next();
 
 				return true;
 			}
@@ -1692,7 +1701,7 @@ bool XmlParser::open(const char* tag, bool throwEx)
 			break;
 		}
 
-		if (_next.type == Token::TAG_CLOSE)
+		if (_next->type == Token::TAG_CLOSE)
 			break;
 
 	} while (next());
@@ -1703,13 +1712,13 @@ bool XmlParser::open(const char* tag, bool throwEx)
 
 bool XmlParser::openAny(const char** tagPatterns, int numPatterns, bool throwEx)
 {
-	if (_next.type == Token::INITIAL)
+	if (_next->type == Token::NONE)
 	{
 		if (!throwEx) return false;
 		NIT_THROW_FMT(EX_INVALID_STATE, "xml: parser not started");
 	}
 
-	if (_next.type == Token::FINISH)
+	if (_next->type == Token::FINISH)
 	{
 		if (!throwEx) return false;
 		NIT_THROW_FMT(EX_INVALID_STATE, "xml: parser finished");
@@ -1717,22 +1726,19 @@ bool XmlParser::openAny(const char** tagPatterns, int numPatterns, bool throwEx)
 
 	do
 	{
-		if (_next.type == Token::TAG_OPEN || _next.type == Token::TAG_OPENCLOSE)
+		if (_next->type == Token::TAG_OPEN)
 		{
 			for (int i=0; i < numPatterns; ++i)
 			{
-				if (Wildcard::match(tagPatterns[i], _next.text))
+				if (Wildcard::match(tagPatterns[i], _next->text))
 				{
-					_tagStack.push_back(_next.text);
-					_attrsStack.push_back(_next.attrs);
-					_line = _next.line;
-					_column = _next.column;
-					_bytes = _next.bytes;
+					_tagStack.push_back(_next->text);
+					_attrsStack.push_back(_next->attrs);
+					_line = _next->line;
+					_column = _next->column;
+					_bytes = _next->bytes;
 
-					if (_next.type == Token::TAG_OPENCLOSE)
-						_next.type = Token::TAG_CLOSE;
-					else
-						next();
+					next();
 
 					return true;
 				}
@@ -1741,7 +1747,7 @@ bool XmlParser::openAny(const char** tagPatterns, int numPatterns, bool throwEx)
 			break;
 		}
 
-		if (_next.type == Token::TAG_CLOSE)
+		if (_next->type == Token::TAG_CLOSE)
 			break;
 
 	} while (next());
@@ -1768,10 +1774,10 @@ bool XmlParser::openAny(const char* tagPattern, bool throwEx)
 
 bool XmlParser::close(const char* tag, bool throwEx)
 {
-	if (_next.type == Token::INITIAL)
+	if (_next->type == Token::NONE)
 		NIT_THROW_FMT(EX_INVALID_STATE, "xml: parser not started");
 
-	if (_next.type == Token::FINISH)
+	if (_next->type == Token::FINISH)
 		NIT_THROW_FMT(EX_INVALID_STATE, "xml: parser finished");
 
 	int childDepth = 0;
@@ -1779,20 +1785,17 @@ bool XmlParser::close(const char* tag, bool throwEx)
 
 	do
 	{
-		if (_next.type == Token::TAG_OPEN)
+		if (_next->type == Token::TAG_OPEN)
 			++childDepth;
 
-		if (s && _next.type == Token::TAG_OPENCLOSE)
-			++childDepth;
-
-		if (childDepth == 0 && (_next.type == Token::TAG_CLOSE || _next.type == Token::TAG_OPENCLOSE))
+		if (childDepth == 0 && (_next->type == Token::TAG_CLOSE))
 		{
-			if (tag && strcmp(tag, _next.text.c_str()) != 0)
+			if (tag && strcmp(tag, _next->text.c_str()) != 0)
 				break;
 
-			_line = _next.line;
-			_column = _next.column;
-			_bytes = _next.bytes;
+			_line = _next->line;
+			_column = _next->column;
+			_bytes = _next->bytes;
 
 			_tagStack.pop_back();
 			_attrsStack.pop_back();
@@ -1800,10 +1803,7 @@ bool XmlParser::close(const char* tag, bool throwEx)
 			return true;
 		}
 
-		if (s && _next.type == Token::TAG_OPENCLOSE)
-			--childDepth;
-
-		if (_next.type == Token::TAG_CLOSE)
+		if (_next->type == Token::TAG_CLOSE)
 			--childDepth;
 
 		s = true;
@@ -1848,15 +1848,19 @@ int XmlParser::getBytes()
 
 const String& XmlParser::text()
 {
-	if (_next.type == Token::INITIAL)
+	if (_next->type == Token::NONE)
 		NIT_THROW_FMT(EX_INVALID_STATE, "xml: parser not started");
 
-	if (_next.type == Token::FINISH)
+	if (_next->type == Token::FINISH)
 		NIT_THROW_FMT(EX_INVALID_STATE, "xml: parser finished");
 
-	if (_hasText)
+	if (_next->type == Token::TEXT)
 	{
-		_hasText = false;
+		_text = _next->text;
+		_line = _next->line;
+		_column = _next->column;
+		_bytes = _next->bytes;
+		next();
 		return _text;
 	}
 
@@ -1865,18 +1869,18 @@ const String& XmlParser::text()
 
 const String& XmlParser::comment()
 {
-	if (_next.type == Token::INITIAL)
+	if (_next->type == Token::NONE)
 		NIT_THROW_FMT(EX_INVALID_STATE, "xml: parser not started");
 
-	if (_next.type == Token::FINISH)
+	if (_next->type == Token::FINISH)
 		NIT_THROW_FMT(EX_INVALID_STATE, "xml: parser finished");
 
-	if (_next.type == Token::COMMENT)
+	if (_next->type == Token::COMMENT)
 	{
-		_comment = _next.text;
-		_line = _next.line;
-		_column = _next.column;
-		_bytes = _next.bytes;
+		_comment = _next->text;
+		_line = _next->line;
+		_column = _next->column;
+		_bytes = _next->bytes;
 		next();
 		return _comment;
 	}
@@ -1888,23 +1892,27 @@ void XmlParser::onStartElement(const char* name, const char** attrs)
 {
 	XML_Parser parser = (XML_Parser)_parser;
 
-	_next.type = Token::TAG_OPEN;
-	_next.text = name;
-	_next.line = XML_GetCurrentLineNumber(parser);
-	_next.column = XML_GetCurrentColumnNumber(parser);
-	_next.bytes = XML_GetCurrentByteCount(parser);
+	Token* token = _ahead;
+	assert(token->type == Token::NONE);
+	_ahead = token->ahead;
 
-	_next.attrs = NULL;
+	token->type = Token::TAG_OPEN;
+	token->text = name;
+	token->line = XML_GetCurrentLineNumber(parser);
+	token->column = XML_GetCurrentColumnNumber(parser);
+	token->bytes = XML_GetCurrentByteCount(parser);
+
+	token->attrs = NULL;
 
 	if (*attrs)
 	{
-		_next.attrs = new DataRecord();
+		token->attrs = new DataRecord();
 		for (const char** itr = attrs; *itr; ++itr)
 		{
 			const char* attrName = *itr++;
 			const char* attrValue = *itr;
 
-			_next.attrs->set(String(attrName), attrValue);
+			token->attrs->set(String(attrName), attrValue);
 		}
 	}
 
@@ -1915,44 +1923,69 @@ void XmlParser::onEndElement(const char* name)
 {
 	XML_Parser parser = (XML_Parser)_parser;
 
-	if (_next.type == Token::TAG_OPEN)
-		_next.type = Token::TAG_OPENCLOSE;
-	else
-		_next.type = Token::TAG_CLOSE;
+	Token* token = _ahead;
+	assert(token->type == Token::NONE);
+	_ahead = token->ahead;
 
-	_next.text = name;
-	_next.attrs = NULL;
+	token->type = Token::TAG_CLOSE;
 
-	_next.line = XML_GetCurrentLineNumber(parser);
-	_next.column = XML_GetCurrentColumnNumber(parser);
-	_next.bytes = XML_GetCurrentByteCount(parser);
+	token->text = name;
+	token->attrs = NULL;
+
+	token->line = XML_GetCurrentLineNumber(parser);
+	token->column = XML_GetCurrentColumnNumber(parser);
+	token->bytes = XML_GetCurrentByteCount(parser);
 
 	XML_StopParser(parser, true);
 }
 
 void XmlParser::onText(const char* s, int len)
 {
-	if (_next.type != Token::TEXT)
-		_text.resize(0);
+	XML_Parser parser = (XML_Parser)_parser;
 
-	_hasText = true;
-	_next.type = Token::TEXT;
-	_next.attrs = NULL;
+	Token* token = _next;
 
-	_text.append(s, len);
+	do
+	{
+		if (token->type == Token::TEXT)
+		{
+			token->text.append(s, len);
+			return;
+		}
+
+		if (token->type == Token::NONE)
+			break;
+
+		token = token->ahead;
+	}
+	while (token != _next);
+
+	_ahead = token->ahead;
+
+	token->type = Token::TEXT;
+	token->text.assign(s, len);
+	token->attrs = NULL;
+
+	token->line = XML_GetCurrentLineNumber(parser);
+	token->column = XML_GetCurrentColumnNumber(parser);
+	token->bytes = XML_GetCurrentByteCount(parser);
 }
 
 void XmlParser::onComment(const char* data)
 {
 	XML_Parser parser = (XML_Parser)_parser;
 
-	_next.type = Token::COMMENT;
-	_next.text = data;
-	_next.attrs = NULL;
+	Token* token = _ahead;
+	assert(token->type == Token::NONE);
+	_ahead = token->ahead;
 
-	_next.line = XML_GetCurrentLineNumber(parser);
-	_next.column = XML_GetCurrentColumnNumber(parser);
-	_next.bytes = XML_GetCurrentByteCount(parser);
+	token->type = Token::COMMENT;
+	token->text = data;
+	token->attrs = NULL;
+
+	token->line = XML_GetCurrentLineNumber(parser);
+	token->column = XML_GetCurrentColumnNumber(parser);
+	token->bytes = XML_GetCurrentByteCount(parser);
 
 	XML_StopParser(parser, true);
 }
