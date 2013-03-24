@@ -26,6 +26,9 @@
 
 #include "nit/io/MemoryBuffer.h"
 
+#define XML_BUILDING_EXPAT 1
+#include "expat/expat.h"
+
 NS_NIT_BEGIN;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1495,6 +1498,413 @@ void Json::writeEscaped(StreamWriter* w, const char* str)
 			w->writeRaw(digits, 4);
 		}
 	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+XmlParser::XmlParser()
+{
+	_parser = NULL;
+
+	XML_Memory_Handling_Suite mm;
+	mm.malloc_fcn	= expat_malloc;
+	mm.realloc_fcn	= expat_realloc;
+	mm.free_fcn		= expat_free;
+
+	_parser = XML_ParserCreate_MM(NULL, &mm, NULL);
+}
+
+XmlParser::~XmlParser()
+{
+	if (_parser)
+		XML_ParserFree((XML_Parser)_parser);
+}
+
+void XmlParser::reset()
+{
+	XML_Parser parser = (XML_Parser)_parser;
+
+	XML_ParserReset(parser, NULL);
+	XML_SetUserData(parser, this);
+
+	XML_SetStartElementHandler(parser, startElementHandler);
+	XML_SetEndElementHandler(parser, endElementHandler);
+	XML_SetCharacterDataHandler(parser, characterDataHandler);
+	XML_SetCommentHandler(parser, commentHandler);
+
+	_tagStack.clear();
+	_attrsStack.clear();
+
+	_hasText = false;
+	_text.clear();
+	_comment.clear();
+
+	_next.type = Token::INITIAL;
+	_next.text.clear();
+	_next.attrs = NULL;
+}
+
+void XmlParser::checkStatus(int st)
+{
+	XML_Parser parser = (XML_Parser)_parser;
+
+	if (st == XML_STATUS_OK)
+	{
+		if (_next.type == Token::INITIAL)
+			_next.type = Token::FINISH;
+	}
+	else if (st == XML_STATUS_ERROR)
+	{
+		XML_Error err = XML_GetErrorCode(parser);
+
+		NIT_THROW_FMT(EX_SYNTAX, "xml: %s error(%d) at line %d column %d",
+			XML_ErrorString(err), err, XML_GetErrorLineNumber(parser), XML_GetErrorColumnNumber(parser));
+	}
+}
+
+void XmlParser::init(const char* xml, int len)
+{
+	reset();
+
+	XML_Status st = XML_Parse((XML_Parser)_parser, xml, len, true);
+
+	checkStatus(st);
+}
+
+void XmlParser::init(StreamReader* reader)
+{
+	reset();
+
+	XML_Status st;
+
+	XML_Parser parser = (XML_Parser)_parser;
+
+	while (true)
+	{
+		int bufSize = 4096; // TODO: remove magic number
+		void* buf = XML_GetBuffer(parser, bufSize); 
+		if (buf == NULL)
+			NIT_THROW_FMT(EX_MEMORY, "xml: can't obtain buffer");
+
+		int bytesRead = reader->readRaw(buf, bufSize);
+
+		if (bytesRead < 0)
+			NIT_THROW_FMT(EX_READ, "xml: read error");
+
+		bool isFinal = bytesRead == 0;
+
+		st = XML_ParseBuffer(parser, bytesRead, isFinal);
+
+		if (isFinal)
+			break;
+	}
+
+	checkStatus(st);
+}
+
+bool XmlParser::next()
+{
+	if (_next.type == Token::FINISH) return false;
+
+	_next.type = Token::INITIAL;
+	_hasText = false;
+	XML_Status st = XML_ResumeParser((XML_Parser)_parser);
+
+	checkStatus(st);
+
+	return _next.type != Token::FINISH;
+}
+
+bool XmlParser::open(const char* tag, bool throwEx)
+{
+	if (_next.type == Token::INITIAL)
+	{
+		if (!throwEx) return false;
+		NIT_THROW_FMT(EX_INVALID_STATE, "xml: parser not started");
+	}
+
+	if (_next.type == Token::FINISH)
+	{
+		if (!throwEx) return false;
+		NIT_THROW_FMT(EX_INVALID_STATE, "xml: parser finished");
+	}
+
+	do
+	{
+		if (_next.type == Token::TAG_OPEN || _next.type == Token::TAG_OPENCLOSE)
+		{
+			if (strcmp(_next.text.c_str(), tag) == 0)
+			{
+				_tagStack.push_back(_next.text);
+				_attrsStack.push_back(_next.attrs);
+
+				if (_next.type == Token::TAG_OPENCLOSE)
+					_next.type = Token::TAG_CLOSE;
+				else
+					next();
+
+				return true;
+			}
+
+			break;
+		}
+
+		if (_next.type == Token::TAG_CLOSE)
+			break;
+
+	} while (next());
+
+	if (!throwEx) return false;
+	NIT_THROW_FMT(EX_SYNTAX, "xml: no matching open '%s'", tag);
+}
+
+bool XmlParser::openAny(const char** tagPatterns, int numPatterns, bool throwEx)
+{
+	if (_next.type == Token::INITIAL)
+	{
+		if (!throwEx) return false;
+		NIT_THROW_FMT(EX_INVALID_STATE, "xml: parser not started");
+	}
+
+	if (_next.type == Token::FINISH)
+	{
+		if (!throwEx) return false;
+		NIT_THROW_FMT(EX_INVALID_STATE, "xml: parser finished");
+	}
+
+	do
+	{
+		if (_next.type == Token::TAG_OPEN || _next.type == Token::TAG_OPENCLOSE)
+		{
+			for (int i=0; i < numPatterns; ++i)
+			{
+				if (Wildcard::match(tagPatterns[i], _next.text))
+				{
+					_tagStack.push_back(_next.text);
+					_attrsStack.push_back(_next.attrs);
+
+					if (_next.type == Token::TAG_OPENCLOSE)
+						_next.type = Token::TAG_CLOSE;
+					else
+						next();
+
+					return true;
+				}
+			}
+
+			break;
+		}
+
+		if (_next.type == Token::TAG_CLOSE)
+			break;
+
+	} while (next());
+
+	if (!throwEx) return false;
+
+	String tags;
+	for (int i=0; i < numPatterns; ++i)
+	{
+		if (i == 0)
+			tags.push_back('\'');
+		else
+			tags.append(", '");
+		tags.append(tagPatterns[i]);
+		tags.push_back('\'');
+	}
+	NIT_THROW_FMT(EX_SYNTAX, "xml: no matching any open [%s]", tags.c_str());
+}
+
+bool XmlParser::openAny(const char* tagPattern, bool throwEx)
+{
+	return openAny(&tagPattern, 1, throwEx);
+}
+
+bool XmlParser::close(const char* tag, bool throwEx)
+{
+	if (_next.type == Token::INITIAL)
+		NIT_THROW_FMT(EX_INVALID_STATE, "xml: parser not started");
+
+	if (_next.type == Token::FINISH)
+		NIT_THROW_FMT(EX_INVALID_STATE, "xml: parser finished");
+
+	int childDepth = 0;
+	bool s = false;
+
+	do
+	{
+		if (_next.type == Token::TAG_OPEN)
+			++childDepth;
+
+		if (s && _next.type == Token::TAG_OPENCLOSE)
+			++childDepth;
+
+		if (childDepth == 0 && (_next.type == Token::TAG_CLOSE || _next.type == Token::TAG_OPENCLOSE))
+		{
+			if (tag && strcmp(tag, _next.text.c_str()) != 0)
+				break;
+
+			_tagStack.pop_back();
+			_attrsStack.pop_back();
+			next();
+			return true;
+		}
+
+		if (s && _next.type == Token::TAG_OPENCLOSE)
+			--childDepth;
+
+		if (_next.type == Token::TAG_CLOSE)
+			--childDepth;
+
+		s = true;
+
+	} while (next());
+
+	if (!throwEx) return false;
+	if (tag == NULL) tag = _tagStack.empty() ? "" : _tagStack.back().c_str();
+	NIT_THROW_FMT(EX_SYNTAX, "xml: no matching close '%s'", tag);
+}
+
+const String& XmlParser::getTag()
+{
+	if (_tagStack.empty()) 
+		return StringUtil::BLANK();
+
+	return _tagStack.back();
+}
+
+DataRecord* XmlParser::getAttrs()
+{
+	if (_attrsStack.empty())
+		return NULL;
+
+	return _attrsStack.back();
+}
+
+const String& XmlParser::text()
+{
+	if (_next.type == Token::INITIAL)
+		NIT_THROW_FMT(EX_INVALID_STATE, "xml: parser not started");
+
+	if (_next.type == Token::FINISH)
+		NIT_THROW_FMT(EX_INVALID_STATE, "xml: parser finished");
+
+	if (_hasText)
+	{
+		_hasText = false;
+		return _text;
+	}
+
+	return StringUtil::BLANK();
+}
+
+const String& XmlParser::comment()
+{
+	if (_next.type == Token::INITIAL)
+		NIT_THROW_FMT(EX_INVALID_STATE, "xml: parser not started");
+
+	if (_next.type == Token::FINISH)
+		NIT_THROW_FMT(EX_INVALID_STATE, "xml: parser finished");
+
+	if (_next.type == Token::COMMENT)
+	{
+		_comment = _next.text;
+		next();
+		return _comment;
+	}
+
+	return StringUtil::BLANK();
+}
+
+void XmlParser::onStartElement( const char* name, const char** attrs )
+{
+	_next.type = Token::TAG_OPEN;
+	_next.text = name;
+
+	_next.attrs = NULL;
+
+	if (*attrs)
+	{
+		_next.attrs = new DataRecord();
+		for (const char** itr = attrs; *itr; ++itr)
+		{
+			const char* attrName = *itr++;
+			const char* attrValue = *itr;
+
+			_next.attrs->set(String(attrName), attrValue);
+		}
+	}
+
+	XML_StopParser((XML_Parser)_parser, true);
+}
+
+void XmlParser::onEndElement( const char* name )
+{
+	if (_next.type == Token::TAG_OPEN)
+		_next.type = Token::TAG_OPENCLOSE;
+	else
+		_next.type = Token::TAG_CLOSE;
+
+	_next.text = name;
+
+	XML_StopParser((XML_Parser)_parser, true);
+}
+
+void XmlParser::onText( const char* s, int len )
+{
+	if (_next.type != Token::TEXT)
+		_text.resize(0);
+
+	_hasText = true;
+	_next.type = Token::TEXT;
+	_text.append(s, len);
+}
+
+void XmlParser::onComment( const char* data )
+{
+	_next.type = Token::COMMENT;
+	_next.text = data;
+
+	XML_StopParser((XML_Parser)_parser, true);
+}
+
+void XmlParser::startElementHandler( void* ctx, const char* name, const char** attrs )
+{
+	XmlParser* self = (XmlParser*)ctx;
+	return self->onStartElement(name, attrs);
+}
+
+void XmlParser::endElementHandler( void* ctx, const char* name )
+{
+	XmlParser* self = (XmlParser*)ctx;
+	return self->onEndElement(name);
+}
+
+void XmlParser::characterDataHandler( void* ctx, const char* s, int len )
+{
+	XmlParser* self = (XmlParser*)ctx;
+	return self->onText(s, len);
+}
+
+void XmlParser::commentHandler( void* ctx, const char* data )
+{
+	XmlParser* self = (XmlParser*)ctx;
+	return self->onComment(data);
+}
+
+void* XmlParser::expat_malloc( size_t size )
+{
+	return NIT_ALLOC(size);
+}
+
+void* XmlParser::expat_realloc( void* ptr, size_t size )
+{
+	return NIT_REALLOC(ptr, 0, size);
+}
+
+void XmlParser::expat_free( void* ptr )
+{
+	NIT_DEALLOC(ptr, 0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

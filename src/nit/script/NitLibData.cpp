@@ -40,6 +40,8 @@
 #include "squirrel/sqclass.h"
 #include "squirrel/sqstdblob.h"
 
+#include "nit/data/ParserUtil.h"
+
 #define XML_BUILDING_EXPAT 1
 #include "expat/expat.h"
 
@@ -3002,7 +3004,8 @@ public:
 			CONS_ENTRY_H(				"()"),
 
 			FUNC_ENTRY_H(reset,			"()"),
-			FUNC_ENTRY_H(parse,			"(xml: string, isFinal=true): STATUS"),
+			FUNC_ENTRY_H(parse,			"(xml: string, isFinal=true): STATUS"
+			"\n"						"(reader: StreamReader)"),
 			FUNC_ENTRY_H(stop,			"(): STATUS"),
 			FUNC_ENTRY_H(suspend,		"(): STATUS"),
 			FUNC_ENTRY_H(resume,		"(): STATUS"),
@@ -3072,6 +3075,110 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 
+NB_TYPE_REF(NIT_API, nit::XmlParser, RefCounted, incRefCount, decRefCount);
+
+class NB_XmlParser : public TNitClass<XmlParser>
+{
+public:
+	static void Register(HSQUIRRELVM v)
+	{
+		PropEntry props[] = 
+		{
+			PROP_ENTRY_R(tag),
+			PROP_ENTRY_R(attrs),
+			NULL
+		};
+
+		FuncEntry funcs[] =
+		{
+			CONS_ENTRY_H(				"()"),
+			FUNC_ENTRY_H(init,			"(xml: string)"
+			"\n"						"(reader: StreamReader)"),
+			FUNC_ENTRY_H(open,			"(tag: string, throwEx=true): string"),
+			FUNC_ENTRY_H(openAny,		"(tagPattern: string, throwEx=true): string"
+			"\n"						"(tagPatterns: array<string>, throwEx=true): string"),
+			FUNC_ENTRY_H(close,			"(tag: string=null, throwEx=true)"),
+			FUNC_ENTRY_H(text,			"(): string"),
+			FUNC_ENTRY_H(comment,		"(): string"),
+			NULL
+		};
+
+		bind(v, props, funcs);
+	}
+
+	NB_PROP_GET(tag)					{ return push(v, self(v)->getTag()); }
+	NB_PROP_GET(attrs)					{ return push(v, self(v)->getAttrs()); }
+
+	NB_CONS()							{ setSelf(v, new XmlParser()); return SQ_OK; }
+
+	NB_FUNC(init)
+	{ 
+		if (isString(v, 2))
+		{
+			const char* xml = getString(v, 2);
+			int len = sq_getsize(v, 2);
+			self(v)->init(xml, len);
+		}
+		else self(v)->init(get<StreamReader>(v, 2));
+		return 0;
+	}
+
+	NB_FUNC(open)
+	{
+		type* o = self(v);
+
+		const char* tag = getString(v, 2);
+
+		bool ok = o->open(tag, optBool(v, 3, true));
+
+		return ok ? push(v, o->getTag()) : 0;
+	}
+
+	NB_FUNC(openAny)
+	{
+		type* o = self(v);
+
+		if (sq_gettype(v, 2) == OT_ARRAY)
+		{
+			vector<const char*>::type tags;
+			for (NitIterator itr(v, 2); itr.hasNext(); itr.next())
+			{
+				tags.push_back(getString(v, itr.valueIndex()));
+			}
+
+			bool ok = o->openAny(&tags[0], tags.size(), optBool(v, 3, true));
+			return ok ? push(v, o->getTag()) : 0;
+		}
+
+		const char* tagPattern = getString(v, 2);
+
+		bool ok = o->openAny(tagPattern, optBool(v, 3, true));
+		return ok ? push(v, o->getTag()) : 0;
+	}
+
+	NB_FUNC(close)
+	{
+		type* o = self(v);
+
+		const char* tag = optString(v, 2, NULL);
+
+		bool ok = o->close(tag, optBool(v, 3, true));
+		return push(v, ok);
+	}
+
+	NB_FUNC(text)
+	{
+		return push(v, self(v)->text());
+	}
+
+	NB_FUNC(comment)
+	{
+		return push(v, self(v)->comment());
+	}
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
 SQRESULT NitLibData(HSQUIRRELVM v)
 {
 	NB_DataValue::Register(v);
@@ -3098,6 +3205,7 @@ SQRESULT NitLibData(HSQUIRRELVM v)
 	NB_BlobSource::Register(v);
 
 	NB_ScriptExpat::Register(v);
+	NB_XmlParser::Register(v);
 
 	return SQ_OK;
 }

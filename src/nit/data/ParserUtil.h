@@ -287,4 +287,84 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 
+class XmlParser : public RefCounted
+{
+public:
+	XmlParser();
+	virtual ~XmlParser();
+
+public:
+	void								init(const char* xml, int len=-1);
+	void								init(StreamReader* reader);
+
+	bool								open(const char* tag, bool throwEx = true);
+	bool								openAny(const char** tagPatterns, int numPatterns, bool throwEx = true);
+	bool								openAny(const char* tagPattern, bool throwEx = true);
+	bool 								close(const char* tag = NULL, bool throwEx = true);
+	const String&						text();
+	const String&						comment();
+
+public:
+	const String&						getTag();
+	DataRecord*							getAttrs();
+
+	size_t								getDepth()								{ return _tagStack.size(); }
+
+public:
+	int									getLine();
+	int									getColumn();
+
+private:
+	void								onStartElement(const char* name, const char** attrs);
+	void								onEndElement(const char* name);
+	void								onText(const char* s, int len);
+	void								onComment(const char* data);
+
+private:
+	static void							startElementHandler(void* ctx, const char* name, const char** attrs);
+	static void							endElementHandler(void* ctx, const char* name);
+	static void							characterDataHandler(void* ctx, const char* s, int len);
+	static void							commentHandler(void* ctx, const char* data);
+
+	static void*						expat_malloc(size_t size);
+	static void*						expat_realloc(void* ptr, size_t size);
+	static void							expat_free(void* ptr);
+
+private:
+	void*								_parser;
+
+	struct Token
+	{
+		enum TokenType
+		{
+			INITIAL,
+			TAG_OPEN,
+			TAG_CLOSE,
+			TAG_OPENCLOSE,
+			TEXT,
+			COMMENT,
+			FINISH
+		};
+
+		TokenType						type;
+		String							text;
+		Ref<DataRecord>					attrs;
+	};
+
+	StringVector						_tagStack;
+	vector<Ref<DataRecord> >::type		_attrsStack;
+
+	bool								_hasText;
+	String								_text;
+	String								_comment;
+
+	Token								_next;
+
+	void								reset();
+	void								checkStatus(int st);
+	bool								next();
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
 NS_NIT_END;
