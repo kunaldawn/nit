@@ -217,9 +217,23 @@ public:
 	~MemManager();
 
 public:
-	static MemManager*					getInstance()							{ return g_Instance; }
+	static MemManager*					getInstance();
 	
-	static void							initialize(MemManager* inst);
+	struct RawArena
+	{
+		u16								entrySize;
+		u16								alignment;
+		size_t							size;
+
+	private:
+		friend class MemManager;
+		uint							_numEntries;
+		void*							_rawBase;
+		MemDebugInfo*					_infoBase;
+	};
+	typedef std::vector<RawArena> RawArenas;	// we need std::vector here to avoid conflict with mem manager
+
+	bool								initPools(const RawArenas& arenas);
 	void								shutdown();
 
 public:
@@ -230,13 +244,11 @@ public:
 	void								dump(); // WARNING: Use only on main thread!
 	void								dumpLog(const char* fmt, ...);
 
-public:
+private:
 	PooledAllocator*					getPool()								{ return &_pool; }
 	HeapAllocator*						getHeap()								{ return &_heap; }
 
 private:
-	static MemManager*					g_Instance;	// you should Initialize it somewhere
-
 	bool								_initialized;
 	Mutex								_lock;
 
@@ -246,6 +258,8 @@ private:
 
 	PooledAllocator						_pool;
 	HeapAllocator						_heap;
+
+	RawArenas							_arenas;
 
 	std::vector<std::string>			_dumpLines;
 };
@@ -267,9 +281,18 @@ public:
 		return &g; 
 	}
 
+	bool initPools(const RawArenas& arenas)
+	{
+		return false;
+	}
+
 	void* Allocate(size_t size, size_t alignment, MemHint hint)
 	{
 		return AlignedMalloc(size, MEM_DEFAULT_ALIGNMENT);
+	}
+
+	void shutdown()
+	{
 	}
 
 	bool deallocate(void* memory, size_t size)

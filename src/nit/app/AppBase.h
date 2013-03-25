@@ -253,43 +253,4 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-// TODO: remove obsoleted codes!
-
-class MemManager;
-class PooledAllocator;
-class HeapAllocator;
-struct MemDebugInfo;
-
-class GameAppMemory
-{
-public:
-	static void BindNewtonMemorySystem();
-
-private:
-	GameAppMemory();
-	~GameAppMemory();
-
-private:
-	static GameAppMemory				g_Instance;
-
-	struct RawArena
-	{
-		void*							RawBase;
-		u16								EntrySize;
-		u16								Alignment;
-		uint							NumEntries;
-		MemDebugInfo*					InfoBase;
-		size_t							Size;
-	};
-
-	typedef std::vector<RawArena> RawArenas;	// we need std::vector here to avoid conflict with mem manager
-	RawArenas							_arenas;
-	
-	void								InitMemManager();
-	void								MakePool(PooledAllocator* pool, u16 entrySize, u16 align, size_t mega);
-	void								FinishMemManager();
-};
-
-////////////////////////////////////////////////////////////////////////////////
-
 NS_NIT_END;

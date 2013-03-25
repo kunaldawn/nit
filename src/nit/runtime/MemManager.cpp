@@ -507,7 +507,7 @@ MemManager::MemManager()
 : _pool("pool")
 , _heap("heap")
 {
-	_initialized = false;
+	_initialized = true;
 }
 
 MemManager::~MemManager()
@@ -515,20 +515,58 @@ MemManager::~MemManager()
 	assert(_initialized == false);
 }
 
-MemManager* MemManager::g_Instance = NULL;
-
-void MemManager::initialize(MemManager* inst)
+MemManager* MemManager::getInstance()
 {
-	assert(g_Instance == NULL);
-	if (g_Instance) return;
+	static MemManager g_instance;
+	return &g_instance;
+}
 
-	g_Instance = inst;
-	inst->_initialized = true;
+bool MemManager::initPools(const RawArenas& arenas)
+{
+	Mutex::ScopedLock lock(_lock);
+
+	if (!_arenas.empty()) return false;
+
+	PooledAllocator* pool = getPool();
+
+	_arenas = arenas;
+
+	for (size_t i = 0; i < _arenas.size(); ++i)
+	{
+		RawArena& a = _arenas[i];
+
+		a._rawBase = AlignedMalloc(a.size, a.alignment);
+		a._numEntries = a.size / a.entrySize;
+
+#ifdef _SHIPPING
+		a._infoBase = 0;
+#else
+		a._infoBase = new MemDebugInfo[a._numEntries];
+#endif
+
+		pool->addPool(a.entrySize, a.alignment, a._rawBase, a.size, a._infoBase);
+	}
+
+	return true;
 }
 
 void MemManager::shutdown()
 {
 	_initialized = false;
+
+	bool ignorePoolArenas = true;
+
+	// Memory that remains after disposing GameAppMemory (mainly statics)
+	// Forget about them when we are allowed
+	if (!ignorePoolArenas)
+	{
+		for (uint i = 0; i < _arenas.size(); ++i)
+		{
+			RawArena& a = _arenas[i];
+			AlignedFree(a._rawBase);
+			delete[] a._infoBase;
+		}
+	}
 }
 
 void* MemManager::Allocate(size_t size, size_t alignment, MemHint hint)

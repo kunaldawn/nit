@@ -44,14 +44,9 @@ NitRuntimeBase::NitRuntimeBase()
 	// ThreadLocalStorage should be initialized first before LogManager
 	nit::ThreadLocalStorage::current();
 
-	// initialize default MemManager if not installed
-	if (MemManager::getInstance() == NULL)
-	{
-		_memManager = new MemManager();
-		MemManager::initialize(_memManager);
-	}
+	// initialize default MemManager if not initialized
+	MemManager::getInstance();
 
-	_memManager = NULL;
 	_started = false;
 	_finished = false;
 	_restarting = false;
@@ -94,9 +89,7 @@ NitRuntimeBase::~NitRuntimeBase()
 	_config = NULL;
 	_channel = NULL;
 
-	if (_memManager)
-		_memManager->shutdown();
-	safeDelete(_memManager);
+	MemManager::getInstance()->shutdown();
 }
 
 void NitRuntimeBase::setArguments(int argc, char** argv)

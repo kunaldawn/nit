@@ -123,7 +123,6 @@ public:
 	virtual int							execute(const String& cmdline, Ref<StreamReader> input, Ref<StreamWriter> output, Ref<StreamWriter> err);
 
 protected:
-	MemManager*							_memManager;
 	std::vector<std::string>			_arguments;
 	bool								_needDebugger;
 	bool								_started;

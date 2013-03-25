@@ -71,105 +71,6 @@ NIT_EVENT_DEFINE(OnAppHandleURL, AppURLEvent);
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GameAppMemory GameAppMemory::g_Instance;
-
-GameAppMemory::GameAppMemory()
-{
-	InitMemManager();
-}
-
-GameAppMemory::~GameAppMemory()
-{
-	FinishMemManager();
-}
-
-#ifndef NO_MEM_MANAGER
-void GameAppMemory::InitMemManager()
-{
-	MemManager* mem = new MemManager(); // HACK: forgive me we will never delete it!
-
-	PooledAllocator* pool = mem->getPool();
-	
-	// TODO: Expose cfg or something for the user code
-	// TODO: Implement a dynamic block allocation/deallocation mechanism
-
-	///////////////	entry	align   mega
-	MakePool(pool,	16,		16,		2);
-	MakePool(pool,	32,		32,		2);
-	MakePool(pool, 	48,		16,		2);
-	MakePool(pool, 	64,		64,		2);
-	MakePool(pool,	96,		32,		2);
-	MakePool(pool,	128,	128,	2);
-	MakePool(pool, 	256,	128,	2);
-	MakePool(pool, 	512,	128,	2);
-	MakePool(pool, 	1024,	128,	2);
-	MakePool(pool, 	2048,	128,	2);
-	MakePool(pool, 	4096,	128,	2);
-	MakePool(pool,	8192,	128,	2);
-	MakePool(pool, 16384,	128,	2);
-	MakePool(pool, 32768,	128,	2);
-
-	MemManager::initialize(mem);
-
-}
-
-void GameAppMemory::MakePool(PooledAllocator* pool, u16 entrySize, u16 align, size_t mega)
-{
-	size_t size = mega * 1024 * 1024;
-	void* raw = AlignedMalloc(size, align);
-
-	RawArena a;
-	a.RawBase = raw;
-	a.EntrySize = entrySize;
-	a.Alignment = align;
-	a.NumEntries = size / entrySize;
-	a.Size = size;
-
-#ifdef _SHIPPING
-	a.InfoBase = 0;
-#else
-	a.InfoBase = new MemDebugInfo[a.NumEntries];
-#endif
-
-	pool->addPool(entrySize, align, raw, size, a.InfoBase); // HACK: we don't have to delete them later
-	_arenas.push_back(a);
-}
-
-void GameAppMemory::FinishMemManager()
-{
-	MemManager* mem = g_MemManager;
-
-	// GameAppMemory now disposing, Shutdown to terminate as quick as possible for any further memory operations are meaningless.
-	// TODO: Investigate if this assumption is valid on Android runtime
-	mem->shutdown();
-
-	bool forgetManagedMemory = true;
-
-	// Memory that remains after disposing GameAppMemory (mainly statics)
-	// Forget about them when we are allowed
-	if (!forgetManagedMemory)
-	{
-		for (uint i = 0; i < _arenas.size(); ++i)
-		{
-			RawArena& a = _arenas[i];
-			AlignedFree(a.RawBase);
-			delete[] a.InfoBase;
-		}
-
-		delete mem;
-	}
-}
-
-#else // #ifndef NO_MEM_MANAGER
-
-void GameAppMemory::InitMemManager() { }
-void GameAppMemory::FinishMemManager() { }
-void GameAppMemory::MakePool(PooledAllocator* pool, u16 entrySize, u16 align, size_t mega) { }
-
-#endif // #ifndef NO_MEM_MANAGER
-
-////////////////////////////////////////////////////////////////////////////////
-
 class AppDataSchemaLookup : public DataSchemaLookup
 {
 public:
@@ -319,6 +220,29 @@ void AppBase::leave()
 	_serviceContext.leave();
 }
 
+static void initMemPools(AppConfig* config)
+{
+	StringVector entries;
+	config->getSettings()->find("mem/pool", entries);
+
+	MemManager::RawArenas arenas;
+
+	for (size_t i=0; i < entries.size(); ++i)
+	{
+		int entrySize, align, mega;
+		sscanf(entries[i].c_str(), "%d,%d,%d", &entrySize, &align, &mega);
+
+		MemManager::RawArena arena;
+		arena.alignment = align;
+		arena.entrySize = entrySize;
+		arena.size = mega * 1024 * 1024;
+
+		arenas.push_back(arena);
+	}
+
+	MemManager::getInstance()->initPools(arenas);
+}
+
 void AppBase::init(AppConfig* config)
 {
 	if (config == NULL)
@@ -337,6 +261,8 @@ void AppBase::init(AppConfig* config)
 	// Cause PackBundle could override an app.cfg,
 	// Prior to use _config, onInit() should be called first
 	onInit();
+
+	initMemPools(config);
 
 	float timeSpeed = DataValue(getConfig("time_speed", "1.0"));
 	float tickFrequency = DataValue(getConfig("tick_frequency", "60.0"));

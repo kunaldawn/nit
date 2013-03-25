@@ -10,6 +10,11 @@ Version 0.2.0 'usable'
 - Stable configuration for shell & runtime binary
 - Stable path & pack policy
 
+**Done**
+
+- Stable & configurable memory pool manager
+
+
 Version 0.3.0 'script revisited'
 --------------
 
@@ -21,6 +26,7 @@ Version 0.3.0 'script revisited'
 **Done**
 
 - try-catch-finally on nit script
+
 
 Version 0.4.0 'debugger'
 --------------
@@ -56,6 +62,8 @@ Version 0.7.0 'perf-hud'
 **Planned**
 
 - Working `nit.Profiler` & `nit.PerfHud` code
+- Fast debug primitive drawing
+- Fast debug label text drawing
 
 
 Version 0.8.0 'cocos-ext'
@@ -89,7 +97,7 @@ Version 1.0.0 'useful'
 - Stable app environment on android
 - Stable app environment on mac32
 - Production quality binary
-- platform wise sdk distribution
+- platform-wise sdk distribution
 - Useful script ide
 - Project raking tools
 - A lot of documents
@@ -103,10 +111,13 @@ Future
 **Planned**
 
 - Ogre integration
+- Newton dynamics integration
 
 **Idea**
 
 - Windows 8 WinRT porting (windows-phone later)
+- Memory pool dynamic block allocation
+- Simple cocos html rendering view embedding node/image etc.
 
 
 
