@@ -1913,6 +1913,7 @@ void XmlParser::onText(const char* s, int len)
 	}
 	while (token != _next);
 
+	assert(token->type == Token::NONE);
 	_ahead = token->ahead;
 
 	token->type = Token::TEXT;
