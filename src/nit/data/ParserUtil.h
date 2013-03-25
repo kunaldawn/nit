@@ -297,9 +297,8 @@ public:
 	void								init(const char* xml, int len=-1);
 	void								init(StreamReader* reader);
 
-	bool								open(const char* tag, bool throwEx = true);
-	bool								openAny(const char** tagPatterns, int numPatterns, bool throwEx = true);
-	bool								openAny(const char* tagPattern, bool throwEx = true);
+	bool								open(const char** tagPatterns, int numPatterns, bool throwEx = true);
+	bool								open(const char* tagPattern="*", bool throwEx = true);
 	bool 								close(const char* tag = NULL, bool throwEx = true);
 	const String&						text();
 	const String&						comment();

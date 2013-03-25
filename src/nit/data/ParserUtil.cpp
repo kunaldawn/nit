@@ -1629,6 +1629,7 @@ int XmlParser::feedParser()
 		}
 
 		bool isFinal = bytesRead == 0;
+		if (isFinal) _reader = NULL;
 		st = XML_ParseBuffer(parser, bytesRead, isFinal);
 
 		if (isFinal || st != XML_STATUS_OK)
@@ -1654,11 +1655,11 @@ bool XmlParser::next()
 	_next->type = Token::NONE;
 	XML_Status st = XML_ResumeParser(parser);
 
-	if (st == XML_STATUS_OK)
+	if (_reader && st == XML_STATUS_OK)
 	{
 		XML_ParsingStatus ps;
 		XML_GetParsingStatus(parser, &ps);
-		if (!ps.finalBuffer && _reader)
+		if (!ps.finalBuffer)
 			st = (XML_Status) feedParser();
 	}
 
@@ -1667,50 +1668,7 @@ bool XmlParser::next()
 	return _next->type != Token::FINISH;
 }
 
-bool XmlParser::open(const char* tag, bool throwEx)
-{
-	if (_next->type == Token::NONE)
-	{
-		if (!throwEx) return false;
-		NIT_THROW_FMT(EX_INVALID_STATE, "xml: parser not started");
-	}
-
-	if (_next->type == Token::FINISH)
-	{
-		if (!throwEx) return false;
-		NIT_THROW_FMT(EX_INVALID_STATE, "xml: parser finished");
-	}
-
-	do
-	{
-		if (_next->type == Token::TAG_OPEN)
-		{
-			if (strcmp(_next->text.c_str(), tag) == 0)
-			{
-				_tagStack.push_back(_next->text);
-				_attrsStack.push_back(_next->attrs);
-				_line = _next->line;
-				_column = _next->column;
-				_bytes = _next->bytes;
-
-				next();
-
-				return true;
-			}
-
-			break;
-		}
-
-		if (_next->type == Token::TAG_CLOSE)
-			break;
-
-	} while (next());
-
-	if (!throwEx) return false;
-	NIT_THROW_FMT(EX_SYNTAX, "xml: no matching open '%s'", tag);
-}
-
-bool XmlParser::openAny(const char** tagPatterns, int numPatterns, bool throwEx)
+bool XmlParser::open(const char** tagPatterns, int numPatterns, bool throwEx)
 {
 	if (_next->type == Token::NONE)
 	{
@@ -1767,9 +1725,9 @@ bool XmlParser::openAny(const char** tagPatterns, int numPatterns, bool throwEx)
 	NIT_THROW_FMT(EX_SYNTAX, "xml: no matching any open [%s]", tags.c_str());
 }
 
-bool XmlParser::openAny(const char* tagPattern, bool throwEx)
+bool XmlParser::open(const char* tagPattern, bool throwEx)
 {
-	return openAny(&tagPattern, 1, throwEx);
+	return open(&tagPattern, 1, throwEx);
 }
 
 bool XmlParser::close(const char* tag, bool throwEx)
@@ -1902,18 +1860,13 @@ void XmlParser::onStartElement(const char* name, const char** attrs)
 	token->column = XML_GetCurrentColumnNumber(parser);
 	token->bytes = XML_GetCurrentByteCount(parser);
 
-	token->attrs = NULL;
-
-	if (*attrs)
+	token->attrs = new DataRecord();
+	for (const char** itr = attrs; *itr; ++itr)
 	{
-		token->attrs = new DataRecord();
-		for (const char** itr = attrs; *itr; ++itr)
-		{
-			const char* attrName = *itr++;
-			const char* attrValue = *itr;
+		const char* attrName = *itr++;
+		const char* attrValue = *itr;
 
-			token->attrs->set(String(attrName), attrValue);
-		}
+		token->attrs->set(attrName, attrValue);
 	}
 
 	XML_StopParser(parser, true);

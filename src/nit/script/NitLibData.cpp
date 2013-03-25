@@ -3089,6 +3089,7 @@ public:
 			PROP_ENTRY_R(line),
 			PROP_ENTRY_R(column),
 			PROP_ENTRY_R(bytes),
+			PROP_ENTRY_R(depth),
 			NULL
 		};
 
@@ -3097,8 +3098,7 @@ public:
 			CONS_ENTRY_H(				"()"),
 			FUNC_ENTRY_H(init,			"(xml: string)"
 			"\n"						"(reader: StreamReader)"),
-			FUNC_ENTRY_H(open,			"(tag: string, throwEx=true): string"),
-			FUNC_ENTRY_H(openAny,		"(tagPattern: string, throwEx=true): string"
+			FUNC_ENTRY_H(open,			"(tagPattern=\"*\", throwEx=true): string"
 			"\n"						"(tagPatterns: array<string>, throwEx=true): string"),
 			FUNC_ENTRY_H(close,			"(tag: string=null, throwEx=true)"),
 			FUNC_ENTRY_H(text,			"(): string"),
@@ -3114,6 +3114,7 @@ public:
 	NB_PROP_GET(line)					{ return push(v, self(v)->getLine()); }
 	NB_PROP_GET(column)					{ return push(v, self(v)->getColumn()); }
 	NB_PROP_GET(bytes)					{ return push(v, self(v)->getBytes()); }
+	NB_PROP_GET(depth)					{ return push(v, self(v)->getDepth()); }
 
 	NB_CONS()							{ setSelf(v, new XmlParser()); return SQ_OK; }
 
@@ -3133,17 +3134,6 @@ public:
 	{
 		type* o = self(v);
 
-		const char* tag = getString(v, 2);
-
-		bool ok = o->open(tag, optBool(v, 3, true));
-
-		return ok ? push(v, o->getTag()) : 0;
-	}
-
-	NB_FUNC(openAny)
-	{
-		type* o = self(v);
-
 		if (sq_gettype(v, 2) == OT_ARRAY)
 		{
 			vector<const char*>::type tags;
@@ -3152,13 +3142,13 @@ public:
 				tags.push_back(getString(v, itr.valueIndex()));
 			}
 
-			bool ok = o->openAny(&tags[0], tags.size(), optBool(v, 3, true));
+			bool ok = o->open(&tags[0], tags.size(), optBool(v, 3, true));
 			return ok ? push(v, o->getTag()) : 0;
 		}
 
-		const char* tagPattern = getString(v, 2);
+		const char* tagPattern = optString(v, 2, "*");
 
-		bool ok = o->openAny(tagPattern, optBool(v, 3, true));
+		bool ok = o->open(tagPattern, optBool(v, 3, true));
 		return ok ? push(v, o->getTag()) : 0;
 	}
 
