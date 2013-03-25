@@ -382,12 +382,12 @@ bool SQClosure::Save(SQVM *v,SQUserPointer up,SQWRITEFUNC write, SQBool swapEndi
 	return true;
 }
 
-bool SQClosure::Load(SQVM *v,SQUserPointer up,SQREADFUNC read,SQObjectPtr &ret)
+bool SQClosure::Load(SQVM *v,SQUserPointer up,SQREADFUNC read, SQObjectPtr imports, SQObjectPtr &ret)
 {
 	_CHECK_IO(CheckTag(v,read,up,SQ_CLOSURESTREAM_HEAD));
 	_CHECK_IO(CheckTag(v,read,up,sizeof(SQChar)));
 	SQObjectPtr func;
-	_CHECK_IO(SQFunctionProto::Load(v,up,read,func));
+	_CHECK_IO(SQFunctionProto::Load(v,up,read,imports,func));
 	_CHECK_IO(CheckTag(v,read,up,SQ_CLOSURESTREAM_TAIL));
 	ret = SQClosure::Create(_ss(v),sqi_funcproto(func));
 	return true;
@@ -409,6 +409,8 @@ void SQFunctionProto::Finalize()
 {
 	for(SQInteger i = 0; i < _nliterals; i++)
 		_literals[i].Null();
+	_help.Null();
+	_imports.Null();
 }
 
 bool SQFunctionProto::Save(SQVM *v,SQUserPointer up,SQWRITEFUNC write, SQBool swapEndian)
@@ -488,7 +490,7 @@ bool SQFunctionProto::Save(SQVM *v,SQUserPointer up,SQWRITEFUNC write, SQBool sw
 	return true;
 }
 
-bool SQFunctionProto::Load(SQVM *v,SQUserPointer up,SQREADFUNC read,SQObjectPtr &ret)
+bool SQFunctionProto::Load(SQVM *v,SQUserPointer up,SQREADFUNC read, SQObjectPtr imports, SQObjectPtr &ret)
 {
 	SQInteger i, nliterals,nparameters;
 	SQInteger noutervalues ,nlocalvarinfos ;
@@ -515,6 +517,7 @@ bool SQFunctionProto::Load(SQVM *v,SQUserPointer up,SQREADFUNC read,SQObjectPtr 
 	SQObjectPtr proto = f; //gets a ref in case of failure
 	f->_sourcename = sourcename;
 	f->_name = name;
+	f->_imports = imports;
 
 	_CHECK_IO(CheckTag(v,read,up,SQ_CLOSURESTREAM_PART));
 
@@ -559,7 +562,7 @@ bool SQFunctionProto::Load(SQVM *v,SQUserPointer up,SQREADFUNC read,SQObjectPtr 
 
 	_CHECK_IO(CheckTag(v,read,up,SQ_CLOSURESTREAM_PART));
 	for(i = 0; i < nfunctions; i++){
-		_CHECK_IO(sqi_funcproto(o)->Load(v, up, read, o));
+		_CHECK_IO(sqi_funcproto(o)->Load(v, up, read, imports, o));
 		f->_functions[i] = o;
 	}
 	_CHECK_IO(SafeRead(v,read,up, &f->_stacksize, sizeof(f->_stacksize)));

@@ -37,6 +37,7 @@ struct SQVM : public CHAINABLE_OBJ
 		SQInstruction *_ip;
 		SQObjectPtr *_literals;
 		SQObjectPtr _closure;
+		SQObjectPtr _imports;
 		SQGenerator *_generator;
 		SQInt32 _etraps;
 		SQInt32 _prevstkbase;

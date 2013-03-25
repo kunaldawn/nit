@@ -572,6 +572,7 @@ void SQFunctionProto::Mark(SQGC* gc)
 	for(SQInteger i = 0; i < _nliterals; i++) gc->mark(_literals[i]);
 	for(SQInteger i = 0; i < _nfunctions; i++) gc->mark(_functions[i]);
 	gc->mark(_help);
+	gc->mark(_imports);
 }
 
 #endif // NO_GARBAGE_COLLECTOR

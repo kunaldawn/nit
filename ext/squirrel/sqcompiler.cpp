@@ -79,6 +79,7 @@ public:
 		_lineinfo = lineinfo;_raiseerror = raiseerror;
 		_scope.outers = 0;
 		_scope.stacksize = 0;
+		_imports = SQTable::Create(_ss(v), 0);
 		compilererror = NULL;
 	}
 	static void ThrowError(void *ud, const SQChar *s) {
@@ -190,7 +191,7 @@ public:
 			_fs->AddLineInfos(_lex._currentline, _lineinfo, true);
 			_fs->AddInstruction(_OP_RETURN, 0xFF);
 			_fs->SetStackSize(0);
-			o =_fs->BuildProto();
+			o =_fs->BuildProto(_imports);
 #ifdef _DEBUG_DUMP
 			_fs->Dump(sqi_funcproto(o));
 #endif
@@ -218,6 +219,7 @@ public:
 		switch(_token){
 		case _SC(';'):	Lex();					break;
 		case TK_REQUIRE:  RequireStatement(); break;
+		case TK_IMPORT:	ImportStatement(); break;
 		case TK_IF:		IfStatement();			break;
 		case TK_WHILE:		WhileStatement();		break;
 		case TK_DO:		DoWhileStatement();		break;
@@ -336,6 +338,12 @@ public:
 		Lex();
 		Expression();
 		_fs->AddInstruction(_OP_REQUIRE, _fs->PopTarget());
+	}
+	void ImportStatement()
+	{
+		Lex();
+		Expression();
+		_fs->AddInstruction(_OP_IMPORT, _fs->PopTarget());
 	}
 	void EmitDerefOp(SQOpcode op)
 	{
@@ -1372,7 +1380,7 @@ public:
 			initfunc->AddInstruction(_OP_RETURN, -1);
 			initfunc->SetStackSize(0);
 
-			_fs->_functions.push_back(initfunc->BuildProto());
+			_fs->_functions.push_back(initfunc->BuildProto(_imports));
 			_fs->PopChildState();
 			
 			_fs->AddInstruction(_OP_LOAD, _fs->PushTarget(), _fs->GetConstant(_fs->_sharedstate->_initializeridx));
@@ -2106,7 +2114,7 @@ public:
         funcstate->AddInstruction(_OP_RETURN, -1);
 		funcstate->SetStackSize(0);
 
-		SQFunctionProto *func = funcstate->BuildProto();
+		SQFunctionProto *func = funcstate->BuildProto(_imports);
 		if (_ss(_vm)->_enablehelp)
 			func->_help = help;
 #ifdef _DEBUG_DUMP
@@ -2131,7 +2139,7 @@ public:
 		funcstate->AddLineInfos(_lex._prevtoken == _SC('\n')?_lex._lasttokenline:_lex._currentline, _lineinfo, true);
 		funcstate->AddInstruction(_OP_RETURN, -1);
 		funcstate->SetStackSize(0);
-		SQFunctionProto* func = funcstate->BuildProto();
+		SQFunctionProto* func = funcstate->BuildProto(_imports);
 #ifdef _DEBUG_DUMP
 		funcstate->Dump(func);
 #endif
@@ -2162,6 +2170,7 @@ public:
 private:
 	SQInteger _token;
 	SQFuncState *_fs;
+	SQObjectPtr _imports;
 	SQObjectPtr _sourcename;
 	SQLexer _lex;
 	bool _lineinfo;

@@ -45,7 +45,7 @@ public:
 	~SQClosure();
 	
 	bool Save(SQVM *v,SQUserPointer up,SQWRITEFUNC write, SQBool swapEndian);
-	static bool Load(SQVM *v,SQUserPointer up,SQREADFUNC read,SQObjectPtr &ret);
+	static bool Load(SQVM *v,SQUserPointer up,SQREADFUNC read,SQObjectPtr imports, SQObjectPtr &ret);
 #ifndef NO_GARBAGE_COLLECTOR
 	void Mark(SQGC*);
 	void Finalize();

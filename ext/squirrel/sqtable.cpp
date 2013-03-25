@@ -80,6 +80,16 @@ SQTable *SQTable::Clone()
 	return nt;
 }
 
+void SQTable::import(SQTable* other)
+{
+	SQInteger ridx = 0;
+	SQObjectPtr key, val;
+	while ( (ridx=other->Next(true, ridx, key, val)) != -1 )
+	{
+		NewSlot(key, val);
+	}
+}
+
 bool SQTable::Get(const SQObjectPtr &key,SQObjectPtr &val)
 {
 	if(sqi_type(key) == OT_NULL)

@@ -80,6 +80,7 @@ SQInstructionDesc g_InstrDesc[]={
 	{_SC("SWAP")},
 	{_SC("DSWAP")},
 	{_SC("RETTRAP")},
+	{_SC("IMPORT")},
 };
 
 static void squndump_dumpliteral(HSQUIRRELVM v, SQObjectPtr &o)

@@ -77,6 +77,7 @@ struct SQVM;
 #define TK_WITH				338
 #define TK_CHAR				339
 #define TK_FINALLY			340
+#define TK_IMPORT			341
 
 typedef void(*CompilerErrorFunc)(void *ud, const SQChar *s);
 bool Compile(SQVM *vm, SQLEXREADFUNC rg, SQUserPointer up, const SQChar *sourcename, SQObjectPtr &out, bool raiseerror, bool lineinfo);

@@ -52,6 +52,7 @@ public:
 	}
 	void Finalize();
 	SQTable *Clone();
+	void import(SQTable* other);
 	~SQTable()
 	{
 		SetDelegate(NULL);
@@ -85,7 +86,6 @@ public:
 	{
 		sq_delete(this, SQTable);
 	}
-	
 };
 
 #endif //_SQTABLE_H_

@@ -1,4 +1,4 @@
-import(nit)
+import nit
 
 var fl = FileLocator("$root", "c:/proj/nit", true, true)
 var files = fl.Find("*.cpp")

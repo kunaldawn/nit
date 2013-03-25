@@ -123,11 +123,12 @@ public:
 	const SQChar* GetLocal(SQVM *v,SQUnsignedInteger stackbase,SQUnsignedInteger nseq,SQUnsignedInteger nop);
 	SQInteger GetLine(SQInstruction *curr);
 	bool Save(SQVM *v,SQUserPointer up,SQWRITEFUNC write, SQBool swapEndian);
-	static bool Load(SQVM *v,SQUserPointer up,SQREADFUNC read,SQObjectPtr &ret);
+	static bool Load(SQVM *v,SQUserPointer up,SQREADFUNC read, SQObjectPtr imports, SQObjectPtr &ret);
 #ifndef NO_GARBAGE_COLLECTOR
 	void Finalize();
 	void Mark(SQGC* chain);
 #endif
+	SQObjectPtr _imports;
 	SQObjectPtr _sourcename;
 	SQObjectPtr _name;
 	SQObjectPtr _help;

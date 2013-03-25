@@ -1028,6 +1028,7 @@ static SQInteger closure_getinfos(HSQUIRRELVM v) {
 		res->NewSlot(SQString::Create(_ss(v),_SC("parameters"),-1),params);
 		res->NewSlot(SQString::Create(_ss(v),_SC("varargs"),-1),f->_varparams);
 		res->NewSlot(SQString::Create(_ss(v),_SC("help"),-1),f->_help);
+		res->NewSlot(SQString::Create(_ss(v),_SC("imports"),-1),f->_imports);
 	}
 	else { //OT_NATIVECLOSURE 
 		SQNativeClosure *nc = sqi_nativeclosure(o);

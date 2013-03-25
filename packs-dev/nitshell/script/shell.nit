@@ -1,4 +1,4 @@
-import(nit)
+import nit
 
 var p = CmdLineParser()
 

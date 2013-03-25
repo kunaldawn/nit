@@ -511,6 +511,7 @@ bool SQVM::StartCall(SQClosure *closure,SQInteger target,SQInteger args,SQIntege
 	ci->_closure  = closure;
 	ci->_literals = func->_literals;
 	ci->_ip       = func->_instructions;
+	ci->_imports  = func->_imports;
 	ci->_target   = (SQInt32)target;
 
 	if (_debughook) {
@@ -1246,6 +1247,19 @@ exception_restore:
 				_GUARD((_requirehandler(this)!=SQ_ERROR));
 				Pop(1);
 				continue;
+
+			case _OP_IMPORT:
+				{
+					SQObjectPtr t = STK(arg0);
+					if (sqi_type(t) != OT_TABLE)
+					{
+						Raise_Error(_SC("not a table")); SQ_THROW();
+					}
+					
+					sqi_table(ci->_imports)->import(sqi_table(t));
+				}
+				continue;
+
 			} // switch(_i_.op)
 		} // for (;;)
 	}
@@ -1509,6 +1523,7 @@ bool SQVM::Get(const SQObjectPtr &self,const SQObjectPtr &key,SQObjectPtr &dest,
 			return true;
 		}
 		if(selfidx == 0) {
+			if(sqi_table(ci->_imports)->Get(key,dest)) return true;
 			if(sqi_table(_ss(this)->_root_table)->Get(key,dest)) return true;
 		}
 	}
@@ -1966,6 +1981,7 @@ void SQVM::LeaveFrame() {
 
 	/* First clean out the call stack frame */
 	ci->_closure.Null();
+	ci->_imports.Null();
 	_stackbase -= ci->_prevstkbase;
 	_top        = _stackbase + ci->_prevtop;
 	ci = (css) ? &_callsstack[css-1] : NULL;

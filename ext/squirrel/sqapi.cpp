@@ -1294,13 +1294,13 @@ SQRESULT sq_writeclosure(HSQUIRRELVM v,SQWRITEFUNC w,SQUserPointer up, SQBool sw
 SQRESULT sq_readclosure(HSQUIRRELVM v,SQREADFUNC r,SQUserPointer up)
 {
 	SQObjectPtr closure;
-	
+	SQObjectPtr imports = SQTable::Create(_ss(v), 0);
 	unsigned short tag;
 	if(r(up,&tag,2) != 2)
 		return sq_throwerror(v,_SC("io error"));
 	if(tag != SQ_BYTECODE_STREAM_TAG)
 		return sq_throwerror(v,_SC("invalid stream"));
-	if(!SQClosure::Load(v,up,r,closure))
+	if(!SQClosure::Load(v,up,r,imports,closure))
 		return SQ_ERROR;
 	v->Push(closure);
 	return SQ_OK;

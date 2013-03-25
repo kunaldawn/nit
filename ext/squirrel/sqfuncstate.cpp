@@ -557,7 +557,7 @@ SQObject SQFuncState::CreateTable()
 	return nt;
 }
 
-SQFunctionProto *SQFuncState::BuildProto()
+SQFunctionProto *SQFuncState::BuildProto(SQObjectPtr imports)
 {
 	
 	SQFunctionProto *f=SQFunctionProto::Create(_ss,_instructions.size(),
@@ -571,6 +571,7 @@ SQFunctionProto *SQFuncState::BuildProto()
 	f->_sourcename = _sourcename;
 	f->_bgenerator = _bgenerator;
 	f->_name = _name;
+	f->_imports = imports;
 
 	while((idx=sqi_table(_literals)->Next(false,refidx,key,val))!=-1) {
 		f->_literals[sqi_integer(val)]=key;

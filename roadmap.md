@@ -26,6 +26,7 @@ Version 0.3.0 'script revisited'
 **Done**
 
 - try-catch-finally on nit script
+- import keyword restricts namespace effect to a file scope
 
 
 Version 0.4.0 'debugger'

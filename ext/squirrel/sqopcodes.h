@@ -98,6 +98,9 @@ enum SQOpcode
 	_OP_SWAP=				0x41,
 	_OP_DSWAP=				0x42,
 	_OP_RETTRAP=			0x43,
+	_OP_IMPORT=				0x44,
+	
+	// NOTE: Remember to add the new opcode at squndump.cpp if you want proper dump
 };							  
 
 struct SQInstructionDesc {	  
