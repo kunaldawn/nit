@@ -1,41 +1,14 @@
 ROADMAP
 =======
 
-
 Version 0.2.0 'usable'
 -------------
 
 **In progress**
 
-- Working app environment on win32
-- Working app environment on iOS
-- Working app environment on android
+- Stable app environment on win32
 - Stable configuration for shell & runtime binary
 - Stable path & pack policy
-
-
-Version 0.1.0 'public' (by 2013-03-01)
--------------
-
-**Done**
-
-- Open code repository to public
-- All comments & doc-lets in english
-- Minimal working runtime & wx-runtime on win32
-- Minimal working test app on iOS
-- Minimal working test app on android
-- Experimental working runtime & wx-runtime on mac32
-- Update name-stuffs to `nit`
-- Successful compilation of
-  - `nit`
-  - `nitwx`
-  - `nitrender`
-  - `nit2d`
-  - `nitnet`
-  - `nitbundler`
-
-------------------------------
-
 
 Version 0.3.0 'script revisited'
 --------------
@@ -45,6 +18,9 @@ Version 0.3.0 'script revisited'
 - Stable & improved nit script
 - Module or file-unit configuration for nit script
 
+**Done**
+
+- try-catch-finally on nit script
 
 Version 0.4.0 'debugger'
 --------------
@@ -62,7 +38,7 @@ Version 0.5.0 'multi-view'
 
 - Make `cc.Director` non-singleton or switchable
 - Support more than one `RenderView` at the same time
-- Working app environment on mac
+- Minimal working runtime & wx-runtime on mac32
 
 
 Version 0.6.0 'cocos-2'
@@ -109,10 +85,15 @@ Version 1.0.0 'useful'
 
 **Planned**
 
+- Stable app environment on iOS
+- Stable app environment on android
+- Stable app environment on mac32
 - Production quality binary
+- platform wise sdk distribution
 - Useful script ide
 - Project raking tools
-- A lots of documents
+- A lot of documents
+- Samples & Test suite
 
 ---
 
