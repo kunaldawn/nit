@@ -91,7 +91,7 @@ public:
 	Package*							require(const String& name);
 
 public:
-	ScriptRuntime*						getRuntime()							{ return _script; }
+	ScriptRuntime*						getScript()								{ return _script; }
 	World*								getWorld()								{ return _world; }
 
 public:

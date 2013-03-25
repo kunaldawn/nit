@@ -291,7 +291,7 @@ void wxNitApp::debugCommand(const String& command)
 
 	if (g_Session)
 	{
-		g_Session->getRuntime()->command(command);
+		g_Session->getScript()->command(command);
 	}
 }
 

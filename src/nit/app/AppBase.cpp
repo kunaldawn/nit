@@ -192,7 +192,7 @@ public:
 			// process an entry whose subtype specified as 'script'
 			if (r.subType.empty() || r.subType == "script")
 			{
-				ScriptRuntime* script = g_Session->getRuntime();
+				ScriptRuntime* script = g_Session->getScript();
 				Ref<ScriptUnit> unit;
 				script->require(r.entry, unit, pack);
 			}
@@ -921,7 +921,7 @@ void AppRuntime::debugCommand(const String& command)
 		AppBase::ScopedEnter sc(_app);
 
 		if (g_Session)
-			g_Session->getRuntime()->command(command);
+			g_Session->getScript()->command(command);
 	}
 }
 

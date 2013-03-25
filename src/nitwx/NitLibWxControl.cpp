@@ -2324,7 +2324,7 @@ TAG_HANDLER_PROC(tag)
 
 	// TODO: expose context or setup print function
 	// TODO: handle '<', '>'
-	g_Session->getRuntime()->doString(text.utf8_str(), true);
+	g_Session->getScript()->doString(text.utf8_str(), true);
 
 	return true;
 }

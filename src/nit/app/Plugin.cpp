@@ -55,7 +55,7 @@ void Plugin::dllInstall(PluginDLL* dll)
 
 	if (g_Session && !_myNitLibs.empty())
 	{
-		g_Session->getRuntime()->updateEventBindings();
+		g_Session->getScript()->updateEventBindings();
 	}
 }
 
@@ -125,11 +125,11 @@ void Plugin::Register(NitBindLibRegistry* lib)
 	// Perform NitBind Install if Register happens with an opened-session.
 	if (g_SessionService && g_Session)
 	{
-		ScriptRuntime* runtime = g_Session->getRuntime();
+		ScriptRuntime* script = g_Session->getScript();
 
-		if (runtime)
+		if (script)
 		{
-			HSQUIRRELVM v = runtime->getRoot();
+			HSQUIRRELVM v = script->getRoot();
 			NitBindLibRegistry::install(v, lib);
 
 			// When a plugin uses NitBind during their loading, session script runtime holds their binding.

@@ -2265,7 +2265,7 @@ public:
 			PROP_ENTRY_R(tickTime),
 			PROP_ENTRY_R(baseTime),
 
-			PROP_ENTRY_R(runtime),
+			PROP_ENTRY_R(script),
 			PROP_ENTRY_R(package),
 			PROP_ENTRY_R(world),
 			PROP_ENTRY_R(localFeatures),
@@ -2302,7 +2302,7 @@ public:
 	NB_PROP_GET(tickTime)				{ return push(v, self(v)->getTickTime()); }
 	NB_PROP_GET(baseTime)				{ return push(v, self(v)->getBaseTime()); }
 
-	NB_PROP_GET(runtime)				{ return push(v, self(v)->getRuntime()); }
+	NB_PROP_GET(script)					{ return push(v, self(v)->getScript()); }
 	NB_PROP_GET(package)				{ return push(v, self(v)->getPackage()); }
 	NB_PROP_GET(world)					{ return push(v, self(v)->getWorld()); }
 

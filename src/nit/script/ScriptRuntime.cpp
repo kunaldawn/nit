@@ -1769,7 +1769,7 @@ void ScriptRuntime::startup()
 
 	// Add nit core objects
 	NitBind::newSlot(v, -1, "mem",		g_MemManager);
-	NitBind::newSlot(v, -1, "runtime",	this);
+	NitBind::newSlot(v, -1, "script",	this);
 
 	sq_poptop(v); // root table
 

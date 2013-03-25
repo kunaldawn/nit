@@ -597,7 +597,7 @@ bool Package::initScripts()
 		return true;
 	}
 
-	if (!g_Session->getRuntime()->isStarted()) 
+	if (!g_Session->getScript()->isStarted()) 
 		return false;
 
 	_scriptOpening = true;
@@ -614,7 +614,7 @@ bool Package::initScripts()
 	
 	LOG_TIMESCOPE(0, ".. package '%s': initializing scripts", _name.c_str());
 
-	ScriptRuntime* script = g_Session->getRuntime();
+	ScriptRuntime* script = g_Session->getScript();
 
 	// add all required scripts
 	for (uint i=0; i<_requiredScripts.size(); ++i)
@@ -640,15 +640,15 @@ bool Package::finishScripts()
 {
 	if (!_scriptReady) return true;
 
-	ScriptRuntime* runtime = g_Session ? g_Session->getRuntime() : NULL;
+	ScriptRuntime* script = g_Session ? g_Session->getScript() : NULL;
 
-	if (runtime == NULL)
+	if (script == NULL)
 	{
 		_scriptReady = false;
 		return true;
 	}
 
-	assert(runtime->isStarted());
+	assert(script->isStarted());
 
 	PackageService::ProcessScope scope(this);
 
@@ -663,13 +663,13 @@ bool Package::finishScripts()
 	}
 
 	// Unload script-unit
-	runtime->unloadUnitsFrom(getName());
+	script->unloadUnitsFrom(getName());
 
 	// call OnUnload
 	for (uint i=0; i<_onUnloadScripts.size(); ++i)
 	{
 		LOG(0, ".. package '%s'.OnUnload> %s\n", _name.c_str(), _onUnloadScripts[i].c_str());
-		sq_dostring(runtime->getRoot(), _onUnloadScripts[i].c_str());
+		sq_dostring(script->getRoot(), _onUnloadScripts[i].c_str());
 	}
 
 	_scriptReady = false;
