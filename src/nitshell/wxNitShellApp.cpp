@@ -192,7 +192,7 @@ bool wxNitShellApp::onRuntimeStart()
 
 	AppBase::ScopedEnter sc(_mainApp);
 
-	nit::Ref<FileLocator> workDir = new FileLocator("$work", _mainApp->getConfig("win32/work_path", "."));
+	nit::Ref<FileLocator> workDir = new FileLocator("$work", _mainApp->getConfig("work_path", "."));
 
 	for (uint i=0; i<_packPaths.size(); ++i)
 	{

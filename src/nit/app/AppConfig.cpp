@@ -182,10 +182,10 @@ found:
 
 	Settings* ret = Settings::load(source);
 
-	ret->set("win32/work_path", workPath);
-	ret->set("win32/exe_name", exeName);
-	ret->set("win32/exe_path", exePath);
-	ret->set("win32/cfg_path", cfgPath);
+	ret->set("work_path", workPath);
+	ret->set("exe_name", exeName);
+	ret->set("exe_path", exePath);
+	ret->set("cfg_path", cfgPath);
 
 	return ret;
 }
