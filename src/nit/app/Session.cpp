@@ -155,28 +155,9 @@ void Session::start()
 
 void Session::linkPackage()
 {
-	String packname = "session/";
-	packname += _name;
+	String packname = _name;
 
 	_package = g_Package->link(packname.c_str());
-
-	if (!_argument.empty())
-	{
-		packname += ".";
-		packname += _argument;
-		Package* pack = g_Package->link(packname.c_str());
-		if (pack)
-		{
-			if (_package)
-				pack->require(_package, true);
-			_package = pack;
-			_package->setStayResident(false);
-		}
-		else
-		{
-			LOG(0, "*** cannot find package for session '%s(%s)'\n", _name.c_str(), _argument.c_str());
-		}
-	}
 
 	if (_package)
 		_package->incUseCount();

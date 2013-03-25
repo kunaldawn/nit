@@ -70,7 +70,6 @@ public:
 	String								getAppSavePath()						{ return get("app_save_path"); }
 	String								getUserSavePath()						{ return get("user_save_path"); }
 
-	String								getBootPackage()						{ return get("boot_package"); }
 	String								getBootSession()						{ return get("boot_session", "startup"); }
 	String								getBootArgument()						{ return get("boot_argument"); }
 

@@ -489,14 +489,8 @@ void AppBase::start()
 
 	ScopedEnter sc(this);
 
-	const String& bootPackage = _config->getBootPackage();
 	const String& bootSession = _config->getBootSession();
 	const String& bootArgument = _config->getBootArgument();
-
-	if (!bootPackage.empty())
-	{
-		g_Package->link(bootPackage.c_str()); // TODO: refactir relationship between package abd session, location of session pack
-	}
 
 	_booting = true;
 

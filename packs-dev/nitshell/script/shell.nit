@@ -45,7 +45,7 @@ if (!running)
 
 var workDir = FileLocator("$work", app.getConfig("win32/work_path", "."))
 
-session.package.require(workDir) // TODO: fix the syntax to allow keyword as a identifer for deref
+session.package.require(workDir)
 
 foreach (f in files)
 	dofile(f)
