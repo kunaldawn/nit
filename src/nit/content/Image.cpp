@@ -1118,13 +1118,16 @@ void Image::discardMipmaps()
 
 bool Image::makePot(bool square, uint16 min)
 {
+	uint potWidth	= PixelFormat::calcNextPot(std::max(min, _header.width));
+	uint potHeight	= PixelFormat::calcNextPot(std::max(min, _header.height));
+
+	if (potWidth == _header.width && potHeight == _header.height)
+		return true;
+
 	PixelFormat fmt = PixelFormat(_header.pixelFormat);
 	ASSERT_THROW(!fmt.isCompressed(), EX_NOT_SUPPORTED);
 	ASSERT_THROW(!fmt.isTiled(), EX_NOT_SUPPORTED);
 	ASSERT_THROW(_header.mipmapCount == 1, EX_NOT_SUPPORTED);
-
-	uint potWidth	= PixelFormat::calcNextPot(std::max(min, _header.width));
-	uint potHeight	= PixelFormat::calcNextPot(std::max(min, _header.height));
 
 	if (square && potWidth != potHeight)
 	{
