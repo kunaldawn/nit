@@ -928,8 +928,12 @@ void CCNode::visit(RenderContext* ctx)
     }
 
 	// self draw
-	CCRect aabb = CalcAABB(this);
-	bool clipped = g_BoundClipping && !RectOverlap(g_ClipRect, aabb);
+	bool clipped = false;
+	if (g_BoundClipping)
+	{
+		CCRect aabb = CalcAABB(this);
+		clipped = !RectOverlap(g_ClipRect, aabb);
+	}
 
 	if (!clipped)
 		this->draw(ctx);
