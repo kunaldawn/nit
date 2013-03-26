@@ -85,8 +85,8 @@ void CocosService::onInit()
 
 	const String& deviceForm = g_App->getConfig("device_form", "unknown");
 
-	int viewWidth		= DataValue(g_App->getConfig(String("cocos/view_width@") + deviceForm, g_App->getConfig("cocos/view_width", "640"))).toInt();
-	int viewHeight		= DataValue(g_App->getConfig(String("cocos/view_height@") + deviceForm, g_App->getConfig("cocos/view_height", "960"))).toInt();
+	int viewWidth		= DataValue(g_App->getConfig(String("cocos/view_width@") + deviceForm, g_App->getConfig("cocos/view_width", "320"))).toInt();
+	int viewHeight		= DataValue(g_App->getConfig(String("cocos/view_height@") + deviceForm, g_App->getConfig("cocos/view_height", "480"))).toInt();
 
 	_director = new CCDirector();
 	CCDirector::_setInstance(_director);
