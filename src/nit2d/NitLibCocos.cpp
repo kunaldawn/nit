@@ -1253,11 +1253,11 @@ public:
 			PROP_ENTRY	(usesBatchNode),
 			PROP_ENTRY	(textureAtlas),
 			PROP_ENTRY	(spriteBatchNode),
-			PROP_ENTRY	(hornorParentTransform),
+			PROP_ENTRY	(honorParentTransform),
 			PROP_ENTRY  (flipX),
 			PROP_ENTRY  (flipY),
 			PROP_ENTRY_R(offsetPositionPixels),
-			PROP_ENTRY_R(displayedFrame),
+			PROP_ENTRY	(displayedFrame),
 			NULL
 		};
 
@@ -1272,8 +1272,7 @@ public:
 										"(source: StreamSource, rect: cc.Rect)\n"
 										"(batch: cc.SpriteBatchNode, rect: cc.Rect)\n"
 										"(tex: cc.Texture2D, rect: cc.Rect, offset: cc.Point)\n"),
-			FUNC_ENTRY_H(setDisplayFrame,"(new: cc.SpriteFrame)"),
-			FUNC_ENTRY_H(isDisplayFrame, "(frame: cc.SpriteFrame): bool"),
+			FUNC_ENTRY_H(isFrameDisplayed, "(frame: cc.SpriteFrame): bool"),
 			FUNC_ENTRY_H(setDisplayFrameWithAnimName, "(animname: string, idx: int)"),
 			FUNC_ENTRY_H(useBatchNode,	"(batch: SpriteBatchNode)"),
 			FUNC_ENTRY_H(setTextureRectInPixels, "(rect: cc.Rect, rotated: bool, size: cc.Size)"),
@@ -1300,7 +1299,7 @@ public:
 	NB_PROP_GET(usesBatchNode)			{ return push(v, self(v)->isUsesBatchNode()); }
 	NB_PROP_GET(textureAtlas)			{ return push(v, self(v)->getTextureAtlas()); }
 	NB_PROP_GET(spriteBatchNode)		{ return push(v, self(v)->getSpriteBatchNode()); }
-	NB_PROP_GET(hornorParentTransform)	{ return push(v, (int)self(v)->getHornorParentTransform()); }
+	NB_PROP_GET(honorParentTransform)	{ return push(v, (int)self(v)->getHornorParentTransform()); }
 	NB_PROP_GET(offsetPositionPixels)	{ return push(v, self(v)->getOffsetPositionInPixels()); }
 	NB_PROP_GET(flipX)					{ return push(v, self(v)->isFlipX()); }
 	NB_PROP_GET(flipY)					{ return push(v, self(v)->isFlipY()); }
@@ -1314,7 +1313,8 @@ public:
 	NB_PROP_SET(spriteBatchNode)		{ self(v)->setSpriteBatchNode(get<CCSpriteBatchNode>(v, 2)); return 0; }
 	NB_PROP_SET(flipX)					{ self(v)->setFlipX(getBool(v, 2)); return 0; }
 	NB_PROP_SET(flipY)					{ self(v)->setFlipY(getBool(v, 2)); return 0; }
-	NB_PROP_SET(hornorParentTransform)	{ self(v)->setHornorParentTransform((ccHonorParentTransform)getInt(v, 2)); return 0; }
+	NB_PROP_SET(honorParentTransform)	{ self(v)->setHornorParentTransform((ccHonorParentTransform)getInt(v, 2)); return 0; }
+	NB_PROP_SET(displayedFrame)			{ self(v)->setDisplayFrame(get<CCSpriteFrame>(v, 2)); return 0; }
 
 	NB_CONS()
 	{
@@ -1360,8 +1360,7 @@ public:
 		return 0;
 	}
 		
-	NB_FUNC	(setDisplayFrame)			{ self(v)->setDisplayFrame(get<CCSpriteFrame>(v, 2)); return 0; }
-	NB_FUNC	(isDisplayFrame)			{ return push(v, self(v)->isFrameDisplayed(get<CCSpriteFrame>(v, 2))); }
+	NB_FUNC	(isFrameDisplayed)			{ return push(v, self(v)->isFrameDisplayed(get<CCSpriteFrame>(v, 2))); }
 	NB_FUNC	(setDisplayFrameWithAnimName) { self(v)->setDisplayFrameWithAnimationName(getString(v, 2), getInt(v, 3)); return 0; }
 	NB_FUNC	(useBatchNode)				{ self(v)->useBatchNode(get<CCSpriteBatchNode>(v, 2)); return 0; }
 	NB_FUNC	(setTextureRectInPixels)	{ self(v)->setTextureRectInPixels(*get<CCRect>(v, 2), getBool(v, 3), *get<CCSize>(v, 4)); return 0; }
