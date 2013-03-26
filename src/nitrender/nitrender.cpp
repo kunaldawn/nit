@@ -41,6 +41,8 @@ class NITRENDER_API NitRenderPlugin : public Plugin
 public:
 	virtual void onInstall()
 	{
+		getPackage()->setStayResident(true);
+
 		Register(new RenderService(getPackage()));
 		Register(new GLESTextureManager(getPackage()));
 
