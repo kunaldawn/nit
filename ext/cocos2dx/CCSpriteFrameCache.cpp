@@ -335,19 +335,44 @@ void CCSpriteFrameCache::removeSpriteFrameByName(const char *pszName)
 
 void CCSpriteFrameCache::removeSpriteFramesFromRecord(DataRecord* rec)
 {
+	Ref<DataRecord> metadata = rec->get("metadata");
 	Ref<DataRecord> frames = rec->get("frames");
+
+	// We use loop here, so cache DataKeys of frequent use
+	Ref<DataNamespace> ns				= rec->getNamespace();
+	DataKey* k_aliases					= ns->get("aliases");
+
 	StringVector keysToRemove;
+	StringVector aliasesToRemove;
+
+	int format = metadata->get("format").Default(0);
 
 	for (DataRecord::Iterator itr = frames->begin(); itr != frames->end(); ++itr)
 	{
 		const String& key = itr->first->getName();
 		if (m_pSpriteFrames->objectForKey(key))
 			keysToRemove.push_back(key);
+
+		Ref<DataRecord> frameRec = itr->second;
+
+		if (format == 3)
+		{
+			Ref<DataArray> aliases = frameRec->get(k_aliases).toArray();
+			for (DataArray::Iterator itr = aliases->begin(); itr != aliases->end(); ++itr)
+			{
+				aliasesToRemove.push_back(itr->toString());
+			}
+		}
 	}
 
 	for (StringVector::iterator itr = keysToRemove.begin(), end = keysToRemove.end(); itr != end; ++itr)
 	{
 		m_pSpriteFrames->removeObjectForKey(*itr);
+	}
+
+	for (StringVector::iterator itr = aliasesToRemove.begin(), end = aliasesToRemove.end(); itr != end; ++itr)
+	{
+		m_pSpriteFramesAliases->removeObjectForKey(*itr);
 	}
 }
 
