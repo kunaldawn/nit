@@ -1,27 +1,20 @@
 var pack = script.locator
 
-var kTagNode = 0
-var kTagGrossini = 1
+////////////////////////////////////////////////////////////////////////////////
 
-class CocosParallaxTestScene : TestScene
+var TAG =
 {
-	constructor()
-	{
-		base.constructor()
-	}
-	
-	function runThisTest()
-	{
-		this.addChild(Parallax1())
-		cocos.director.replaceScene(this)
-	}
+	NODE = 0
+	GROSSINI = 1
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 class ParallaxTest
 {
-	var sceneindex = 0
+	var _sceneIndex = 0
 	
-	function _CreateLayer(index)
+	function _createLayer(index)
 	{
 		var layer = null
 		
@@ -38,42 +31,43 @@ class ParallaxTest
 		return layer
 	}
 	
-	function NextAction()
+	function nextAction()
 	{
-		print("NextAction")
-		switch (sceneindex)
+		print("nextAction")
+		switch (_sceneIndex)
 		{
 		case 0:
-			sceneindex = 1
+			_sceneIndex = 1
 			break
 		case 1:
-			sceneindex = 0
+			_sceneIndex = 0
 			break
 		}		
-		return _CreateLayer(sceneindex)
+		return _createLayer(_sceneIndex)
 	}
-	function BackAction()
+	function backAction()
 	{
-		print("BackAction")
-		switch (sceneindex)
+		print("backAction")
+		switch (_sceneIndex)
 		{
 		case 0:
-			sceneindex = 1
+			_sceneIndex = 1
 			break
 		case 1:
-			sceneindex = 0
+			_sceneIndex = 0
 			break
 		}	
-		return _CreateLayer(sceneindex)
+		return _createLayer(_sceneIndex)
 	}
 	function RestartAction()
 	{
-		return _CreateLayer(sceneindex)
+		return _createLayer(_sceneIndex)
 	}
 }
 
-parallaxtest := ParallaxTest()
-parallaxtest.sceneindex = 0
+var parallaxtest = ParallaxTest()
+
+////////////////////////////////////////////////////////////////////////////////
 
 class ParallaxDemo : cc.ScriptLayer
 {
@@ -83,22 +77,22 @@ class ParallaxDemo : cc.ScriptLayer
 		
 		var s = cocos.director.winSize
 		
-		var lavel = cc.LabelTTF(this.title(), "Arial", 32)
+		var lavel = cc.LabelTTF(title(), "Arial", 32)
 		addChild(lavel,1)
 		lavel.position = cc.Point(s.width/2, s.height - 60)
 		
-		var item1 = cc.MenuItemImage(pack.locate("b1.png"), pack.locate("b2.png"), this, backCallback )
-		var item2 = cc.MenuItemImage(pack.locate("r1.png"), pack.locate("r2.png"), this, restartCallback )
-		var item3 = cc.MenuItemImage(pack.locate("f1.png"), pack.locate("f2.png"), this, nextCallback )
+		var item1 = cc.MenuItemImage(pack.locate("b1.png"), pack.locate("b2.png"), this, backCallback)
+		var item2 = cc.MenuItemImage(pack.locate("r1.png"), pack.locate("r2.png"), this, restartCallback)
+		var item3 = cc.MenuItemImage(pack.locate("f1.png"), pack.locate("f2.png"), this, nextCallback)
 
 		var menu = cc.Menu(item1, item2, item3)
 
 		menu.position = cc.Point.ZERO
-		item1.position = cc.Point( s.width/2 - 100,30)
-		item2.position = cc.Point( s.width/2, 30)
-		item3.position = cc.Point( s.width/2 + 100,30)
+		item1.position = cc.Point(s.width/2 - 100,30)
+		item2.position = cc.Point(s.width/2, 30)
+		item3.position = cc.Point(s.width/2 + 100,30)
 
-		this.addChild(menu, 1)
+		addChild(menu, 1)
 	}
 	
 	function restartCallback(evt: cc.MenuItemEvent)
@@ -111,14 +105,14 @@ class ParallaxDemo : cc.ScriptLayer
     function nextCallback(evt: cc.MenuItemEvent)
 	{
 		var s =  CocosParallaxTestScene()
-		s.addChild(parallaxtest.NextAction())
+		s.addChild(parallaxtest.nextAction())
 		cocos.director.replaceScene(s)
 	}
 	
     function backCallback(evt: cc.MenuItemEvent)
 	{
 		var s =  CocosParallaxTestScene()
-		s.addChild(parallaxtest.BackAction())
+		s.addChild(parallaxtest.backAction())
 		cocos.director.replaceScene(s)
 	}
 	
@@ -126,17 +120,9 @@ class ParallaxDemo : cc.ScriptLayer
 	{
 		return "No title"
 	}
-	
-	function OnEnter()
-	{
-		print(this + ": onEnter")
-	}
-	
-	function OnExit()
-	{
-		print(this + ": onExit")
-	}
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 class Parallax1 : ParallaxDemo
 {
@@ -171,7 +157,7 @@ class Parallax1 : ParallaxDemo
 
 		voidNode.runAction(cc.action.RepeatForever(seq))
 		
-		this.addChild(voidNode)		
+		addChild(voidNode)		
 	}
 	
 	function title()
@@ -180,14 +166,16 @@ class Parallax1 : ParallaxDemo
 	}
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 class Parallax2 : ParallaxDemo
 {
 	constructor()
 	{
 		base.constructor()
 	
-		this.TouchEnabled = true
-		Channel().Bind(Events.OnCCTouchMoved, this, OnTouchMoved)
+		touchEnabled = true
+		channel().bind(Events.OnCCTouchMoved, this, onTouchMoved)
 	
 		var cocosImage = cc.Sprite(pack.locate("powered.png"))
 		cocosImage.scale(2.5)
@@ -208,10 +196,10 @@ class Parallax2 : ParallaxDemo
 		voidNode.addChild(tilemap, 1, cc.Point(1,1), cc.Point(0,-200))
 		voidNode.addChild(cocosImage, 2, cc.Point(3, 2.5), cc.Point(200,1000))
 		
-		this.addChild(voidNode, 0, kTagNode)		
+		addChild(voidNode, 0, TAG.NODE)		
 	}
 	
-	function OnTouchMoved(evt: cc.TouchEvent)
+	function onTouchMoved(evt: cc.TouchEvent)
 	{
 		var touchLocation = evt.touch0.locationInView(evt.touch0.view)
 		var prevLocation = evt.touch0.previousLocationInView(evt.touch0.view)
@@ -221,10 +209,10 @@ class Parallax2 : ParallaxDemo
 		
 		var diff = convertedLocation - convertedPrevLocation
 		
-		var node = this.getChildByTag(kTagNode)
+		var node = getChildByTag(TAG.NODE)
 		var currentPos = node.position
 		
-		node.position = currentPos+diff
+		node.position = currentPos + diff
 	}
 	
 	function title()
@@ -232,3 +220,21 @@ class Parallax2 : ParallaxDemo
 		return "Parallax: drag screen"
 	}
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+class CocosParallaxTestScene : TestScene
+{
+	constructor()
+	{
+		base.constructor()
+	}
+	
+	function runThisTest()
+	{
+		addChild(Parallax1())
+		cocos.director.replaceScene(this)
+	}
+}
+
+return CocosParallaxTestScene()

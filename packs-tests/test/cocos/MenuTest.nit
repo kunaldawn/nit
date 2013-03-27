@@ -1,57 +1,33 @@
 var pack = script.locator
 
-menuTag := 
-{
-	kTagMenu 							= 1,
-	kTagMenu0 							= 0,
-	kTagMenu1 							= 1,
-}
-
-menuID :=
-{
-	MID_CALLBACK 						= 1001,
-	MID_CALLBACK2 						= 1001,
-	MID_DISABLED 						= 1002,
-	MID_ENABLE 							= 1003,
-	MID_CONFIG 							= 1004,
-	MID_QUIT 							= 1005,
-	MID_opacity 						= 1006,
-	MID_ALIGN 							= 1007,
-	MID_CALLBACK3 						= 1008,
-	MID_BACKCALLBACK 					= 1009,
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 
-class MenuTestScene : TestScene
+var TAG = 
 {
-	constructor()
-	{
-		base.constructor()
-	}
-	
-	function runThisTest()
-	{
-		var layer1 = MenuLayer1()
-		var layer2 = MenuLayer2()
-		var layer3 = MenuLayer3()
-		var layer4 = MenuLayer4()
-		
-		var layer = cc.LayerMultiplex(layer1, layer2, layer3, layer4)
-		this.addChild(layer)
-		cocos.director.replaceScene(this)
-	}
+	MENU 							= 1,
+	MENU0 							= 0,
+	MENU1 							= 1,
+}
+
+var MID =
+{
+	CALLBACK 						= 1001,
+	CALLBACK2 						= 1001,
+	DISABLED 						= 1002,
+	ENABLE 							= 1003,
+	CONFIG 							= 1004,
+	QUIT 							= 1005,
+	opacity 						= 1006,
+	ALIGN 							= 1007,
+	CALLBACK3 						= 1008,
+	BACKCALLBACK 					= 1009,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-//
-// MenuLayer1
-//
-////////////////////////////////////////////////////////////////////////////////
+
 class MenuLayer1 : cc.ScriptLayer
 {
-	disabledItem = null
-	
+	var _disabledItem = null
 	
 	constructor()
 	{
@@ -65,32 +41,32 @@ class MenuLayer1 : cc.ScriptLayer
 		cc.MenuItemFont.setDefaultFontSize(30)
 		cc.MenuItemFont.setDefaultFontName("Courier New")
 		
-		this.touchEnabled = true    
+		touchEnabled = true    
 		
 		// Font Item
 		var spriteNormal = cc.Sprite(s_MenuItem, cc.Rect(0, 23*2, 115, 23))
 		var spriteSelected = cc.Sprite(s_MenuItem, cc.Rect(0,23*1, 115, 23))
 		var spriteDisabled = cc.Sprite(s_MenuItem, cc.Rect(0, 23*0, 115, 23))
 		
-		var item1 = cc.MenuItemSprite(spriteNormal, spriteSelected, spriteDisabled,this, menuCallback)
+		var item1 = cc.MenuItemSprite(spriteNormal, spriteSelected, spriteDisabled,this, onMenu)
 		// Image Item
-		var item2 = cc.MenuItemImage(s_SendScore, s_PressSendScore, this, menuCallback2)
+		var item2 = cc.MenuItemImage(s_SendScore, s_PressSendScore, this, onMenu2)
 		
 		// Label Item (LabelAtlas)
 		var labelAtlas = cc.LabelAtlas("0123456789", pack.locate("fps_images.png", "*fonts"), 16, 24, char('.'))
-		var item3 = cc.MenuItemLabel(labelAtlas, this, menuCallbackDisabled)
+		var item3 = cc.MenuItemLabel(labelAtlas, this, onMenuDisabled)
 		item3.disabledColor = nit.Color(32 / 255, 32 / 255, 64 / 255, 1)
 		item3.color = nit.Color(200 / 255, 200 / 255, 1, 1)
 		
 		// Font Item
-		var item4 = cc.MenuItemFont("I toggle enable items", this, menuCallbackEnable)
+		var item4 = cc.MenuItemFont("I toggle enable items", this, onMenuEnable)
 		
 		item4.fontSize = 20
-		item4.fontName = "Marker Felt"
+		item4.fontName = "Arial"
 		
 		// Label Item (CCLabelBMFont)
 		var label = cc.LabelBMFont("configuration", pack.locate("bitmapFontTest3.fnt", "*fonts"))
-		var item5 = cc.MenuItemLabel(label, this, menuCallbackConfig)
+		var item5 = cc.MenuItemLabel(label, this, onMenuConfig)
 		
 		// Testing issue #500
 		item5.scale(0.8)
@@ -111,7 +87,8 @@ class MenuLayer1 : cc.ScriptLayer
 		
 		var i = 0
 		var array = menu.children
-		foreach(k, v in array)
+		
+		foreach (k, v in array)
 		{
 			var child = v
 			var dstpos = child.position
@@ -125,19 +102,19 @@ class MenuLayer1 : cc.ScriptLayer
 			i++
 		}
 		
-		disabledItem = item3
-		disabledItem.enabled = false
+		_disabledItem = item3
+//		_disabledItem.enabled = false
 		
-		this.addChild(menu)
+		addChild(menu)
 		
 	}
 	
-	function menuCallback()
+	function onMenu()
 	{
 		parent.switchTo(1)
 	}
 
-	function menuCallbackConfig()
+	function onMenuConfig()
 	{
 		parent.switchTo(3)
 	}
@@ -148,39 +125,36 @@ class MenuLayer1 : cc.ScriptLayer
 		print("TOUCHES ALLOWED AGAIN")
 	}
 	
-	function menuCallbackDisabled()
+	function onMenuDisabled()
 	{
 		//hijack all touch events for 5 seconds
 		cocos.touchDispatcher.setPriority(-128 - 1, this)
-		session.scheduler.once(this, allowTouches, 5.0)
+		cocos.director.scheduler.once(this, allowTouches, 5.0)
 		print("TOUCHES DISABLED FOR 5 SECONDS")
 	}
 	
-	function menuCallbackEnable()
+	function onMenuEnable()
 	{
-		disabledItem.enabled = !disabledItem.enabled
+		_disabledItem.enabled = !_disabledItem.enabled
 	}
 	
-	function menuCallback2()
+	function onMenu2()
 	{
 		parent.switchTo(2)
 	}
-	
 	
 	function onQuit()
 	{
 		parent.switchTo(0)
 	}
 }
+
 ////////////////////////////////////////////////////////////////////////////////
-//
-// MenuLayer2
-//
-////////////////////////////////////////////////////////////////////////////////
+
 class MenuLayer2 : cc.ScriptLayer
 {
-	m_centeredMenu = null
-	m_alignedH = null
+	var _centeredMenu = null
+	var _alignedH = null
 	
 	constructor()
 	{
@@ -191,34 +165,33 @@ class MenuLayer2 : cc.ScriptLayer
 	{
 		removeAllChildren(true)
 		
-		for( var i=0; i<2; i++)
+		for (var i=0; i<2; i++)
 		{
-		
-			var item1 = cc.MenuItemImage(s_PlayNormal, s_PlaySelect, this, menuCallback)
+			var item1 = cc.MenuItemImage(s_PlayNormal, s_PlaySelect, this, onMenu)
 			var item2 = null
-			item2 = cc.MenuItemImage(s_HighNormal, s_HighSelect, this, @menuCallbackopacity(item2))
-			var item3 = cc.MenuItemImage(s_AboutNormal, s_AboutSelect, this, menuCallbackAlign)
+			item2 = cc.MenuItemImage(s_HighNormal, s_HighSelect, this, @onMenuOpacity(item2))
+			var item3 = cc.MenuItemImage(s_AboutNormal, s_AboutSelect, this, onMenuAlign)
 			
 			item1.scaleX = 1.5
 			item2.scaleX = 0.5
 			item3.scaleX = 0.5
 			
 			var menu = cc.Menu(item1, item2, item3)
-			menu.tag = menuTag.kTagMenu
+			menu.tag = TAG.MENU
 			addChild(menu, 0, 100+i)
 			
-			m_centeredMenu = menu.position
+			_centeredMenu = menu.position
 		}
-		m_alignedH = true
+		_alignedH = true
 		alignMenusH()
 	}
 	
 	function alignMenusH()
 	{
-		for( var i=0; i<2; i++)
+		for (var i=0; i<2; i++)
 		{
 			var menu = getChildByTag(100+i)
-			menu.position = m_centeredMenu
+			menu.position = _centeredMenu
 			if (i==0)
 			{
 				// TIP: if no padding, padding = 5
@@ -238,10 +211,10 @@ class MenuLayer2 : cc.ScriptLayer
 
 	function alignMenusV()
 	{
-		for( var i=0; i<2; i++)
+		for (var i=0; i<2; i++)
 		{
 			var menu = getChildByTag(100+i)
-			menu.position = m_centeredMenu
+			menu.position = _centeredMenu
 			if (i==0)
 			{
 				// TIP: if no padding, padding = 5
@@ -259,14 +232,14 @@ class MenuLayer2 : cc.ScriptLayer
 		}
 	}
 	
-	function menuCallback()
+	function onMenu()
 	{
 		parent.switchTo(0)
 	}
 	
-	function menuCallbackopacity(sender)
+	function onMenuOpacity(menuItem)
 	{
-		var menu = sender.parent
+		var menu = menuItem.parent
 		var opacity = menu.opacity
 		if (opacity == 128)
 			menu.opacity = 255
@@ -274,25 +247,22 @@ class MenuLayer2 : cc.ScriptLayer
 			menu.opacity = 128 
 	}
 	
-	function menuCallbackAlign()
+	function onMenuAlign()
 	{
-		m_alignedH = !m_alignedH
+		_alignedH = !_alignedH
 		
-		if (m_alignedH)
+		if (_alignedH)
 			alignMenusH()
 		else
 			alignMenusV()
 	}
-
 }
-//------------------------------------------------------------------
-//
-// MenuLayer3
-//
-//------------------------------------------------------------------
+
+////////////////////////////////////////////////////////////////////////////////
+
 class MenuLayer3 : cc.ScriptLayer
 {
-	disabledItem = null
+	var _disabledItem = null
 	
 	constructor()
 	{
@@ -304,21 +274,21 @@ class MenuLayer3 : cc.ScriptLayer
 		removeAllChildren(true)
 
 		cc.MenuItemFont.setDefaultFontSize(28)
-		cc.MenuItemFont.setDefaultFontName("Marker Felt")
+		cc.MenuItemFont.setDefaultFontName("Arial")
 		
 		var label = cc.LabelBMFont("Enable AtlasItem", pack.locate("bitmapFontTest3.fnt"))
-		var item1 = cc.MenuItemLabel(label, this, menuCallback2)
-		var item2 = cc.MenuItemFont("--- Go Back ---", this, menuCallback)
+		var item1 = cc.MenuItemLabel(label, this, onMenu2)
+		var item2 = cc.MenuItemFont("--- Go Back ---", this, onMenu)
 		
 		var spriteNormal = cc.Sprite(s_MenuItem, cc.Rect(0, 23*2, 115, 23))
 		var spriteSelected = cc.Sprite(s_MenuItem, cc.Rect(0, 23*1, 115, 23))
 		var spriteDisabled = cc.Sprite(s_MenuItem, cc.Rect(0, 23*0, 115, 23))
 		
-		var item3 = cc.MenuItemSprite(spriteNormal, spriteSelected, spriteDisabled, this, menuCallback3)
-		disabledItem = item3
-		disabledItem.enabled = false
+		var item3 = cc.MenuItemSprite(spriteNormal, spriteSelected, spriteDisabled, this, onMenu3)
+		_disabledItem = item3
+		_disabledItem.enabled = false
 		
-		var menu = cc.Menu( item1, item2,  item3)
+		var menu = cc.Menu(item1, item2,  item3)
 		menu.position = cc.Point(0, 0)
 		
 		var s = cocos.director.winSize
@@ -340,31 +310,28 @@ class MenuLayer3 : cc.ScriptLayer
 		addChild(menu)
 	}
 	
-	function menuCallback()
+	function onMenu()
 	{
 		parent.switchTo(0)
 	}
 	
-	function menuCallback2(sender)
+	function onMenu2(sender)
 	{
-		disabledItem.enabled = !disabledItem.enabled
-		disabledItem.stopAllActions()
+		_disabledItem.enabled = !_disabledItem.enabled
+		_disabledItem.stopAllActions()
 	}
 	
-	function menuCallback3()
+	function onMenu3()
 	{
 	
 	}
-
 }
-//------------------------------------------------------------------
-//
-// MenuLayer4
-//
-//------------------------------------------------------------------
+
+////////////////////////////////////////////////////////////////////////////////
+
 class MenuLayer4 : cc.ScriptLayer
 {
-	disabledItem = null
+	var _disabledItem = null
 	
 	constructor()
 	{
@@ -380,38 +347,35 @@ class MenuLayer4 : cc.ScriptLayer
 		var title1 = cc.MenuItemFont("Sound")
 		title1.enabled = false
 		cc.MenuItemFont.setDefaultFontSize(34)
-		cc.MenuItemFont.setDefaultFontName("Marker Felt")
-		var item1 = cc.MenuItemToggle(this, menuCallback, 
+		cc.MenuItemFont.setDefaultFontName("Arial")
+		var item1 = cc.MenuItemToggle(this, onMenu, 
 				cc.MenuItemFont("On"), cc.MenuItemFont("Off"))
-				
 		
 		cc.MenuItemFont.setDefaultFontSize(18)
 		cc.MenuItemFont.setDefaultFontName("American Typewriter")
 		var title2 = cc.MenuItemFont("Music")
 		title2.enabled = false
 		cc.MenuItemFont.setDefaultFontSize(34)
-		cc.MenuItemFont.setDefaultFontName("Marker Felt")
-		var item2 = cc.MenuItemToggle(this, menuCallback, 
+		cc.MenuItemFont.setDefaultFontName("Arial")
+		var item2 = cc.MenuItemToggle(this, onMenu, 
 				cc.MenuItemFont("On"), cc.MenuItemFont("Off"))
-				
 				
 		cc.MenuItemFont.setDefaultFontSize(18)
 		cc.MenuItemFont.setDefaultFontName("American Typewriter")
 		var title3 = cc.MenuItemFont("Quality")
 		title3.enabled = false
 		cc.MenuItemFont.setDefaultFontSize(34)
-		cc.MenuItemFont.setDefaultFontName("Marker Felt")
-		var item3 = cc.MenuItemToggle(this, menuCallback, 
+		cc.MenuItemFont.setDefaultFontName("Arial")
+		var item3 = cc.MenuItemToggle(this, onMenu, 
 				cc.MenuItemFont("High"), cc.MenuItemFont("Low"))
-				
 		
 		cc.MenuItemFont.setDefaultFontSize(18)
 		cc.MenuItemFont.setDefaultFontName("American Typewriter")
 		var title4 = cc.MenuItemFont("Orientation")
 		title4.enabled = false
 		cc.MenuItemFont.setDefaultFontSize(34)
-		cc.MenuItemFont.setDefaultFontName("Marker Felt")
-		var item4 = cc.MenuItemToggle(this, menuCallback, 
+		cc.MenuItemFont.setDefaultFontName("Arial")
+		var item4 = cc.MenuItemToggle(this, onMenu, 
 				cc.MenuItemFont("Off"))
 	
 		// TIP: you can manipulate the items like any other CCMutableArray
@@ -423,7 +387,7 @@ class MenuLayer4 : cc.ScriptLayer
 		print(item4.selectedIndex)
 		
 		cc.MenuItemFont.setDefaultFontSize(34)
-		cc.MenuItemFont.setDefaultFontName("Marker Felt")
+		cc.MenuItemFont.setDefaultFontName("Arial")
 		
 		var label = cc.LabelBMFont("go back", pack.locate("bitmapFontTest3.fnt"))
 		var back = cc.MenuItemLabel(label, this, backCallback)
@@ -436,7 +400,7 @@ class MenuLayer4 : cc.ScriptLayer
 		addChild(menu)
 	}
 	
-	function menuCallback()
+	function onMenu()
 	{
 	}
 	
@@ -445,8 +409,30 @@ class MenuLayer4 : cc.ScriptLayer
 		parent.switchTo(0)
 	}
 	
-	function menuCallback3()
+	function onMenu3()
 	{
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+class MenuTestScene : TestScene
+{
+	constructor()
+	{
+		base.constructor()
+	}
+	
+	function runThisTest()
+	{
+		var layer1 = MenuLayer1()
+		var layer2 = MenuLayer2()
+		var layer3 = MenuLayer3()
+		var layer4 = MenuLayer4()
+		
+		var layer = cc.LayerMultiplex(layer1, layer2, layer3, layer4)
+		addChild(layer)
+		cocos.director.replaceScene(this)
 	}
 }
 

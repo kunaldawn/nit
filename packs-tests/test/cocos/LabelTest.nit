@@ -1,10 +1,11 @@
 ﻿var pack = script.locator
 
 ////////////////////////////////////////////////////////////////////////////////
+
 class LabelTest
 {
-	sceneindex = -1
-	scenemaxcnt = 17
+	_sceneIndex = -1
+	_sceneMax = 17
 	
 	constructor()
 	{
@@ -16,115 +17,57 @@ class LabelTest
 		
 		switch (index)
 		{
-		case 0:
-			layer = LabelAtlasTest()
-			break
-		case 1:
-			layer = LabelAtlasColorTest()
-			break
-		case 2:
-			layer = Atlas3()
-			break
-		case 3:
-			layer = Atlas4()
-			break
-		case 4:
-			layer = Atlas5()
-			break
-		case 5:
-			layer = Atlas6()
-			break
-		case 6:
-			layer = AtlasBitmapColor()
-			break
-		case 7:
-			layer = AtlasFastBitmap()
-			break
-		case 8:
-			layer = BitmapFontMultiLine()
-			break
-		case 9:
-			layer = LabelsEmpty()
-			break
-		case 10:
-			layer = LabelBMFontHD()
-			break
-		case 11:
-			layer = LabelAtlasHD()
-			break
-		case 12:
-			layer = LabelGlyphDesigner()
-			break
-		case 13:
-			layer = Atlas1()
-			break
-		case 14:
-			layer = LabelTTFTest()
-			break
-		case 15:
-			layer = LabelTTFMultiline()
-			break
-		case 16:
-			layer = LabelTTFInternational()
-			break
-		default:
-			break
+		case 0:	return LabelAtlasTest()
+		case 1: return LabelAtlasColorTest()
+		case 2: return Atlas3()
+		case 3: return Atlas4()
+		case 4: return Atlas5()
+		case 5: return Atlas6()
+		case 6: return AtlasBitmapColor()
+		case 7: return AtlasFastBitmap()
+		case 8: return BitmapFontMultiLine()
+		case 9: return LabelsEmpty()
+		case 10: return LabelBMFontHD()
+		case 11: return LabelAtlasHD()
+		case 12: return LabelGlyphDesigner()
+		case 13: return Atlas1()
+		case 14: return LabelTTFTest()
+		case 15: return LabelTTFMultiline()
+		case 16: return LabelTTFInternational()
 		}
-		
-		print(layer._classname)
-		
-		return layer
 	}
 	
 	function nextAtlasTest()
 	{
-		sceneindex++
-		sceneindex = sceneindex % scenemaxcnt
+		_sceneIndex++
+		_sceneIndex = _sceneIndex % _sceneMax
 		
-		return _createAtlasTest(sceneindex)
-	}
-	function backAtlasTest()
-	{
-		sceneindex--
-		if (sceneindex < 0)
-			sceneindex = scenemaxcnt -1
-			
-		return _createAtlasTest(sceneindex)
-	}
-	function restartAtlasTest()
-	{
-		return _createAtlasTest(sceneindex)
-	}
-}
-labeltest := LabelTest()
-////////////////////////////////////////////////////////////////////////////////
-
-////////////////////////////////////////////////////////////////////////////////
-class AtlasTestScene : TestScene
-{
-	constructor()
-	{
-		base.constructor()
+		return _createAtlasTest(_sceneIndex)
 	}
 	
-	function runThisTest()
+	function backAtlasTest()
 	{
-		var layer = labeltest.nextAtlasTest()
-		this.addChild(layer)
-		cocos.director.replaceScene(this)
+		_sceneIndex--
+		if (_sceneIndex < 0)
+			_sceneIndex = _sceneMax -1
+			
+		return _createAtlasTest(_sceneIndex)
+	}
+	
+	function restartAtlasTest()
+	{
+		return _createAtlasTest(_sceneIndex)
 	}
 }
+
+var labeltest = LabelTest()
+
 ////////////////////////////////////////////////////////////////////////////////
 
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// AtlasDemo
-//
 class AtlasDemo : cc.ScriptLayer
 {
-	textureAtlas 						= null
-	time     							= 0 
+	var _textureAtlas = null
+	var _time = 0 
 	
 	constructor()
 	{
@@ -139,7 +82,7 @@ class AtlasDemo : cc.ScriptLayer
 		var strSubtitle = subtitle()
 		if (strSubtitle != "")
 		{
-			var l = cc.LabelTTF(strSubtitle, "Thonburi", 16)
+			var l = cc.LabelTTF(strSubtitle, "Arial", 16)
 			this.addChild(l, 1)
 			l.position = cc.Point(s.width / 2, s.height - 80)
 		}
@@ -163,13 +106,13 @@ class AtlasDemo : cc.ScriptLayer
 		item2.position = cc.Point(s.width / 2, 30)
 		item3.position = cc.Point(s.width / 2 + 100, 30)
 		this.addChild(menu, 1)
-		
 	}
 	
 	function title()
 	{
 		return "No title"
 	}
+	
 	function subtitle()
 	{
 		return ""
@@ -181,12 +124,14 @@ class AtlasDemo : cc.ScriptLayer
 		s.addChild(labeltest.backAtlasTest())
 		cocos.director.replaceScene(s)
 	}
+	
 	function onRestartMenu(evt: cc.MenyItemEvent)
 	{
 		var s =  AtlasTestScene()
 		s.addChild(labeltest.restartAtlasTest())
 		cocos.director.replaceScene(s)
 	}
+	
 	function onNextMenu(evt: cc.MenyItemEvent)
 	{
 		var s =  AtlasTestScene()
@@ -197,11 +142,6 @@ class AtlasDemo : cc.ScriptLayer
 
 ////////////////////////////////////////////////////////////////////////////////
 
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// Atlas1
-//
 class Atlas1 : AtlasDemo
 {
 	constructor()
@@ -211,33 +151,31 @@ class Atlas1 : AtlasDemo
 	
 	function onEnter()
 	{
+		// TODO: not implemented
 		return
 		
-		
-		textureAtlas = cc.TextureAtlas(s_AtlasTest, 3)
+		_textureAtlas = cc.TextureAtlas(s_AtlasTest, 3)
 		
 		var s = cocos.director.winSize()
 		
 		//
 		// Notice: u,v tex coordinates are inverted
 		//
-		
 	}
+
 	function title()
 	{
 		return "CCTextureAtlas"
 	}
+
 	function subtitle()
 	{
 		return "Manual creation of CCTextureAtlas"
 	}
 }
-////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
-//
-// LabelAtlasTest
-//
+
 class LabelAtlasTest : AtlasDemo
 {
 	constructor()
@@ -247,7 +185,7 @@ class LabelAtlasTest : AtlasDemo
 	
 	function onEnter()
 	{
-		time = 0
+		_time = 0
 		
 		var label1 = cc.LabelAtlas("123 Test", pack.locate("tuffy_bold_italic-charmap.png"), 48, 64, char(' '))
 		this.addChild(label1, 0, 0)
@@ -261,33 +199,32 @@ class LabelAtlasTest : AtlasDemo
 		
 		cocos.director.timer.channel().bind(Events.OnTick, this, step)
 	}
+	
 	function step(evt: TimeEvent)
 	{
-		time += evt.delta
+		_time += evt.delta
 		var label1 = this.getChildByTag(0)
-		// dump(label1)
-		var str = format("%.3f", time)
+		var str = format("%.3f", _time)
 
 		label1.string = str + " Test"
 		
 		var label2 = this.getChildByTag(1)
-		label2.string = "" + time.tointeger()
+		label2.string = "" + _time.tointeger()
 	}
+	
 	function title()
 	{
 		return "LabelAtlas"
 	}
+	
 	function subtitle()
 	{
 		return "Updating label should be fast"
 	}
 }
-////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
-//
-// LabelAtlasColorTest
-//
+
 class LabelAtlasColorTest : AtlasDemo
 {
 	constructor()
@@ -297,7 +234,7 @@ class LabelAtlasColorTest : AtlasDemo
 	
 	function onEnter()
 	{
-		time = 0
+		_time = 0
 		
 		var label1 = cc.LabelAtlas("123 Test", pack.locate("tuffy_bold_italic-charmap.png"), 48, 64, char(' '))
 		this.addChild(label1, 0, 0)
@@ -317,33 +254,33 @@ class LabelAtlasColorTest : AtlasDemo
 		
 		cocos.director.timer.channel().bind(Events.OnTick, this, step)
 	}
+	
 	function step(evt: TimeEvent)
 	{
-		time += evt.delta
+		_time += evt.delta
 		var label1 = this.getChildByTag(0)
 
-		var str = format("%.3f", time)
+		var str = format("%.3f", _time)
 
 		label1.string = str + " Test"
 		
 		var label2 = this.getChildByTag(1)
-		label2.string = "" + time.tointeger()
+		label2.string = "" + _time.tointeger()
 	}
+	
 	function title()
 	{
 		return "CCLabelAtlas"
 	}
+	
 	function subtitle()
 	{
 		return "opacity + Color should work at the same time"
 	}
 }
-////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
-//
-// Atlas3
-//
+
 class Atlas3 : AtlasDemo
 {
 	constructor()
@@ -353,7 +290,7 @@ class Atlas3 : AtlasDemo
 	
 	function onEnter()
 	{
-		time = 0
+		_time = 0
 		var col = cc.LayerColor(nit.Color(128 / 255, 128 / 255, 128 / 255, 1))
 		this.addChild(col, -10)
 		
@@ -394,12 +331,12 @@ class Atlas3 : AtlasDemo
 		label3.position = cc.Point(s.width, s.height)
 		
 		cocos.director.timer.channel().bind(Events.OnTick, this, step)
-
 	}
+	
 	function step(evt: TimeEvent)
 	{
-		time += evt.delta
-		var str = format("%.3f", time)
+		_time += evt.delta
+		var str = format("%.3f", _time)
 
 		str = str + " Test j"
 		
@@ -410,21 +347,20 @@ class Atlas3 : AtlasDemo
 		var label3 = this.getChildByTag(3)
 		label3.string = str
 	}
+	
 	function title()
 	{
 		return "CCLabelBMFont"
 	}
+	
 	function subtitle()
 	{
 		return "Testing alignment. Testing opacity + tint"
 	}
 }
-////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
-//
-// Atlas4
-//
+
 class Atlas4 : AtlasDemo
 {
 	constructor()
@@ -434,7 +370,7 @@ class Atlas4 : AtlasDemo
 	
 	function onEnter()
 	{
-		time = 0
+		_time = 0
 		var label = cc.LabelBMFont("Bitmap Font Atlas", pack.locate("bitmapFontTest.fnt"))
 		addChild(label)
 		
@@ -479,32 +415,30 @@ class Atlas4 : AtlasDemo
 		lastChar.runAction(rot_4ever2)
 		
 		cocos.director.timer.channel().bind(Events.OnTick, this, step)
-		
 	}
 
 	function step(evt: TimeEvent)
 	{
-		time += evt.delta
-		var str = format("%.3f", time)
+		_time += evt.delta
+		var str = format("%.3f", _time)
 		
 		var label1 = this.getChildByTag(2)
 		label1.string = str
 	}
+	
 	function title()
 	{
 		return "CCLabelBMFont"
 	}
+	
 	function subtitle()
 	{
 		return "Using fonts as CCSprite objects. Some characters should rotate."
 	}
 }
-////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
-//
-// Atlas5
-//
+
 class Atlas5 : AtlasDemo
 {
 	constructor()
@@ -529,17 +463,15 @@ class Atlas5 : AtlasDemo
 	{
 		return "CCLabelBMFont"
 	}
+	
 	function subtitle()
 	{
 		return "Testing padding"
 	}
 }
-////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
-//
-// Atlas6
-//
+
 class Atlas6 : AtlasDemo
 {
 	constructor()
@@ -566,24 +498,22 @@ class Atlas6 : AtlasDemo
 	
 	function onEnter()
 	{
-		time = 0
-		
+		_time = 0
 	}
+
 	function title()
 	{
 		return "CCLabelBMFont"
 	}
+
 	function subtitle()
 	{
 		return "Rendering should be OK. Testing offset"
 	}
 }
-////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
-//
-// AtlasBitmapColor
-//
+
 class AtlasBitmapColor : AtlasDemo
 {
 	constructor()
@@ -593,8 +523,7 @@ class AtlasBitmapColor : AtlasDemo
 	
 	function onEnter()
 	{
-		time = 0
-
+		_time = 0
 		
 		var s = cocos.director.winSize
 		
@@ -615,23 +544,21 @@ class AtlasBitmapColor : AtlasDemo
 		label.position = cc.Point(s.width/2, s.height/2 + 50)
 		label.anchorPoint = cc.Point(0.5, 0.5)
 		label.color = nit.Color.GREEN
-	
 	}
+
 	function title()
 	{
 		return "CCLabelBMFont"
 	}
+
 	function subtitle()
 	{
 		return "Testing color"
 	}
 }
-////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
-//
-// AtlasFastBitmap
-//
+
 class AtlasFastBitmap : AtlasDemo
 {
 	constructor()
@@ -659,17 +586,15 @@ class AtlasFastBitmap : AtlasDemo
 	{
 		return "CCLabelBMFont"
 	}
+	
 	function subtitle()
 	{
 		return "Creating several CCLabelBMFont with the same .fnt file should be fast"
 	}
 }
-////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
-//
-// BitmapFontMultiLine
-//
+
 class BitmapFontMultiLine : AtlasDemo
 {
 	constructor()
@@ -708,10 +633,12 @@ class BitmapFontMultiLine : AtlasDemo
 		label2.position = cc.Point(s.width / 2, s.height / 2)
 		label3.position = cc.Point(s.width, s.height)
 	}
+	
 	function title()
 	{
 		return "CCLabelBMFont"
 	}
+	
 	function subtitle()
 	{
 		return "Multiline + anchor point"
@@ -719,9 +646,7 @@ class BitmapFontMultiLine : AtlasDemo
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-//
-// LabelsEmpty
-//
+
 class LabelsEmpty : AtlasDemo
 {
 	constructor()
@@ -729,7 +654,7 @@ class LabelsEmpty : AtlasDemo
 		base.constructor()
 	}
 	
-	var setEmpty: bool
+	var _empty: bool
 	
 	function onEnter()
 	{
@@ -749,7 +674,7 @@ class LabelsEmpty : AtlasDemo
 		
 		cocos.director.scheduler.repeat(this, updateStrings, 1.0)
 		
-		setEmpty = false
+		_empty = false
 	}
 	
 	function updateStrings()
@@ -758,13 +683,13 @@ class LabelsEmpty : AtlasDemo
 		var label2 = getChildByTag(2)
 		var label3 = getChildByTag(3)
 		
-		if (!setEmpty)
+		if (!_empty)
 		{
 			label1.string = "not empty"
 			label2.string = "not empty"
 			label3.string = "hi"
 			
-			setEmpty = true
+			_empty = true
 		}
 		else
 		{
@@ -772,7 +697,7 @@ class LabelsEmpty : AtlasDemo
 			label2.string = ""
 			label3.string = ""
 			
-			setEmpty = false
+			_empty = false
 		}
 	}
 	
@@ -780,17 +705,15 @@ class LabelsEmpty : AtlasDemo
 	{
 		return "Testing empty labels"
 	}
+	
 	function subtitle()
 	{
 		return "3 empty labels: LabelAtlas, LabelTTF and LabelBMFont"
 	}
 }
-////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
-//
-// LabelBMFontHD
-//
+
 class LabelBMFontHD : AtlasDemo
 {
 	constructor()
@@ -806,21 +729,20 @@ class LabelBMFontHD : AtlasDemo
 		addChild(label1)
 		label1.position = cc.Point(s.width / 2, s.height / 2)
 	}
+	
 	function title()
 	{
 		return "Testing Retina Display BMFont"
 	}
+	
 	function subtitle()
 	{
 		return "loading konqa32 or konqa32-hd"
 	}
 }
-////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
-//
-// LabelAtlasHD
-//
+
 class LabelAtlasHD : AtlasDemo
 {
 	constructor()
@@ -838,21 +760,20 @@ class LabelAtlasHD : AtlasDemo
 		this.addChild(label1)
 		label1.position = cc.Point(s.width / 2, s.height / 2)
 	}
+	
 	function title()
 	{
 		return "LabelAtlas with Retina Display"
 	}
+	
 	function subtitle()
 	{
 		return "loading larabie-16 / larabie-16-hd"
 	}
 }
-////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
-//
-// LabelGlyphDesigner
-//
+
 class LabelGlyphDesigner : AtlasDemo
 {
 	constructor()
@@ -871,24 +792,23 @@ class LabelGlyphDesigner : AtlasDemo
 	
 	function onEnter()
 	{
-		time = 0
+		_time = 0
 		
 	}
+	
 	function title()
 	{
 		return "Testing Glyph Designer"
 	}
+	
 	function subtitle()
 	{
 		return "You should see a font with shawdows and outline"
 	}
 }
-////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
-//
-// LabelTTFTest
-//
+
 class LabelTTFTest : AtlasDemo
 {
 	constructor()
@@ -900,9 +820,9 @@ class LabelTTFTest : AtlasDemo
 	{
 		var s = cocos.director.winSize
 		
-		var left = cc.LabelTTF("align left", cc.Size(s.width, 50), cc.LabelTTF.ALIGN_LEFT, "Marker Felt", 32)
-		var center = cc.LabelTTF("align center", cc.Size(s.width, 50), cc.LabelTTF.ALIGN_CENTER, "marker Felt", 32)
-		var right = cc.LabelTTF("align right", cc.Size(s.width, 50), cc.LabelTTF.ALIGN_RIGHT, "marker Felt", 32)
+		var left = cc.LabelTTF("align left", cc.Size(s.width, 50), cc.LabelTTF.ALIGN_LEFT, "Arial", 32)
+		var center = cc.LabelTTF("align center", cc.Size(s.width, 50), cc.LabelTTF.ALIGN_CENTER, "Arial", 32)
+		var right = cc.LabelTTF("align right", cc.Size(s.width, 50), cc.LabelTTF.ALIGN_RIGHT, "Arial", 32)
 		
 		left.position = cc.Point(s.width / 2, 200)
 		center.position = cc.Point(s.width / 2, 150)
@@ -915,22 +835,20 @@ class LabelTTFTest : AtlasDemo
 		print("ok")
 		
 	}
+	
 	function title()
 	{
 		return "Testing CCLabelTTF"
 	}
+	
 	function subtitle()
 	{
 		return "You should see 3 labels aligned left, center and right"
 	}
 }
-////////////////////////////////////////////////////////////////////////////////
-
 
 ////////////////////////////////////////////////////////////////////////////////
-//
-// LabelTTFMultiline
-//
+
 class LabelTTFMultiline : AtlasDemo
 {
 	constructor()
@@ -951,21 +869,20 @@ class LabelTTFMultiline : AtlasDemo
 		this.addChild(center)
 		
 	}
+	
 	function title()
 	{
 		return "Testing CCLabelTTF Word Wrap"
 	}
+	
 	function subtitle()
 	{
 		return "Word wrap using CCLabelTTF"
 	}
 }
-////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
-//
-// LabelTTFInternational
-//
+
 class LabelTTFInternational : AtlasDemo
 {
 	constructor()
@@ -996,13 +913,28 @@ class LabelTTFInternational : AtlasDemo
 		this.addChild(label)
 		
 	}
+	
 	function title()
 	{
 		return "UTF-8 International"
 	}
 }
+
 ////////////////////////////////////////////////////////////////////////////////
 
-
+class AtlasTestScene : TestScene
+{
+	constructor()
+	{
+		base.constructor()
+	}
+	
+	function runThisTest()
+	{
+		var layer = labeltest.nextAtlasTest()
+		this.addChild(layer)
+		cocos.director.replaceScene(this)
+	}
+}
 
 return AtlasTestScene()

@@ -4,7 +4,7 @@ var pack = script.locator
 
 class ActionsTest
 {
-	_layerIndex = 0
+	var _layerIndex = 0
 	
 	var _layers =
 	[
@@ -63,28 +63,11 @@ var theTest
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class ActionTestScene : TestScene
-{
-	constructor()
-	{
-		base.constructor()
-	}
-	
-	function runThisTest()
-	{
-		addChild(theTest.restart())
-		cocos.director.replaceScene(this)
-	}
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 class ActionsDemo : cc.ScriptLayer
 {
-	pack		= null
-    _grossini 	= null
-    _tamara 	= null
-    _kathia		= null
+	var _grossini 	= null
+    var _tamara 	= null
+    var _kathia		= null
 
 	constructor()
 	{
@@ -631,7 +614,7 @@ class ActionSequence2 : ActionsDemo
 	function callback1()
 	{
 		var s = cocos.director.winSize
-		var label = cc.LabelTTF("callback 1 called", "Marker Felt", 16);
+		var label = cc.LabelTTF("callback 1 called", "Arial", 16);
 		label.position = cc.Point(s.width/4*1,s.height/2)
 
 		addChild(label)
@@ -640,7 +623,7 @@ class ActionSequence2 : ActionsDemo
 	function callback2()
 	{
 		var s = cocos.director.winSize
-		var label = cc.LabelTTF("callback 2 called", "Marker Felt", 16);
+		var label = cc.LabelTTF("callback 2 called", "Arial", 16);
 		label.position = cc.Point(s.width/4*2,s.height/2)
 
 		addChild(label)
@@ -650,7 +633,7 @@ class ActionSequence2 : ActionsDemo
 	{
 		print(data)
 		var s = cocos.director.winSize
-		var label = cc.LabelTTF("callback 3 called", "Marker Felt", 16)
+		var label = cc.LabelTTF("callback 3 called", "Arial", 16)
 		label.position = cc.Point(s.width/4*3,s.height/2)
 
 		addChild(label)
@@ -876,7 +859,7 @@ class ActionCallFunc : ActionsDemo
 	function callback1()
 	{
 		var s = cocos.director.winSize
-		var label = cc.LabelTTF("callback 1 called", "Marker Felt", 16)
+		var label = cc.LabelTTF("callback 1 called", "Arial", 16)
 		label.position = cc.Point(s.width/4*1,s.height/2)
 
 		addChild(label)
@@ -885,7 +868,7 @@ class ActionCallFunc : ActionsDemo
 	function callback2()
 	{
 		var s = cocos.director.winSize
-		var label = cc.LabelTTF("callback 2 called", "Marker Felt", 16)
+		var label = cc.LabelTTF("callback 2 called", "Arial", 16)
 		label.position = cc.Point(s.width/4*2,s.height/2)
 
 		addChild(label)
@@ -894,7 +877,7 @@ class ActionCallFunc : ActionsDemo
 	function callback3(data)
 	{
 		var s = cocos.director.winSize
-		var label = cc.LabelTTF("callback 3 called", "Marker Felt", 16);
+		var label = cc.LabelTTF("callback 3 called", "Arial", 16);
 		label.position = cc.Point(s.width/4*3,s.height/2)
 		addChild(label)
 	}
@@ -915,7 +898,7 @@ class ActionCallFuncND : ActionsDemo
 		
 		centerSprites(1)
 		
-		var action = cc.action.Sequence(cc.action.MoveBy(2, cc.Point(200,0)),  cc.action.EventCall(null, this, @callback1(false)) )
+		var action = cc.action.Sequence(cc.action.MoveBy(2, cc.Point(200,0)),  cc.action.EventCall(null, this, @callback1(false)))
 		_grossini.runAction(action)
 	}
 	
@@ -1072,6 +1055,20 @@ class ActionFollow : ActionsDemo
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+class ActionTestScene : TestScene
+{
+	constructor()
+	{
+		base.constructor()
+	}
+	
+	function runThisTest()
+	{
+		addChild(theTest.restart())
+		cocos.director.replaceScene(this)
+	}
+}
 
 theTest = ActionsTest()
 

@@ -2,6 +2,8 @@
 
 var pack = script.locator
 
+////////////////////////////////////////////////////////////////////////////////
+
 s_pPathGrossini       := pack.locate("grossini.png", "*Images*")
 s_pPathSister1        := pack.locate("grossinis_sister1.png")
 s_pPathSister2        := pack.locate("grossinis_sister2.png")
@@ -36,6 +38,8 @@ s_PressSendScore      := pack.locate("SendScoreButtonPressed.png")
 s_Power               := pack.locate("powered.png")
 s_AtlasTest           := pack.locate("atlastest.png")
 
+////////////////////////////////////////////////////////////////////////////////
+
 testlist := 
 [ 
 	"ActionsTest",
@@ -67,11 +71,13 @@ testlist :=
 	"FontTest",
 ]
 
+////////////////////////////////////////////////////////////////////////////////
+
 class TestMainMenu : cc.ScriptLayer
 {
-	_touchPos = null
-	_touchBegin = null
-	_itemMenu = null
+	var _touchPos = null
+	var _touchBegin = null
+	var _itemMenu = null
 	
 	constructor()
 	{
@@ -162,6 +168,8 @@ class TestMainMenu : cc.ScriptLayer
 		_touchPos = nextPos
 	}
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 function startTestMain()
 {

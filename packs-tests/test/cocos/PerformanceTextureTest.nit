@@ -1,30 +1,28 @@
 ﻿var pack = script.locator
 
-TEST_COUNT := 1
-s_nTexCurCase := 0
+////////////////////////////////////////////////////////////////////////////////
 
-function calculateDeltaTime( lastUpdate)
+var TEST_COUNT = 1
+var _texCurCase = 0
+
+var function calculateDeltaTime(lastUpdate)
 {
 	var now = system.clock()
 	var dt = now - lastUpdate
 	return dt
 }
 
-function runTextureTest()
+var function runTextureTest()
 {
-    s_nTexCurCase = 0;
+    _texCurCase = 0
     var pScene = TextureTest.newScene()
-	cocos.director.replaceScene(pScene);
+	cocos.director.replaceScene(pScene)
 }
-////////////////////////////////////////////////////////
-//
-// TextureMenuLayer
-//
-////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
 
 class TextureMenuLayer : PerformBasicLayer
 {
-
 	constructor(bControlMenuVisible, nMaxCases, nCurCase)
 	{
 		base.constructor(bControlMenuVisible, nMaxCases, nCurCase)
@@ -33,13 +31,11 @@ class TextureMenuLayer : PerformBasicLayer
 	function showCurrentTest()
 	{
 		var pScene = null
-		switch(m_nCurCase)
+		switch (m_nCurCase)
 		{
-			 case 0:
-				pScene = TextureTest.scene()
-			break;
+			case 0: pScene = TextureTest.scene(); break
 		}
-		s_nTexCurCase = m_nCurCase;
+		_texCurCase = m_nCurCase
 		
 		if (pScene)
 		{
@@ -60,13 +56,13 @@ class TextureMenuLayer : PerformBasicLayer
 		
 		// Subtitle
 		var strSubTitle = subtitle()
-		if(strSubTitle.len()!=0)
+		if (strSubTitle.len()!=0)
 		{
-			var l = cc.LabelTTF(strSubTitle, "Thonburi", 16);
-			addChild(l, 1);
+			var l = cc.LabelTTF(strSubTitle, "Arial", 16)
+			addChild(l, 1)
 			l.position=cc.Point(s.width/2, s.height-80)
 		}
-		performTests();
+		performTests()
 	}
 	
 	function title()
@@ -79,14 +75,11 @@ class TextureMenuLayer : PerformBasicLayer
 		return "no subtitle"
 	}
 }
-////////////////////////////////////////////////////////
-//
-// TouchesPerformTest1
-//
-////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+
 class TextureTest : TextureMenuLayer
 {
-
 	constructor(bControlMenuVisible, nMaxCases = 0, nCurCase = 0)
 	{
 		base.constructor(bControlMenuVisible, nMaxCases, nCurCase)
@@ -95,11 +88,9 @@ class TextureTest : TextureMenuLayer
 	function onEnter()
 	{
 		base.onEnter()
-		
-		
 	}
 	
-	function performTestsPNG( filename)
+	function performTestsPNG(filename)
 	{
 		var now = system.clock()
 		var texture = null
@@ -109,7 +100,7 @@ class TextureTest : TextureMenuLayer
 		now = system.clock()
 		texture = cocos.textureCache.addImage(pack.locate(filename))
 		if (texture)
-			print("   ms: "+calculateDeltaTime(now) )
+			print("   ms: "+calculateDeltaTime(now))
 		else
 			print("*** ERROR")
 		cocos.textureCache.removeTexture(texture)
@@ -120,7 +111,7 @@ class TextureTest : TextureMenuLayer
 		now = system.clock()
 		texture = cocos.textureCache.addImage(pack.locate(filename))
 		if (texture)
-			print("   ms: "+calculateDeltaTime(now) )
+			print("   ms: "+calculateDeltaTime(now))
 		else
 			print("*** ERROR")
 		cocos.textureCache.removeTexture(texture)
@@ -131,7 +122,7 @@ class TextureTest : TextureMenuLayer
 		now = system.clock()
 		texture = cocos.textureCache.addImage(pack.locate(filename))
 		if (texture)
-			print("   ms: "+calculateDeltaTime(now) )
+			print("   ms: "+calculateDeltaTime(now))
 		else
 			print("*** ERROR")
 		cocos.textureCache.removeTexture(texture)
@@ -142,7 +133,7 @@ class TextureTest : TextureMenuLayer
 		now = system.clock()
 		texture = cocos.textureCache.addImage(pack.locate(filename))
 		if (texture)
-			print("   ms: "+calculateDeltaTime(now) )
+			print("   ms: "+calculateDeltaTime(now))
 		else
 			print("*** ERROR")
 		cocos.textureCache.removeTexture(texture)
@@ -172,18 +163,18 @@ class TextureTest : TextureMenuLayer
 	
 	function title()
 	{
-		return "Texture Performance Test";
+		return "Texture Performance Test"
 	}
 	
 	function subtitle()
 	{
-		return "See console for results";
+		return "See console for results"
 	}
 	
 	function newScene()
 	{
 		var pScene = cc.Scene()
-		var layer = TextureTest(false, TEST_COUNT, s_nTexCurCase)
+		var layer = TextureTest(false, TEST_COUNT, _texCurCase)
 		pScene.addChild(layer)
 		
 		return pScene

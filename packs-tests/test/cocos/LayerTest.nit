@@ -1,68 +1,58 @@
 ﻿var pack = script.locator
 
-kTagLayer := 1
+////////////////////////////////////////////////////////////////////////////////
 
-sceneIdx 	:= -1; 
-
-MAX_LAYER 	:= 4
-
-class LayerTestScene : TestScene
+var TAG =
 {
-	constructor()
+	LAYER = 1
+}
+
+var sceneIdx = -1
+var MAX_LAYER = 4
+
+////////////////////////////////////////////////////////////////////////////////
+
+var function createTestLayer(nIndex)
+{
+	switch (nIndex)
 	{
-		base.constructor()
-	}
-	
-	function runThisTest()
-	{
-		var pLayer = nextTestAction()
-		addChild(pLayer)
-		cocos.director.replaceScene(this)
+		case 0: return LayerTest1()
+		case 1: return LayerTest2()
+		case 2: return LayerTestBlend()
+        case 3: return LayerGradient()
 	}
 }
 
-function createTestLayer(nIndex)
+var function nextTestAction()
 {
-	switch(nIndex)
-	{
-		case 0: return  LayerTest1();
-		case 1: return  LayerTest2();
-		case 2: return  LayerTestBlend();
-        case 3: return  LayerGradient();
-	}
+	sceneIdx++
+	sceneIdx = sceneIdx % MAX_LAYER
 
-	return NULL;
-}
-
-function nextTestAction()
-{
-	sceneIdx++;
-	sceneIdx = sceneIdx % MAX_LAYER;
-
-	var pLayer = createTestLayer(sceneIdx);
+	var pLayer = createTestLayer(sceneIdx)
 	
-	return pLayer;
+	return pLayer
 }
 
-function backTestAction()
+var function backTestAction()
 {
-	sceneIdx--;
-	var total = MAX_LAYER;
-	if( sceneIdx < 0 )
-		sceneIdx += total;	
+	sceneIdx--
+	var total = MAX_LAYER
+	if (sceneIdx < 0)
+		sceneIdx += total	
 	
-	var pLayer = createTestLayer(sceneIdx);
+	var pLayer = createTestLayer(sceneIdx)
 
-	return pLayer;
+	return pLayer
 }
 
-function restartTestAction()
+var function restartTestAction()
 {
-	var pLayer = createTestLayer(sceneIdx);
+	var pLayer = createTestLayer(sceneIdx)
 
-	return pLayer;
+	return pLayer
 } 
 
+////////////////////////////////////////////////////////////////////////////////
 
 class LayerTest : cc.ScriptLayer
 {
@@ -74,68 +64,64 @@ class LayerTest : cc.ScriptLayer
 		var x = size.width
 		var y = size.height
 	
-		var label = cc.LabelTTF( title(), "Marker Felt", 28)
+		var label = cc.LabelTTF(title(), "Arial", 28)
 		label.position = cc.Point(x/2, y-50)
 		addChild(label, 1)
 		
 		var strSubtitle = subtitle()
-		if ( strSubtitle != "")
+		if (strSubtitle != "")
 		{
-			var l = cc.LabelTTF( strSubtitle, "Thonburi", 16)
+			var l = cc.LabelTTF(strSubtitle, "Arial", 16)
 			addChild(l, 1)
 			l.position = cc.Point(size.width/2, size.height-80)
 		}
 		
-		var item1 = cc.MenuItemImage(s_pPathB1,s_pPathB2, this,backCallBack);
-		var item2 = cc.MenuItemImage(s_pPathR1, s_pPathR2, this,restartCallBack)	
-		var item3 = cc.MenuItemImage(s_pPathF1, s_pPathF2, this,nextCallBack);
+		var item1 = cc.MenuItemImage(s_pPathB1, s_pPathB2, this, backCallBack)
+		var item2 = cc.MenuItemImage(s_pPathR1, s_pPathR2, this, restartCallBack)	
+		var item3 = cc.MenuItemImage(s_pPathF1, s_pPathF2, this, nextCallBack)
 		
-		var menu = cc.Menu(item1, item2, item3);
-		menu.position= cc.Point(0,0);
-		item1.position= cc.Point( size.width/2 - 100,30) ;
-		item2.position= cc.Point( size.width/2, 30) ;
-		item3.position= cc.Point( size.width/2 + 100,30) ;
-		this.addChild( menu, 1 );	
-		
+		var menu = cc.Menu(item1, item2, item3)
+		menu.position= cc.Point(0, 0)
+		item1.position= cc.Point(size.width/2 - 100, 30) 
+		item2.position= cc.Point(size.width/2, 30) 
+		item3.position= cc.Point(size.width/2 + 100, 30) 
+		addChild(menu, 1)	
 	}
 	
 	function title()
 	{
-		return "No title";
+		return "No title"
 	}
 	
 	function subtitle()
 	{
-		return "";
+		return ""
 	}
 	
 	function restartCallBack(evt: cc.MenuItemEvent)
 	{
 		var s = LayerTestScene()
-		s.addChild( restartTestAction() )
+		s.addChild(restartTestAction())
 		cocos.director.replaceScene(s)
 	}
 	
 	function nextCallBack(evt: cc.MenuItemEvent)
 	{
 		var s = LayerTestScene()
-		s.addChild( nextTestAction() )
+		s.addChild(nextTestAction())
 		cocos.director.replaceScene(s)
 	}
 	
 	function backCallBack(evt: cc.MenuItemEvent)
 	{
 		var s = LayerTestScene()
-		s.addChild( backTestAction() )
+		s.addChild(backTestAction())
 		cocos.director.replaceScene(s)
 	}
 }
 
-//------------------------------------------------------------------
-//
-// LayerTest1
-//
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
+
 class LayerTest1 : LayerTest
 {
 	constructor()
@@ -146,15 +132,15 @@ class LayerTest1 : LayerTest
 		var layer = cc.LayerColor(nit.Color(1, 0, 0, 0.5), 200, 200)
 		layer.relativeAnchorPoint = true
 		layer.position = cc.Point(size.width/2, size.height/2)
-		addChild(layer, 1, kTagLayer)
+		addChild(layer, 1, TAG.LAYER)
 		
-		this.touchEnabled = true;
-		this.channel().priority(-10000).bind(Events.OnCCTouchBegin, this, ccTouchesBegin)
-		this.channel().priority(-10000).bind(Events.OnCCTouchMoved, this, ccTouchesMoved)
-		this.channel().priority(-10000).bind(Events.OnCCTouchEnded, this, ccTouchesEnded)
+		touchEnabled = true
+		channel().bind(Events.OnCCTouchBegin, this, ccTouchesBegin)
+		channel().bind(Events.OnCCTouchMoved, this, ccTouchesMoved)
+		channel().bind(Events.OnCCTouchEnded, this, ccTouchesEnded)
 	}
 	
-	function updateSize( touch)
+	function updateSize(touch)
 	{
 		var touchLocation = touch.locationInView(touch.view)
 		touchLocation = cocos.director.toGl(touchLocation)
@@ -162,7 +148,7 @@ class LayerTest1 : LayerTest
 		var s = cocos.director.winSize
 		var newSize = cc.Size(math.fabs(touchLocation.x - s.width/2)*2, 
 								math.fabs(touchLocation.y - s.height/2)*2)
-		var l = getChildByTag(kTagLayer)
+		var l = getChildByTag(TAG.LAYER)
 		l.contentSize = newSize
 	}
 	
@@ -173,11 +159,13 @@ class LayerTest1 : LayerTest
 		
 		return true
 	}
+
 	function ccTouchesMoved(evt: cc.TouchEvent)
 	{
 		var touch = evt.touches[0]
 		updateSize(touch)
 	}
+
 	function ccTouchesEnded(evt: cc.TouchEvent)
 	{
 		var touch = evt.touches[0]
@@ -186,14 +174,12 @@ class LayerTest1 : LayerTest
 	
 	function title()
 	{	
-		return "ColorLayer resize (tap & move)";
+		return "ColorLayer resize (tap & move)"
 	}
 }
-//------------------------------------------------------------------
-//
-// LayerTest2
-//
-//------------------------------------------------------------------
+
+////////////////////////////////////////////////////////////////////////////////
+
 class LayerTest2 : LayerTest
 {
 	constructor()
@@ -224,14 +210,12 @@ class LayerTest2 : LayerTest
 	
 	function title()
 	{	
-		return "ColorLayer: fade and tint";
+		return "ColorLayer: fade and tint"
 	}
 }
-//------------------------------------------------------------------
-//
-// LayerTestBlend
-//
-//------------------------------------------------------------------
+
+////////////////////////////////////////////////////////////////////////////////
+
 class LayerTestBlend : LayerTest
 {
 	constructor()
@@ -246,17 +230,17 @@ class LayerTestBlend : LayerTest
 		
 		addChild(sister1)
 		addChild(sister2)
-		addChild(layer1, 100, kTagLayer)
+		addChild(layer1, 100, TAG.LAYER)
 		
 		sister1.position = cc.Point(160, s.height/2)
 		sister2.position = cc.Point(320, s.height/2)
 		
-		session.scheduler.repeat(this, newBlend, 1.0)
+		cocos.director.scheduler.repeat(this, newBlend, 1.0)
 	}
 	
 	function newBlend(dt)
 	{
-		var layer = getChildByTag(kTagLayer)
+		var layer = getChildByTag(TAG.LAYER)
 		
 		var src = null
 		var dst = null
@@ -279,14 +263,12 @@ class LayerTestBlend : LayerTest
 	
 	function title()
 	{	
-		return "ColorLayer: blend";
+		return "ColorLayer: blend"
 	}
 }
-//------------------------------------------------------------------
-//
-// LayerGradient
-//
-//------------------------------------------------------------------
+
+////////////////////////////////////////////////////////////////////////////////
+
 class LayerGradient : LayerTest
 {
 	constructor()
@@ -296,26 +278,26 @@ class LayerGradient : LayerTest
 		var size = cocos.director.winSize
 		
 		var layer1 = cc.LayerGradient(nit.Color(1, 0, 0, 1), nit.Color(0, 1, 0, 1), cc.Point(0.9, 0.9))
-		addChild(layer1, 0, kTagLayer)
+		addChild(layer1, 0, TAG.LAYER)
 		
-		var label1 = cc.LabelTTF("Compressed Interpolation: Enabled", "Marker Felt", 26)
-		var label2 = cc.LabelTTF("Compressed Interpolation: Disabled", "Marker Felt", 26)
+		var label1 = cc.LabelTTF("Compressed Interpolation: Enabled", "Arial", 26)
+		var label2 = cc.LabelTTF("Compressed Interpolation: Disabled", "Arial", 26)
 		var item1 = cc.MenuItemLabel(label1)
 		var item2 = cc.MenuItemLabel(label2)
-		var item = cc.MenuItemToggle( this, toggleItem, item1, item2)
+		var item = cc.MenuItemToggle(this, toggleItem, item1, item2)
 		
 		var menu = cc.Menu(item)
 		addChild(menu)
 		menu.position = cc.Point(size.width/2, 100)
 		
-		this.touchEnabled = true;
-		this.channel().priority(-10000).bind(Events.OnCCTouchMoved, this, ccTouchesMoved)
+		touchEnabled = true
+		channel().bind(Events.OnCCTouchMoved, this, ccTouchesMoved)
 	}
 	
 	function toggleItem(sender)
 	{
-		var gradient = getChildByTag(kTagLayer)
-		gradient.compressedInterpolation = !gradient.compressedInterpolation
+		var gradient = getChildByTag(TAG.LAYER)
+		gradient with compressedInterpolation = !compressedInterpolation
 	}
 	
 	function ccTouchesMoved(evt: cc.TouchEvent)
@@ -327,15 +309,15 @@ class LayerGradient : LayerTest
 		start = cocos.director.toGl(start)
 		
 		var diff = cc.Point(s.width/2 - start.x, s.height/2 - start.y)
-		diff = diff.Unit
+		diff = diff.unit
 		
 		var gradient = getChildByTag(1)
-		gradient.Vector =diff 
+		gradient.vector = diff 
 	}
 	
 	function title()
 	{	
-		return  "LayerGradient";
+		return "LayerGradient"
 	}
 	
 	function subtitle()
@@ -344,5 +326,21 @@ class LayerGradient : LayerTest
 	}
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+class LayerTestScene : TestScene
+{
+	constructor()
+	{
+		base.constructor()
+	}
+	
+	function runThisTest()
+	{
+		var pLayer = nextTestAction()
+		addChild(pLayer)
+		cocos.director.replaceScene(this)
+	}
+}
 
 return LayerTestScene()

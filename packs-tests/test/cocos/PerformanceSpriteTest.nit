@@ -1,32 +1,34 @@
 ﻿var pack = script.locator
 
-kMaxNodes := 5000
-kNodesIncrease := 50
-TEST_COUNT := 7
+////////////////////////////////////////////////////////////////////////////////
 
-kTagInfoLayer := 1
-kTagMainLayer := 2
-kTagMenuLayer := (kMaxNodes + 1000)
+var MAX_NODES = 5000
+var NODES_INCREASE = 50
+var TEST_COUNT = 7
+
+var TAG = 
+{
+	INFO_LAYER = 1
+	MAIN_LAYER = 2
+	MENU_LAYER = (MAX_NODES + 1000)
+}
 	
-s_nSpriteCurCase := 0
+var spriteCurCase = 0
 
-function runSpriteTest()
+var function runSpriteTest()
 {
     var pScene = SpritePerformTest1()
     pScene.initWithSubTest(1, 50);
 	cocos.director.replaceScene(pScene);
 }
 
-////////////////////////////////////////////////////////
-//
-// SubTest
-//
-////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
 class SubTest
 {
-	subtestNumber = null
-    batchNode = null
-	parent = null
+	var _subtestNumber = null
+    var _batchNode = null
+	var _parent = null
 	
 	constructor()
 	{
@@ -34,8 +36,8 @@ class SubTest
 	
 	function initWithSubTest(nSubTest, p)
 	{
-		subtestNumber = nSubTest
-		parent = p
+		_subtestNumber = nSubTest
+		_parent = p
 		/*
 		* Tests:
 		* 1: 1 (32-bit) PNG sprite of 52 x 139
@@ -59,7 +61,7 @@ class SubTest
 		cocos.textureCache.removeTexture(cocos.textureCache.addImage(pack.locate("grossini_dance_atlas.png")))
 		cocos.textureCache.removeTexture(cocos.textureCache.addImage(pack.locate("spritesheet1.png")))
 		
-		switch ( subtestNumber)
+		switch (_subtestNumber)
 		{
 			case 1:
 			case 4:
@@ -68,59 +70,58 @@ class SubTest
 
 			case 2:
 				cc.Texture2D.setDefaultAlphaPixelFormat(cc.Texture2D.FORMAT_RGBA8888)
-				batchNode = cc.SpriteBatchNode(pack.locate("grossinis_sister1.png"), 100)
-				p.addChild(batchNode, 0)
+				_batchNode = cc.Sprite_batchNode(pack.locate("grossinis_sister1.png"), 100)
+				p.addChild(_batchNode, 0)
 				break;
 			case 3:
 				cc.Texture2D.setDefaultAlphaPixelFormat(cc.Texture2D.FORMAT_RGBA4444);
-				batchNode = cc.SpriteBatchNode(pack.locate("grossinis_sister1.png"), 100)
-				p.addChild(batchNode, 0)
+				_batchNode = cc.Sprite_batchNode(pack.locate("grossinis_sister1.png"), 100)
+				p.addChild(_batchNode, 0)
 				break;
 			case 5:
 				cc.Texture2D.setDefaultAlphaPixelFormat(cc.Texture2D.FORMAT_RGBA8888)
-				batchNode = cc.SpriteBatchNode(pack.locate("grossini_dance_atlas.png"), 100)
-				p.addChild(batchNode, 0)
+				_batchNode = cc.Sprite_batchNode(pack.locate("grossini_dance_atlas.png"), 100)
+				p.addChild(_batchNode, 0)
 				break;				
 			case 6:
 				cc.Texture2D.setDefaultAlphaPixelFormat(cc.Texture2D.FORMAT_RGBA4444);
-				batchNode = cc.SpriteBatchNode(pack.locate("grossini_dance_atlas.png"), 100)
-				p.addChild(batchNode, 0)
+				_batchNode = cc.Sprite_batchNode(pack.locate("grossini_dance_atlas.png"), 100)
+				p.addChild(_batchNode, 0)
 				break;
 			case 8:
 				cc.Texture2D.setDefaultAlphaPixelFormat(cc.Texture2D.FORMAT_RGBA8888)
-				batchNode = cc.SpriteBatchNode(pack.locate("spritesheet1.png"), 100)
-				p.addChild(batchNode, 0)
+				_batchNode = cc.Sprite_batchNode(pack.locate("spritesheet1.png"), 100)
+				p.addChild(_batchNode, 0)
 				break;
 			case 9:
 				cc.Texture2D.setDefaultAlphaPixelFormat(cc.Texture2D.FORMAT_RGBA4444)
-				batchNode = cc.SpriteBatchNode(pack.locate("spritesheet1.png"), 100)
-				p.addChild(batchNode, 0)
+				_batchNode = cc.Sprite_batchNode(pack.locate("spritesheet1.png"), 100)
+				p.addChild(_batchNode, 0)
 				break;
 
 			default:
 				break;
 		}
 		cc.Texture2D.setDefaultAlphaPixelFormat(cc.Texture2D.FORMAT_DEFAULT)
-		
 	}
 	
 	function createSpriteWithTag(tag)
 	{
 		cc.Texture2D.setDefaultAlphaPixelFormat(cc.Texture2D.FORMAT_RGBA8888)
 		var sprite = null
-		switch(subtestNumber)
+		switch (_subtestNumber)
 		{
 			case 1:
             {
                 sprite = cc.Sprite(pack.locate("grossinis_sister1.png"))
-                parent.addChild(sprite, 0, tag+100)
+                _parent.addChild(sprite, 0, tag+100)
                 break;
             }
 			case 2:
 			case 3: 
 			{
-				sprite = cc.Sprite(batchNode, cc.Rect(0, 0, 52, 139))
-				batchNode.addChild(sprite, 0, tag+100)
+				sprite = cc.Sprite(_batchNode, cc.Rect(0, 0, 52, 139))
+				_batchNode.addChild(sprite, 0, tag+100)
 				break;
 			}
 			case 4:
@@ -129,7 +130,7 @@ class SubTest
 				var index = (idx<10) ? "0"+idx : ""+idx
 				var str = "grossini_dance_" + index + ".png"
 				sprite = cc.Sprite(pack.locate(str))
-				parent.addChild(sprite, 0, tag+100)
+				_parent.addChild(sprite, 0, tag+100)
 				break;
 			}
 			case 5:
@@ -143,8 +144,8 @@ class SubTest
 
 				x *= 85
 				y *= 121
-				sprite = cc.Sprite(batchNode, cc.Rect(x,y,85,121))
-				batchNode.addChild(sprite, 0, tag+100)
+				sprite = cc.Sprite(_batchNode, cc.Rect(x,y,85,121))
+				_batchNode.addChild(sprite, 0, tag+100)
 				break;
 			}
 
@@ -158,7 +159,7 @@ class SubTest
 
 				var str = format("sprite-%d-%d.png", x, y)
 				sprite = cc.Sprite(pack.locate(str))
-				parent.addChild(sprite, 0, tag+100);
+				_parent.addChild(sprite, 0, tag+100);
 				break;
 			}
 
@@ -176,8 +177,8 @@ class SubTest
 				
 				x *= 32;
 				y *= 32;
-				sprite = cc.Sprite(batchNode, cc.Rect(x,y,32,32))
-				batchNode.addChild(sprite, 0, tag+100)
+				sprite = cc.Sprite(_batchNode, cc.Rect(x,y,32,32))
+				_batchNode.addChild(sprite, 0, tag+100)
 				break;
 			}
 
@@ -191,12 +192,12 @@ class SubTest
 	
 	function removeByTag(tag)
 	{
-		switch (subtestNumber)
+		switch (_subtestNumber)
 		{
 			case 1:
 			case 4:
 			case 7:
-				parent.removeChildByTag(tag+100, true);
+				_parent.removeChildByTag(tag+100, true);
 				break;
 			case 2:
 			case 3:
@@ -204,19 +205,17 @@ class SubTest
 			case 6:
 			case 8:
 			case 9:
-				batchNode.removeChildAtIndex(tag, true);
-				//			[batchNode removeChildByTag:tag+100 cleanup:YES];
+				_batchNode.removeChildAtIndex(tag, true);
+				//			[_batchNode removeChildByTag:tag+100 cleanup:YES];
 				break;
 			default:
 				break;
 		}
 	}
 }
-////////////////////////////////////////////////////////
-//
-// SpriteMenuLayer
-//
-////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+
 class SpriteMenuLayer : PerformBasicLayer
 {
 	constructor(bControlMenuVisible, nMaxCases, nCurCase)
@@ -227,7 +226,7 @@ class SpriteMenuLayer : PerformBasicLayer
 	function showCurrentTest()
 	{
 		var pScene = null
-		var pPreScene = parent
+		var pPreScene = _parent
 		var nSubTest = pPreScene.getSubTestNum()
 		var nNodes = pPreScene.getNodesNum()
 		
@@ -255,7 +254,7 @@ class SpriteMenuLayer : PerformBasicLayer
 			pScene = SpritePerformTest7()
 			break;
 		}
-		s_nSpriteCurCase = m_nCurCase;
+		spriteCurCase = m_nCurCase;
 
 		if (pScene)
 		{
@@ -264,37 +263,35 @@ class SpriteMenuLayer : PerformBasicLayer
 		}
 	}
 }
-////////////////////////////////////////////////////////
-//
-// SpriteMainScene
-//
-////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+
 class SpriteMainScene : cc.ScriptScene
 {
-	lastRenderedCount = null
-    quantityNodes = null
-    m_pSubTest = null
-    subtestNumber = null
+	var _lastRenderedCount = null
+    var _quantityNodes = null
+    var _subTest = null
+    var _subtestNumber = null
 	
 	function getSubTestNum()
 	{
-		return subtestNumber;
+		return _subtestNumber;
 	}
 	function getNodesNum()
 	{
-		return quantityNodes;
+		return _quantityNodes;
 	}
 	
 	function initWithSubTest(asubtest, nNodes)
 	{
-		subtestNumber = asubtest;
-		m_pSubTest = SubTest()
-		m_pSubTest.initWithSubTest(asubtest, this)
+		_subtestNumber = asubtest;
+		_subTest = SubTest()
+		_subTest.initWithSubTest(asubtest, this)
 		
 		var s = cocos.director.winSize
 		
-		lastRenderedCount = 0
-		quantityNodes   = 0
+		_lastRenderedCount = 0
+		_quantityNodes   = 0
 		
 		cc.MenuItemFont.setDefaultFontSize(65)
 		var decrease = cc.MenuItemFont("- ", this, onDecrease)
@@ -307,14 +304,14 @@ class SpriteMainScene : cc.ScriptScene
 		menu.position = cc.Point(s.width/2, s.height - 65)
 		addChild(menu, 1)
 		
-		var infoLabel = cc.LabelTTF("0 nodes", "Marker Felt", 30)
+		var infoLabel = cc.LabelTTF("0 nodes", "Arial", 30)
 		infoLabel.color = nit.Color(0, 200/255, 20/255, 0)
 		infoLabel.position = cc.Point(s.width/2, s.height - 90)
-		addChild(infoLabel, 1, kTagInfoLayer)
+		addChild(infoLabel, 1, TAG.INFO_LAYER)
 		
 		//add menu
-		var pMenu = SpriteMenuLayer(true, TEST_COUNT, s_nSpriteCurCase)
-		addChild(pMenu, 1, kTagMenuLayer)
+		var pMenu = SpriteMenuLayer(true, TEST_COUNT, spriteCurCase)
+		addChild(pMenu, 1, TAG.MENU_LAYER)
 		
 		//Sub Tests
 		cc.MenuItemFont.setDefaultFontSize(32)
@@ -340,12 +337,12 @@ class SpriteMainScene : cc.ScriptScene
 		addChild(pSubMenu, 2)
 		
 		//Add title label
-		var label = cc.LabelTTF( title(), "Arial", 40)
+		var label = cc.LabelTTF(title(), "Arial", 40)
 		addChild(label, 1)
 		label.position = cc.Point(s.width/2, s.height- 32)
 		label.color = nit.Color(255/255, 255/255, 40/255, 0)
 		
-		while(quantityNodes < nNodes)
+		while(_quantityNodes < nNodes)
 			onIncrease(this)
 	}
 	
@@ -356,33 +353,33 @@ class SpriteMainScene : cc.ScriptScene
 	
 	function testNCallback(pSender)
 	{
-		subtestNumber = pSender.tag
-		var pMenu = getChildByTag(kTagMenuLayer)
+		_subtestNumber = pSender.tag
+		var pMenu = getChildByTag(TAG.MENU_LAYER)
 		pMenu.restartCallback(pSender)
 	}
 	
 	function updateNodes()
 	{
-		if (quantityNodes != lastRenderedCount)
+		if (_quantityNodes != _lastRenderedCount)
 		{
-			var infoLabel =  getChildByTag(kTagInfoLayer)
-			var str = "" + quantityNodes + " nodes"
+			var infoLabel =  getChildByTag(TAG.INFO_LAYER)
+			var str = "" + _quantityNodes + " nodes"
 			infoLabel.string = str
 			
-			lastRenderedCount = quantityNodes
+			_lastRenderedCount = _quantityNodes
 		}
 	}
 	
 	function onIncrease(pSender)
 	{
-		if( quantityNodes >= kMaxNodes)
+		if (_quantityNodes >= MAX_NODES)
 			return
 
-		for( var i=0; i< kNodesIncrease; i++)
+		for (var i=0; i< NODES_INCREASE; i++)
 		{
-			var sprite = m_pSubTest.createSpriteWithTag(quantityNodes);
+			var sprite = _subTest.createSpriteWithTag(_quantityNodes);
 			doTest(sprite);
-			quantityNodes++;
+			_quantityNodes++;
 		}
 
 		updateNodes();
@@ -390,27 +387,25 @@ class SpriteMainScene : cc.ScriptScene
 
 	function onDecrease(pSender)
 	{
-		if( quantityNodes <= 0 )
+		if (_quantityNodes <= 0)
 			return;
 
-		for( var i=0; i < kNodesIncrease; i++)
+		for (var i=0; i < NODES_INCREASE; i++)
 		{
-			quantityNodes--;
-			m_pSubTest.removeByTag(quantityNodes);
+			_quantityNodes--;
+			_subTest.removeByTag(_quantityNodes);
 		}
 
 		updateNodes();
 	}
 }
-////////////////////////////////////////////////////////
-//
-// For test functions
-//
-////////////////////////////////////////////////////////
-function performanceActions(pSprite)
+
+////////////////////////////////////////////////////////////////////////////////
+
+var function performanceActions(pSprite)
 {
 	var size = cocos.director.winSize
-	pSprite.position = cc.Point( math.rand()%size.width, math.rand()%size.height)
+	pSprite.position = cc.Point(math.rand()%size.width, math.rand()%size.height)
 	
 	var period = 0.5 + (math.rand()%1000) / 500.0
 	var rot = cc.action.RotateBy(period, 360*math.random())
@@ -424,11 +419,11 @@ function performanceActions(pSprite)
 	pSprite.runAction(permanentScaleLoop)
 }
 
-function performanceActions20(pSprite)
+var function performanceActions20(pSprite)
 {
 	var size = cocos.director.winSize
 	if (math.random() < 0.2)
-		pSprite.position = cc.Point( math.rand()%size.width, math.rand()%size.height)
+		pSprite.position = cc.Point(math.rand()%size.width, math.rand()%size.height)
 	else
 		pSprite.position = cc.Point(-1000, -1000)
 	
@@ -444,69 +439,65 @@ function performanceActions20(pSprite)
 	pSprite.runAction(permanentScaleLoop)
 }
 
-function performanceRotationScale(pSprite)
+var function performanceRotationScale(pSprite)
 {
 	var size = cocos.director.winSize
-	pSprite.position = cc.Point( math.rand()%size.width, math.rand()%size.height)
+	pSprite.position = cc.Point(math.rand()%size.width, math.rand()%size.height)
 	pSprite.rotation = math.random()*360
 	pSprite.scale(math.random()*2)
 }
 
-function performancePosition(pSprite)
+var function performancePosition(pSprite)
 {
 	var size = cocos.director.winSize
-	pSprite.position = cc.Point( math.rand()%size.width, math.rand()%size.height)
+	pSprite.position = cc.Point(math.rand()%size.width, math.rand()%size.height)
 }
 
-function performanceout20(pSprite)
+var function performanceout20(pSprite)
 {
     var size = cocos.director.winSize
 
-    if( math.random() < 0.2 )
+    if (math.random() < 0.2)
         pSprite.position= cc.Point(math.rand()%size.width, math.rand() % size.height)
     else
-        pSprite.position = cc.Point( -1000, -1000)
+        pSprite.position = cc.Point(-1000, -1000)
 }
 
-function performanceOut100(pSprite)
+var function performanceOut100(pSprite)
 {
 	pSprite.position = cc.Point(-1000, -1000)
 }
 
-function performanceScale(pSprite)
+var function performanceScale(pSprite)
 {
 	var size = cocos.director.winSize
-	pSprite.position = cc.Point( math.rand()%size.width, math.rand()%size.height)
+	pSprite.position = cc.Point(math.rand()%size.width, math.rand()%size.height)
 	pSprite.scale(math.random() * 100 / 50)
 }
-////////////////////////////////////////////////////////
-//
-// SpritePerformTest1
-//
-////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+
 class SpritePerformTest1 : SpriteMainScene
 {
 	function title()
 	{
-		var str = "A ("+subtestNumber+") position"
+		var str = "A ("+_subtestNumber+") position"
 		return str;
 	}
 
-	function doTest( sprite)
+	function doTest(sprite)
 	{
 		performancePosition(sprite);
 	}
 }
-////////////////////////////////////////////////////////
-//
-// SpritePerformTest2
-//
-////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+
 class SpritePerformTest2 : SpriteMainScene
 {
 	function title()
 	{
-		var str = "B ("+subtestNumber+") scale"
+		var str = "B ("+_subtestNumber+") scale"
 		return str;
 	}
 	function doTest(sprite)
@@ -514,16 +505,14 @@ class SpritePerformTest2 : SpriteMainScene
 		performanceScale(sprite);
 	}
 }
-////////////////////////////////////////////////////////
-//
-// SpritePerformTest3
-//
-////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+
 class SpritePerformTest3 : SpriteMainScene
 {
 	function title()
 	{
-		var str = "C ("+subtestNumber+") scale+rot"
+		var str = "C ("+_subtestNumber+") scale+rot"
 		return str;
 	}
 
@@ -532,16 +521,14 @@ class SpritePerformTest3 : SpriteMainScene
 		performanceRotationScale(sprite);
 	}
 }
-////////////////////////////////////////////////////////
-//
-// SpritePerformTest4
-//
-////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+
 class SpritePerformTest4 : SpriteMainScene
 {
 	function title()
 	{
-		var str = "D ("+subtestNumber+") 100/% out"
+		var str = "D ("+_subtestNumber+") 100/% out"
 		return str;
 	}
 	function doTest(sprite)
@@ -549,16 +536,14 @@ class SpritePerformTest4 : SpriteMainScene
 		performanceOut100(sprite);
 	}
 }
-////////////////////////////////////////////////////////
-//
-// SpritePerformTest5
-//
-////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+
 class SpritePerformTest5 : SpriteMainScene
 {
 	function title()
 	{
-		var str = "E ("+subtestNumber+") 80/% out"
+		var str = "E ("+_subtestNumber+") 80/% out"
 		return str;
 	}
 	
@@ -567,16 +552,14 @@ class SpritePerformTest5 : SpriteMainScene
 		performanceout20(sprite);
 	}
 }
-////////////////////////////////////////////////////////
-//
-// SpritePerformTest6
-//
-////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+
 class SpritePerformTest6 : SpriteMainScene
 {
 	function title()
 	{
-		var str = "F ("+subtestNumber+") actions"
+		var str = "F ("+_subtestNumber+") actions"
 		return str;
 	}
 
@@ -585,16 +568,14 @@ class SpritePerformTest6 : SpriteMainScene
 		performanceActions(sprite);
 	}
 }
-////////////////////////////////////////////////////////
-//
-// SpritePerformTest7
-//
-////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+
 class SpritePerformTest7 : SpriteMainScene
 {
 	function title()
 	{
-		var str = "G ("+subtestNumber+") 80/% out"
+		var str = "G ("+_subtestNumber+") 80/% out"
 		return str;
 	}
 		

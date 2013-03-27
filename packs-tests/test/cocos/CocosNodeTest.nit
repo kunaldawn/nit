@@ -1,21 +1,19 @@
 var pack = script.locator
 
-kTagSprite1 := 1
-kTagSprite2 := 2
-kTagSprite3 := 3
-kTagSlider  := 4
+var TAG =
+{
+	SPRITE1 = 1
+	SPRITE2 = 2
+	SPRITE3 = 3
+	SLIDER  = 4
+}
 
-//------------------------------------------------------------------
-//
-// TestCocosNodeDemo
-//
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 
-sceneIdx := -1
-MAX_LAYER := 12
+var sceneIdx = -1
+var MAX_LAYER = 12
 
-
-function createCocosNodeLayer(idx)
+var function createCocosNodeLayer(idx)
 {
 	switch (idx)
 	{
@@ -32,11 +30,9 @@ function createCocosNodeLayer(idx)
 	case 10: return CameraZoomTest()
 	case 11: return ConvertToNode()
 	}
-	
-	return null
 }
 
-function nextCocosNodeAction()
+var function nextCocosNodeAction()
 {
 	sceneIdx++
 	sceneIdx = sceneIdx % MAX_LAYER
@@ -44,7 +40,7 @@ function nextCocosNodeAction()
 	return createCocosNodeLayer(sceneIdx)
 }
 
-function backCocosNodeAction()
+var function backCocosNodeAction()
 {
 	sceneIdx--
 	var total = MAX_LAYER
@@ -54,23 +50,9 @@ function backCocosNodeAction()
 	return createCocosNodeLayer(sceneIdx)	
 }
 
-function restartCocosNodeAction()
+var function restartCocosNodeAction()
 {
 	return createCocosNodeLayer(sceneIdx)
-}
-
-class CocosNodeTestScene : TestScene
-{
-	constructor()
-	{
-		base.constructor()
-	}
-	
-	function runThisTest()
-	{
-		addChild(nextCocosNodeAction())
-		cocos.director.replaceScene(this)
-	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -79,17 +61,18 @@ class TestCocosNodeDemo : cc.ScriptLayer
 {
 	function title()		{ return ""	}
 	function subtitle()		{ return ""	}
+	
 	function onEnter()		
 	{
 		var winSize = cocos.director.winSize	
 		var label = cc.LabelTTF(title(), "Arial", 24)
-		this.addChild(label, 1)
+		addChild(label, 1)
 		label.position = cc.Point(winSize.width / 2, winSize.height - 50)
 		
 		if (subtitle().len() > 0)
 		{
-			var sublabel = cc.LabelTTF(subtitle(), "Thonburi", 16)
-			this.addChild(sublabel, 1)
+			var sublabel = cc.LabelTTF(subtitle(), "Arial", 16)
+			addChild(sublabel, 1)
 			sublabel.position = cc.Point(winSize.width / 2, winSize.height - 80)
 		}
 		
@@ -103,7 +86,11 @@ class TestCocosNodeDemo : cc.ScriptLayer
 		resetBT.position = cc.Point(winSize.width / 2, 30)
 		nextBT.position = cc.Point(winSize.width / 2 + 100, 30)
 		
-		this.addChild(testmenu, 1)
+		addChild(testmenu, 1)
+	}
+	
+	function onExit()
+	{
 	}
 	
 	function restartCallback()
@@ -193,6 +180,8 @@ class CameraCenterTest : TestCocosNodeDemo
 	function subtitle()		{ return "Sprites should rotate at the same speed"	}	
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 class TestTest2 : TestCocosNodeDemo
 {
 	function onEnter()
@@ -208,8 +197,8 @@ class TestTest2 : TestCocosNodeDemo
 		sp1.position = cc.Point(100, s.height / 2)
 		sp2.position = cc.Point(300, s.height / 2)
 		
-		this.addChild(sp1)
-		this.addChild(sp2)
+		addChild(sp1)
+		addChild(sp2)
 		
 		sp3.scale(0.25)
 		sp4.scale(0.25)
@@ -234,6 +223,8 @@ class TestTest2 : TestCocosNodeDemo
 	function title()		{ return "anchorPoint and children"	}
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 class TestTest4 : TestCocosNodeDemo
 {
 	_scheduler = null
@@ -248,18 +239,18 @@ class TestTest4 : TestCocosNodeDemo
 		sp1.position = cc.Point(100, 160)
 		sp2.position = cc.Point(380, 160)	
 
-		this.addChild(sp1, 0, 2)
-		this.addChild(sp2, 0, 3)	
+		addChild(sp1, 0, 2)
+		addChild(sp2, 0, 3)	
 
-		session.scheduler.repeat(this, delay2, 2)
-		_scheduler = session.scheduler.once(this, delay4, 4)
+		cocos.director.scheduler.repeat(this, delay2, 2)
+		_scheduler = cocos.director.scheduler.once(this, delay4, 4)
 	}
 	
 	function delay2(evt)
 	{
 		print("++ delay2")
 
-		var node = this.getChildByTag(2)
+		var node = getChildByTag(2)
 		var action1 = cc.action.RotateBy(1, 360)
 		node.runAction(action1)
 	}
@@ -268,12 +259,14 @@ class TestTest4 : TestCocosNodeDemo
 	{
 		print("++ delay4")
 
-		session.scheduler.unbind(_scheduler)
-		this.removeChildByTag(3, false)
+		cocos.director.scheduler.unbind(_scheduler)
+		removeChildByTag(3, false)
 	}
 	
 	function title()		{ return "tags"	}
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 class TestTest5 : TestCocosNodeDemo
 {
@@ -298,13 +291,13 @@ class TestTest5 : TestCocosNodeDemo
 		forever1.tag = 101
 		forever2.tag = 102
 		
-		this.addChild(sp1, 0, 1)
-		this.addChild(sp2, 0, 2)	
+		addChild(sp1, 0, 1)
+		addChild(sp2, 0, 2)	
 		
 		sp1.runAction(forever1)
 		sp2.runAction(forever2)
 
-		session.scheduler.once(this, addAndRemove, 2)
+		cocos.director.scheduler.once(this, addAndRemove, 2)
 	}
 	
 	function addAndRemove()
@@ -321,8 +314,10 @@ class TestTest5 : TestCocosNodeDemo
 		addChild(sp2, 0, 2)
 	}
 
-	function title()		{ return "remove and cleanup"	}
+	function title()		{ return "remove and cleanup" }
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 class TestTest6 : TestCocosNodeDemo
 {
@@ -351,10 +346,10 @@ class TestTest6 : TestCocosNodeDemo
 		var forever2 = cc.action.RepeatForever(cc.action.Sequence(rot3, rot3.reverse()))
 		var forever21 = cc.action.RepeatForever(cc.action.Sequence(rot4, rot4.reverse()))
 		
-		this.addChild(sp1, 0, 1)
+		addChild(sp1, 0, 1)
 		sp1.addChild(sp11)
 
-		this.addChild(sp2, 0, 2)
+		addChild(sp2, 0, 2)
 		sp2.addChild(sp21)
 		
 		sp1.runAction(forever1)
@@ -362,7 +357,7 @@ class TestTest6 : TestCocosNodeDemo
 		sp2.runAction(forever2)
 		sp21.runAction(forever21)
 		
-		session.scheduler.once(this, addAndRemove, 2)
+		cocos.director.scheduler.once(this, addAndRemove, 2)
 	}
 	
 	function addAndRemove()
@@ -382,6 +377,8 @@ class TestTest6 : TestCocosNodeDemo
 	function title()		{ return "remove/cleanup with children"	}
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 class StressTest1 : TestCocosNodeDemo
 {
 	_scheduler = null
@@ -392,11 +389,11 @@ class StressTest1 : TestCocosNodeDemo
 	
 		var s = cocos.director.winSize
 		var sp1 = cc.Sprite(s_pPathSister1)
-		addChild(sp1, 0, kTagSprite1)
+		addChild(sp1, 0, TAG.SPRITE1)
 		
 		sp1.position = cc.Point(s.width/2, s.height/2)
 		
-		session.scheduler.once(this, shouldNotCrash, 1)
+		cocos.director.scheduler.once(this, shouldNotCrash, 1)
 	}
 	
 	function shouldNotCrash()
@@ -404,14 +401,15 @@ class StressTest1 : TestCocosNodeDemo
 		var s = cocos.director.winSize;
 		var explosion = cc.particle.Sun()
 		explosion.texture = cocos.textureCache.addImage(pack.locate("fire.png"));
-		explosion.position = cc.Point( s.width/2, s.height/2)
+		explosion.position = cc.Point(s.width/2, s.height/2)
 		
-		this.anchorPoint = cc.Point(0,0)
-		this.runAction(cc.action.Sequence( cc.action.RotateBy(2, 360), 
-			cc.action.EventCall(null, this, @removeMe(this) ) ))
+		anchorPoint = cc.Point(0,0)
+		runAction(cc.action.Sequence(cc.action.RotateBy(2, 360), 
+			cc.action.EventCall(null, this, @removeMe(this))))
 		
 		addChild(explosion)
 	}
+	
 	function removeMe(node)
 	{
 		parent.removeChild(node, true)
@@ -421,9 +419,11 @@ class StressTest1 : TestCocosNodeDemo
 	function title()		{ return "stress test #1: no crashes";}
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 class StressTest2 : TestCocosNodeDemo
 {
-	_scheduler = null
+	_schedule = null
 	
 	constructor()
 	{
@@ -445,23 +445,25 @@ class StressTest2 : TestCocosNodeDemo
 		var fire = cc.particle.Fire()
 		fire.texture = cocos.textureCache.addImage(pack.locate("fire.png"));
 		fire.position = cc.Point(80, s.height/2 - 50) 
-		fire.runAction( cc.action.RepeatForever( seq3.reverse() ))
-		sublayer.addChild( fire, 2)
+		fire.runAction(cc.action.RepeatForever(seq3.reverse()))
+		sublayer.addChild(fire, 2)
 		
-		_scheduler = session.scheduler.once(this, shouldNotLeak, 6)
+		_schedule = cocos.director.scheduler.once(this, shouldNotLeak, 6)
 		
-		addChild( sublayer, 0, kTagSprite1);
+		addChild(sublayer, 0, TAG.SPRITE1);
 	}
 	
 	function shouldNotLeak(dt)
 	{
-		session.scheduler.unbind(_scheduler)
-		var sublayer = getChildByTag(kTagSprite1)
+		cocos.director.scheduler.unbind(_schedule)
+		var sublayer = getChildByTag(TAG.SPRITE1)
 		sublayer.removeAllChildren(true);
 	}
 
 	function title()		{ return "stress test #2: no leaks";	}
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 class SchedulerTest1 : TestCocosNodeDemo
 {
@@ -474,9 +476,9 @@ class SchedulerTest1 : TestCocosNodeDemo
 		var layer = cc.Node()
 		addChild(layer, 0)
 		
-		var handler = session.scheduler.once(this, doSomething, 0)
+		var handler = cocos.director.scheduler.once(this, doSomething, 0)
 		
-		session.scheduler.unbind(handler)
+		cocos.director.scheduler.unbind(handler)
 	}
 	
 	function doSomething(dt)
@@ -496,7 +498,9 @@ class SchedulerTest1 : TestCocosNodeDemo
 	}
 }
 
- class NodeToWorld : TestCocosNodeDemo
+////////////////////////////////////////////////////////////////////////////////
+
+class NodeToWorld : TestCocosNodeDemo
 {
 	constructor()
 	{
@@ -529,6 +533,8 @@ class SchedulerTest1 : TestCocosNodeDemo
 		return "nodeToParent transform"
 	}
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 class CameraOrbitTest : TestCocosNodeDemo
 {
@@ -593,6 +599,8 @@ class CameraOrbitTest : TestCocosNodeDemo
 	function title()		{ return  "Camera Orbit test";	}
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 class CameraZoomTest : TestCocosNodeDemo
 {
 	m_z = null
@@ -636,7 +644,7 @@ class CameraZoomTest : TestCocosNodeDemo
 		
 		m_z = 0
 		
-		session.scheduler.repeat(this, update, 0.05)
+		cocos.director.scheduler.repeat(this, update, 0.05)
 	}
 	
 	function update(evt: TickEvent)
@@ -658,6 +666,8 @@ class CameraZoomTest : TestCocosNodeDemo
 	function title()		{ return  "Camera Orbit test";	}
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 class ConvertToNode : TestCocosNodeDemo
 {
 	constructor()
@@ -669,7 +679,7 @@ class ConvertToNode : TestCocosNodeDemo
 		var rotate = cc.action.RotateBy(10, -360)
 		var action = cc.action.RepeatForever(rotate)
 
-		for( var i=0; i<3; i++)
+		for (var i=0; i<3; i++)
 		{
 			var sprite = cc.Sprite(pack.locate("grossini.png", "*Image*"))
 			sprite.position = cc.Point(s.width/4 *(i+1), s.height/2)
@@ -679,7 +689,7 @@ class ConvertToNode : TestCocosNodeDemo
 			point.position = sprite.position
 			addChild(point, 10, 100+i)
 			
-			switch(i)
+			switch (i)
 			{
 				case 0:
 					sprite.anchorPoint=cc.Point(0,0)
@@ -697,8 +707,8 @@ class ConvertToNode : TestCocosNodeDemo
 			addChild(sprite, i)
 		}
 		
-		this.touchEnabled = true
-		channel().priority(-10000).bind(Events.OnCCTouchEnded, this, onTouchEnded)
+		touchEnabled = true
+		channel().bind(Events.OnCCTouchEnded, this, onTouchEnded)
 	}
 
 	function onTouchEnded(evt: cc.TouchEvent)
@@ -724,6 +734,20 @@ class ConvertToNode : TestCocosNodeDemo
 	function subtitle()		{ return "testing convertToNodeSPace / AR. Touch and see console"}
 }
 
+////////////////////////////////////////////////////////////////////////////////
 
+class CocosNodeTestScene : TestScene
+{
+	constructor()
+	{
+		base.constructor()
+	}
+	
+	function runThisTest()
+	{
+		addChild(nextCocosNodeAction())
+		cocos.director.replaceScene(this)
+	}
+}
 
 return CocosNodeTestScene()

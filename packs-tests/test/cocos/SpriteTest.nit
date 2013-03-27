@@ -1,31 +1,38 @@
 var pack = script.locator
 
-kTagTileMap 		:= 1
-kTagSpriteBatchNode := 1
-kTagNode 			:= 2
-kTagAnimation1 		:= 1
-kTagSpriteLeft		:= 2
-kTagSpriteRight		:= 3
+////////////////////////////////////////////////////////////////////////////////
 
-kTagSprite1 := 0
-kTagSprite2	:= 1
-kTagSprite3	:= 2
-kTagSprite4	:= 3
-kTagSprite5	:= 4
-kTagSprite6	:= 5
-kTagSprite7	:= 6
-kTagSprite8	:= 7
-
-IDC_NEXT 	:= 100
-IDC_BACK	:= 101
-IDC_RESTART := 102
-
-MAX_LAYER := 48
-sceneIdx := -1
-
-function createSpriteTestLayer(nIndex)
+var TAG = 
 {
-	switch(nIndex)
+	TILE_MAP 		= 1
+	SPRITE_BATCH_NODE = 1
+	NODE 			= 2
+	ANIMATION1 		= 1
+	SPRITE_LEFT		= 2
+	SPRITE_RIGHT	= 3
+
+	SPRITE1 = 0
+	SPRITE2	= 1
+	SPRITE3	= 2
+	SPRITE4	= 3
+	SPRITE5	= 4
+	SPRITE6	= 5
+	SPRITE7	= 6
+	SPRITE8	= 7
+}
+
+var IDC_NEXT 	= 100
+var IDC_BACK	= 101
+var IDC_RESTART = 102
+
+var MAX_LAYER = 48
+var sceneIdx = -1
+
+////////////////////////////////////////////////////////////////////////////////
+
+var function createSpriteTestLayer(nIndex)
+{
+	switch (nIndex)
 	{
 		case 0: return  Sprite1();
         case 1: return  SpriteBatchNode1();
@@ -68,7 +75,7 @@ function createSpriteTestLayer(nIndex)
         case 38: return  SpriteBatchNodeChildrenChildren();
         case 39: return  SpriteNilTexture();
         case 40: return  SpriteSubclass();
-        case 41: return  animationCache();
+        case 41: return  AnimationCache();
 		case 42: return  SpriteOffsetAnchorSkew();
 		case 43: return  SpriteBatchNodeOffsetAnchorSkew();
 		case 44: return  SpriteOffsetAnchorSkewScale();
@@ -78,7 +85,7 @@ function createSpriteTestLayer(nIndex)
 	}
 }
 
-function nextSpriteTestAction()
+var function nextSpriteTestAction()
 {
     sceneIdx++;
     sceneIdx = sceneIdx % MAX_LAYER;
@@ -87,7 +94,7 @@ function nextSpriteTestAction()
     return pLayer;
 }
 
-function backSpriteTestAction()
+var function backSpriteTestAction()
 {
     sceneIdx--
     var total = MAX_LAYER
@@ -98,26 +105,13 @@ function backSpriteTestAction()
     return pLayer;
 }
 
-function restartSpriteTestAction()
+var function restartSpriteTestAction()
 {
     var pLayer = createSpriteTestLayer(sceneIdx);
     return pLayer;
 } 
 
-class SpriteTestScene : TestScene
-{
-	constructor()
-	{
-		base.constructor()
-	}
-	
-	function runThisTest()
-	{
-		var pLayer = nextSpriteTestAction()
-		addChild(pLayer);
-		cocos.director.replaceScene(this)
-	}
-}
+////////////////////////////////////////////////////////////////////////////////
 
 class SpriteTestDemo : cc.ScriptLayer
 {
@@ -131,13 +125,13 @@ class SpriteTestDemo : cc.ScriptLayer
 		
 		var label = cc.LabelTTF(title(), "Arial", 28)
 		label.position = cc.Point(x / 2, y - 50)
-		this.addChild(label, 1)
+		addChild(label, 1)
 		
 		var strSubtitle = subtitle()
 		if (strSubtitle != "")
 		{
-			var l = cc.LabelTTF(strSubtitle, "Thonburi", 16)
-			this.addChild(l, 1)
+			var l = cc.LabelTTF(strSubtitle, "Arial", 16)
+			addChild(l, 1)
 			l.position = cc.Point(x / 2, y - 80)
 		}
 		
@@ -147,10 +141,10 @@ class SpriteTestDemo : cc.ScriptLayer
 		
 		var menu = cc.Menu(item1, item2, item3);
 		menu.position= cc.Point(0,0);
-		item1.position= cc.Point( size.width/2 - 100,30) ;
-		item2.position= cc.Point( size.width/2, 30) ;
-		item3.position= cc.Point( size.width/2 + 100,30) ;
-		this.addChild( menu, 1 );
+		item1.position= cc.Point(size.width/2 - 100,30) ;
+		item2.position= cc.Point(size.width/2, 30) ;
+		item3.position= cc.Point(size.width/2 + 100,30) ;
+		addChild(menu, 1);
 	}
 	
 	function title()
@@ -195,11 +189,9 @@ class SpriteTestDemo : cc.ScriptLayer
 		cocos.director.replaceScene(s)
 	}
 }
-///////////////////////////////////////////////
-//
-// Sprite1
-//
-///////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+
 class Sprite1 : SpriteTestDemo
 {
 	constructor()
@@ -210,9 +202,9 @@ class Sprite1 : SpriteTestDemo
 		var size = cocos.director.winSize;
 		var x = size.width;
 		var y = size.height;
-		addNewSpriteWithCoords( cc.Point(x/2, y/2) )
+		addNewSpriteWithCoords(cc.Point(x/2, y/2))
 		
-		this.channel().priority(-10000).bind(Events.OnCCTouchEnded, this, ccTouchesEnded)
+		channel().bind(Events.OnCCTouchEnded, this, ccTouchesEnded)
 	}
 	
 	function onEnter()
@@ -231,29 +223,29 @@ class Sprite1 : SpriteTestDemo
 		var x = (idx mod 5) * 85;
 		var y = (idx div 5) * 125;
 		
-		var sprite = cc.Sprite( pack.locate("grossini_dance_atlas.png"), 
-											cc.Rect(x,y,85,125) );
-		addChild( sprite );
+		var sprite = cc.Sprite(pack.locate("grossini_dance_atlas.png"), 
+											cc.Rect(x,y,85,125));
+		addChild(sprite);
 		sprite.position = cc.Point(p.x, p.y);
 		
 		var action = null;
 		var random = math.random()
 		
-		if( random < 0.20 )
+		if (random < 0.20)
 			action = cc.action.ScaleBy(3, 2);
-		else if(random < 0.40)
+		else if (random < 0.40)
 			action = cc.action.RotateBy(3, 360);
-		else if( random < 0.60)
+		else if (random < 0.60)
 			action = cc.action.Blink(1, 3);
-		else if( random < 0.8 )
+		else if (random < 0.8)
 			action = cc.action.TintBy(2, 0, -255, -255);
 		else 
 			action = cc.action.FadeOut(2);
 			
 		var action_back = action.reverse();
-		var seq = cc.action.Sequence( action, action_back);
+		var seq = cc.action.Sequence(action, action_back);
 		
-		sprite.runAction( cc.action.RepeatForever(seq) )
+		sprite.runAction(cc.action.RepeatForever(seq))
 	}
 	
 	function ccTouchesEnded(evt: cc.TouchEvent)
@@ -263,7 +255,7 @@ class Sprite1 : SpriteTestDemo
 			var location = touch.locationInView(touch.view)
 			location = cocos.director.toGl(location);
 		
-			addNewSpriteWithCoords( location );
+			addNewSpriteWithCoords(location);
 		}
 	}
 
@@ -273,12 +265,8 @@ class Sprite1 : SpriteTestDemo
 	}
 }
 
+////////////////////////////////////////////////////////////////////////////////
 
-//------------------------------------------------------------------
-//
-// SpriteBatchNode1
-//
-//------------------------------------------------------------------
 class SpriteBatchNode1 : SpriteTestDemo
 {
 	constructor()
@@ -288,14 +276,14 @@ class SpriteBatchNode1 : SpriteTestDemo
 		touchEnabled = true
 		
 		var BatchNode = cc.SpriteBatchNode(pack.locate("grossini_dance_atlas.png"), 50);
-		addChild(BatchNode, 0, kTagSpriteBatchNode)
+		addChild(BatchNode, 0, TAG.SPRITE_BATCH_NODE)
 		
 		var size = cocos.director.winSize;
 		var x = size.width;
 		var y = size.height;
-		addNewSpriteWithCoords( cc.Point(x/2, y/2) )
+		addNewSpriteWithCoords(cc.Point(x/2, y/2))
 		
-		this.channel().priority(-10000).bind(Events.OnCCTouchEnded, this, ccTouchesEnded)
+		channel().bind(Events.OnCCTouchEnded, this, ccTouchesEnded)
 	}
 	
 	function onEnter()
@@ -310,35 +298,35 @@ class SpriteBatchNode1 : SpriteTestDemo
 	
 	function addNewSpriteWithCoords(p)
 	{
-		var BatchNode = getChildByTag(kTagSpriteBatchNode)
+		var BatchNode = getChildByTag(TAG.SPRITE_BATCH_NODE)
 	
 		var idx = math.random() * 14;
 		var x = (idx mod 5) * 85;
 		var y = (idx div 5) * 125;
 		
-		var sprite = cc.Sprite( BatchNode.texture, 
-											cc.Rect(x,y,85,125) );
-		addChild( sprite );
+		var sprite = cc.Sprite(BatchNode.texture, 
+											cc.Rect(x,y,85,125));
+		addChild(sprite);
 		sprite.position = cc.Point(p.x, p.y);
 		
 		var action = null;
 		var random = math.random()
 		
-		if( random < 0.20 )
+		if (random < 0.20)
 			action = cc.action.ScaleBy(3, 2);
-		else if(random < 0.40)
+		else if (random < 0.40)
 			action = cc.action.RotateBy(3, 360);
-		else if( random < 0.60)
+		else if (random < 0.60)
 			action = cc.action.Blink(1, 3);
-		else if( random < 0.8 )
+		else if (random < 0.8)
 			action = cc.action.TintBy(2, 0, -255, -255);
 		else 
 			action = cc.action.FadeOut(2);
 			
 		var action_back = action.reverse();
-		var seq = cc.action.Sequence( action, action_back);
+		var seq = cc.action.Sequence(action, action_back);
 		
-		sprite.runAction( cc.action.RepeatForever(seq) )
+		sprite.runAction(cc.action.RepeatForever(seq))
 	}
 	
 	function ccTouchesEnded(evt: cc.TouchEvent)
@@ -348,7 +336,7 @@ class SpriteBatchNode1 : SpriteTestDemo
 			var location = touch.locationInView(touch.view)
 			location = cocos.director.toGl(location);
 		
-			addNewSpriteWithCoords( location );
+			addNewSpriteWithCoords(location);
 		}
 	}
 
@@ -358,15 +346,11 @@ class SpriteBatchNode1 : SpriteTestDemo
 	}
 }
 
-//------------------------------------------------------------------
-//
-// Spritecoloropacity
-//
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 
 class Spritecoloropacity : SpriteTestDemo
 {
-	_update = null
+	var _update = null
 	
 	constructor()
 	{
@@ -391,13 +375,13 @@ class Spritecoloropacity : SpriteTestDemo
 		
 		var s = cocos.director.winSize;
 		sprite1.position = cc.Point((s.width/5)*1, (s.height/3)*1)
-		sprite2.position = cc.Point( (s.width/5)*2, (s.height/3)*1) 
-		sprite3.position = cc.Point( (s.width/5)*3, (s.height/3)*1) 
-		sprite4.position = cc.Point( (s.width/5)*4, (s.height/3)*1) 
-		sprite5.position = cc.Point( (s.width/5)*1, (s.height/3)*2)
-		sprite6.position = cc.Point( (s.width/5)*2, (s.height/3)*2) 
-		sprite7.position = cc.Point( (s.width/5)*3, (s.height/3)*2)
-		sprite8.position = cc.Point( (s.width/5)*4, (s.height/3)*2)
+		sprite2.position = cc.Point((s.width/5)*2, (s.height/3)*1) 
+		sprite3.position = cc.Point((s.width/5)*3, (s.height/3)*1) 
+		sprite4.position = cc.Point((s.width/5)*4, (s.height/3)*1) 
+		sprite5.position = cc.Point((s.width/5)*1, (s.height/3)*2)
+		sprite6.position = cc.Point((s.width/5)*2, (s.height/3)*2) 
+		sprite7.position = cc.Point((s.width/5)*3, (s.height/3)*2)
+		sprite8.position = cc.Point((s.width/5)*4, (s.height/3)*2)
 		
 		var action = cc.action.FadeIn(2)
 		var action_back = action.reverse()
@@ -420,33 +404,23 @@ class Spritecoloropacity : SpriteTestDemo
 		sprite7.runAction(blue);
 		sprite8.runAction(fade);
 		
-		addChild(sprite1, 0, kTagSprite1);
-		addChild(sprite2, 0, kTagSprite2);
-		addChild(sprite3, 0, kTagSprite3);
-		addChild(sprite4, 0, kTagSprite4);
-		addChild(sprite5, 0, kTagSprite5);
-		addChild(sprite6, 0, kTagSprite6);
-		addChild(sprite7, 0, kTagSprite7);
-		addChild(sprite8, 0, kTagSprite8);
+		addChild(sprite1, 0, TAG.SPRITE1);
+		addChild(sprite2, 0, TAG.SPRITE2);
+		addChild(sprite3, 0, TAG.SPRITE3);
+		addChild(sprite4, 0, TAG.SPRITE4);
+		addChild(sprite5, 0, TAG.SPRITE5);
+		addChild(sprite6, 0, TAG.SPRITE6);
+		addChild(sprite7, 0, TAG.SPRITE7);
+		addChild(sprite8, 0, TAG.SPRITE8);
 		
-		_update = session.scheduler.repeat(this, removeAndAddSprite, 2.0)
-	}
-	
-	function onEnter()
-	{
-		print(this + ": onEnter")
-	}
-	
-	function onExit()
-	{
-		print(this + ": onExit")
+		_update = cocos.director.scheduler.repeat(this, removeAndAddSprite, 2.0)
 	}
 	
 	function removeAndAddSprite()
 	{
-		var sprite = getChildByTag(kTagSprite5)
+		var sprite = getChildByTag(TAG.SPRITE5)
 		removeChild(sprite, false)
-		addChild(sprite, 0, kTagSprite5)
+		addChild(sprite, 0, TAG.SPRITE5)
 	}
 
 	function title()
@@ -455,22 +429,18 @@ class Spritecoloropacity : SpriteTestDemo
 	}
 }
 
-//------------------------------------------------------------------
-//
-// SpriteBatchNodecoloropacity
-//
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 
 class SpriteBatchNodecoloropacity : SpriteTestDemo
 {
-	_update = null
+	var _update = null
 	
 	constructor()
 	{
 		base.constructor()
 		
 		var  batch = cc.SpriteBatchNode(pack.locate("grossini_dance_atlas.png"), 1);
-		addChild(batch, 0, kTagSpriteBatchNode)
+		addChild(batch, 0, TAG.SPRITE_BATCH_NODE)
 		
 		var sprite1 = cc.Sprite(batch.texture, cc.Rect(85*0, 121*1, 85, 121))
 		var sprite2 = cc.Sprite(batch.texture, cc.Rect(85*1, 121*1, 85, 121));
@@ -483,13 +453,13 @@ class SpriteBatchNodecoloropacity : SpriteTestDemo
 		
 		var s = cocos.director.winSize;
 		sprite1.position = cc.Point((s.width/5)*1, (s.height/3)*1)
-		sprite2.position = cc.Point( (s.width/5)*2, (s.height/3)*1) 
-		sprite3.position = cc.Point( (s.width/5)*3, (s.height/3)*1) 
-		sprite4.position = cc.Point( (s.width/5)*4, (s.height/3)*1) 
-		sprite5.position = cc.Point( (s.width/5)*1, (s.height/3)*2)
-		sprite6.position = cc.Point( (s.width/5)*2, (s.height/3)*2) 
-		sprite7.position = cc.Point( (s.width/5)*3, (s.height/3)*2)
-		sprite8.position = cc.Point( (s.width/5)*4, (s.height/3)*2)
+		sprite2.position = cc.Point((s.width/5)*2, (s.height/3)*1) 
+		sprite3.position = cc.Point((s.width/5)*3, (s.height/3)*1) 
+		sprite4.position = cc.Point((s.width/5)*4, (s.height/3)*1) 
+		sprite5.position = cc.Point((s.width/5)*1, (s.height/3)*2)
+		sprite6.position = cc.Point((s.width/5)*2, (s.height/3)*2) 
+		sprite7.position = cc.Point((s.width/5)*3, (s.height/3)*2)
+		sprite8.position = cc.Point((s.width/5)*4, (s.height/3)*2)
 		
 		var action = cc.action.FadeIn(2)
 		var action_back = action.reverse()
@@ -512,34 +482,24 @@ class SpriteBatchNodecoloropacity : SpriteTestDemo
 		sprite7.runAction(blue);
 		sprite8.runAction(fade);
 		
-		batch.addChild(sprite1, 0, kTagSprite1);
-		batch.addChild(sprite2, 0, kTagSprite2);
-		batch.addChild(sprite3, 0, kTagSprite3);
-		batch.addChild(sprite4, 0, kTagSprite4);
-		batch.addChild(sprite5, 0, kTagSprite5);
-		batch.addChild(sprite6, 0, kTagSprite6);
-		batch.addChild(sprite7, 0, kTagSprite7);
-		batch.addChild(sprite8, 0, kTagSprite8);
+		batch.addChild(sprite1, 0, TAG.SPRITE1);
+		batch.addChild(sprite2, 0, TAG.SPRITE2);
+		batch.addChild(sprite3, 0, TAG.SPRITE3);
+		batch.addChild(sprite4, 0, TAG.SPRITE4);
+		batch.addChild(sprite5, 0, TAG.SPRITE5);
+		batch.addChild(sprite6, 0, TAG.SPRITE6);
+		batch.addChild(sprite7, 0, TAG.SPRITE7);
+		batch.addChild(sprite8, 0, TAG.SPRITE8);
 		
-		_update = session.scheduler.repeat(this, removeAndAddSprite, 2.0)
-	}
-	
-	function onEnter()
-	{
-		print(this + ": onEnter")
-	}
-	
-	function onExit()
-	{
-		print(this + ": onExit")
+		_update = cocos.director.scheduler.repeat(this, removeAndAddSprite, 2.0)
 	}
 	
 	function removeAndAddSprite()
 	{
-		var batch = getChildByTag(kTagSpriteBatchNode)
-		var sprite = batch.getChildByTag(kTagSprite5)
+		var batch = getChildByTag(TAG.SPRITE_BATCH_NODE)
+		var sprite = batch.getChildByTag(TAG.SPRITE5)
 		batch.removeChild(sprite, false)
-		batch.addChild(sprite, 0, kTagSprite5)
+		batch.addChild(sprite, 0, TAG.SPRITE5)
 	}
 
 	function title()
@@ -548,15 +508,11 @@ class SpriteBatchNodecoloropacity : SpriteTestDemo
 	}
 }
 
-//------------------------------------------------------------------
-//
-// Sprite ZOrder
-//
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 
 class SpriteZOrder : SpriteTestDemo
 {
-	m_dir = 1;
+	var _dir = 1;
 	
 	constructor()
 	{
@@ -565,17 +521,17 @@ class SpriteZOrder : SpriteTestDemo
 		var s = cocos.director.winSize;
 		var step = s.width/11;
 		
-		for( var i = 0; i< 5; i++)
+		for (var i = 0; i< 5; i++)
 		{
 			var sprite = cc.Sprite(pack.locate("grossini_dance_atlas.png"), cc.Rect(85*0, 121*1, 85, 121))
-			sprite.position = cc.Point( (i+1)*step, s.height/2)
+			sprite.position = cc.Point((i+1)*step, s.height/2)
 			addChild(sprite, i)
 		}
 		
-		for( var i = 5;  i<10; i++)
+		for (var i = 5;  i<10; i++)
 		{
 			var sprite = cc.Sprite(pack.locate("grossini_dance_atlas.png"), cc.Rect(85*0, 121*0, 85, 121))
-			sprite.position = cc.Point( (i+1)*step, s.height/2)
+			sprite.position = cc.Point((i+1)*step, s.height/2)
 			addChild(sprite, 14-i)
 		}
 		
@@ -585,7 +541,7 @@ class SpriteZOrder : SpriteTestDemo
 		sprite.scaleX = 6
 		sprite.color = nit.Color.RED
 		
-		session.scheduler.repeat(this, reorderSprite, 1)
+		cocos.director.scheduler.repeat(this, reorderSprite, 1)
 	}
 	
 	function reorderSprite(dt)
@@ -594,13 +550,13 @@ class SpriteZOrder : SpriteTestDemo
 		var z = sprite.zOrder;
 		
 		if (z < -1)
-			m_dir = 1;
+			_dir = 1;
 		if (z > 10)
-			m_dir = -1
+			_dir = -1
 			
-		z += m_dir * 3
+		z += _dir * 3
 		
-		this.reorderChild(sprite, z)
+		reorderChild(sprite, z)
 	}
 	
 	function title()
@@ -609,15 +565,11 @@ class SpriteZOrder : SpriteTestDemo
 	}
 }
 
-//------------------------------------------------------------------
-//
-// SpriteBatchNodeReorder
-//
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 
 class SpriteBatchNodeReorder : SpriteTestDemo
 {
-	m_dir = 1;
+	var _dir = 1;
 	
 	constructor()
 	{
@@ -626,19 +578,19 @@ class SpriteBatchNodeReorder : SpriteTestDemo
 		// Don't use capacity=1 in your real game. It is expensive to resize the capacity
 		var a = []
 		var asmtest = cc.SpriteBatchNode(pack.locate("ghosts.png"))
-		//addChild(batch, 0, kTagSpriteBatchNode)
+		//addChild(batch, 0, TAG.SPRITE_BATCH_NODE)
 	
 		var s = cocos.director.winSize;
 		var step = s.width/11;
 		
-		for( var i = 0; i< 10; i++)
+		for (var i = 0; i< 10; i++)
 		{
 			var s1 = cc.Sprite(asmtest, cc.Rect(0,0,50,50))
 			a.push(s1)
 			asmtest.addChild(s1, 10)
 		}
 		
-		for( var i = 0; i< 10; i++)
+		for (var i = 0; i< 10; i++)
 		{
 			if (i!=5)
 			{
@@ -649,7 +601,7 @@ class SpriteBatchNodeReorder : SpriteTestDemo
 		var prev = -1
 		var children = asmtest.children
 		var child = null
-		foreach(k,v in children)
+		foreach (k,v in children)
 		{
 			child = v
 			if (!child)
@@ -660,7 +612,7 @@ class SpriteBatchNodeReorder : SpriteTestDemo
 		prev = -1
 		var sChildren = asmtest.getDescendants()
 		
-		foreach(k, v in sChildren)
+		foreach (k, v in sChildren)
 		{
 			child = v
 			if (!child)
@@ -681,15 +633,11 @@ class SpriteBatchNodeReorder : SpriteTestDemo
 	}
 }
 
-//------------------------------------------------------------------
-//
-// SpriteBatchNodeZOrder
-//
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 
 class SpriteBatchNodeZOrder : SpriteTestDemo
 {
-	m_dir = 1;
+	var _dir = 1;
 	
 	constructor()
 	{
@@ -698,46 +646,46 @@ class SpriteBatchNodeZOrder : SpriteTestDemo
 		 // small capacity. Testing resizing.
 		// Don't use capacity=1 in your real game. It is expensive to resize the capacity
 		var batch = cc.SpriteBatchNode(pack.locate("grossini_dance_atlas.png"), 1)
-		addChild(batch, 0, kTagSpriteBatchNode)
+		addChild(batch, 0, TAG.SPRITE_BATCH_NODE)
 	
 		var s = cocos.director.winSize;
 		var step = s.width/11;
 		
-		for( var i = 0; i< 5; i++)
+		for (var i = 0; i< 5; i++)
 		{
 			var sprite = cc.Sprite(batch.texture, cc.Rect(85*0, 121*1, 85, 121))
-			sprite.position = cc.Point( (i+1)*step, s.height/2)
+			sprite.position = cc.Point((i+1)*step, s.height/2)
 			batch.addChild(sprite, i)
 		}
 		
-		for( var i = 5;  i<10; i++)
+		for (var i = 5;  i<10; i++)
 		{
 			var sprite = cc.Sprite(batch.texture, cc.Rect(85*0, 121*0, 85, 121))
-			sprite.position = cc.Point( (i+1)*step, s.height/2)
+			sprite.position = cc.Point((i+1)*step, s.height/2)
 			batch.addChild(sprite, 14-i)
 		}
 		
 		var sprite = cc.Sprite(batch.texture, cc.Rect(85*3, 121*0, 85, 121))
-		batch.addChild(sprite, -1, kTagSprite1)
+		batch.addChild(sprite, -1, TAG.SPRITE1)
 		sprite.position = cc.Point(s.width/2, s.height/2 - 20)
 		sprite.scaleX = 6
 		sprite.color = nit.Color.RED
 		
-		session.scheduler.repeat(this, reorderSprite, 1)
+		cocos.director.scheduler.repeat(this, reorderSprite, 1)
 	}
 	
 	function reorderSprite()
 	{
-		var batch = getChildByTag(kTagSpriteBatchNode)
-		var sprite = batch.getChildByTag(kTagSprite1)
+		var batch = getChildByTag(TAG.SPRITE_BATCH_NODE)
+		var sprite = batch.getChildByTag(TAG.SPRITE1)
 		var z = sprite.zOrder;
 		
 		if (z < -1)
-			m_dir = 1;
+			_dir = 1;
 		if (z > 10)
-			m_dir = -1
+			_dir = -1
 			
-		z += m_dir * 3
+		z += _dir * 3
 		
 		batch.reorderChild(sprite, z)
 	}
@@ -748,11 +696,7 @@ class SpriteBatchNodeZOrder : SpriteTestDemo
 	}
 }
 
-//------------------------------------------------------------------
-//
-// SpriteBatchNodeReorderIssue744
-//
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 
 class SpriteBatchNodeReorderIssue744 : SpriteTestDemo
 {
@@ -763,7 +707,7 @@ class SpriteBatchNodeReorderIssue744 : SpriteTestDemo
 		// Testing issue #744
 		// http://code.google.com/p/cocos2d-iphone/issues/detail?id=744
 		var batch = cc.SpriteBatchNode(pack.locate("grossini_dance_atlas.png"), 15)
-		addChild(batch, 0, kTagSpriteBatchNode);
+		addChild(batch, 0, TAG.SPRITE_BATCH_NODE);
 		
 		var s = cocos.director.winSize;
 		var sprite = cc.Sprite(batch, cc.Rect(0, 0, 85, 121))
@@ -783,16 +727,12 @@ class SpriteBatchNodeReorderIssue744 : SpriteTestDemo
 	}
 }
 
-//------------------------------------------------------------------
-//
-// SpriteBatchNodeReorderIssue766
-//
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 
 class SpriteBatchNodeReorderIssue766 : SpriteTestDemo
 {
-	_batchNode = null
-	_sprite1 = null
+	var _batchNode = null
+	var _sprite1 = null
 	
 	constructor()
 	{
@@ -810,7 +750,7 @@ class SpriteBatchNodeReorderIssue766 : SpriteTestDemo
 		var sprite3 =  makeSpriteZ(4)
 		sprite3.position = cc.Point(328, 160) 
 		
-		session.scheduler.once(this, reorderSprite, 2)
+		cocos.director.scheduler.once(this, reorderSprite, 2)
 	}
 	
 	function makeSpriteZ(aZ)
@@ -844,11 +784,7 @@ class SpriteBatchNodeReorderIssue766 : SpriteTestDemo
 	}
 }
 
-//------------------------------------------------------------------
-//
-// SpriteBatchNodeReorderIssue767
-//
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 
 class SpriteBatchNodeReorderIssue767 : SpriteTestDemo
 {
@@ -864,25 +800,25 @@ class SpriteBatchNodeReorderIssue767 : SpriteTestDemo
 		//
 		// SpriteBatchNode: 3 levels of children
 		//
-		aParent = cc.SpriteBatchNode(pack.locate("ghosts.png") )
-		addChild(aParent, 0, kTagSprite1)
+		aParent = cc.SpriteBatchNode(pack.locate("ghosts.png"))
+		addChild(aParent, 0, TAG.SPRITE1)
 		
 		//parent
-		l1 = cc.Sprite( cocos.spriteFrameCache.spriteFrameByName("father.gif"))
+		l1 = cc.Sprite(cocos.spriteFrameCache.spriteFrameByName("father.gif"))
 		l1.position = cc.Point(s.width/2, s.height/2)
-		aParent.addChild(l1, 0, kTagSprite2)
+		aParent.addChild(l1, 0, TAG.SPRITE2)
 		var l1Size = l1.contentSize;
 		
 		//child left
 		l2a = cc.Sprite(cocos.spriteFrameCache.spriteFrameByName("sister1.gif"))
 		l2a.position = cc.Point(-25 + l1Size.width/2, 0 + l1Size.height/2)
-		l1.addChild(l2a, -1,  kTagSpriteLeft)
+		l1.addChild(l2a, -1,  TAG.SPRITE_LEFT)
 		var l2aSize = l2a.contentSize
 		
 		//child right
-		l2b = cc.Sprite( cocos.spriteFrameCache.spriteFrameByName("sister2.gif") )
+		l2b = cc.Sprite(cocos.spriteFrameCache.spriteFrameByName("sister2.gif"))
 		l2b.position = cc.Point(25 + l1Size.width/2, 0 + l1Size.height/2)
-		l1.addChild(l2b, 1,  kTagSpriteRight)
+		l1.addChild(l2b, 1,  TAG.SPRITE_RIGHT)
 		var l2bSize = l2b.contentSize
 		
 		//child left bottom
@@ -911,15 +847,15 @@ class SpriteBatchNodeReorderIssue767 : SpriteTestDemo
 		l2b.addChild(l3b2, 1)
 		var l2aSize = l2a.contentSize
 		
-		session.scheduler.repeat(this, reorderSprites, 1)
+		cocos.director.scheduler.repeat(this, reorderSprites, 1)
 	}
 	
 	function reorderSprites(dt)
 	{
-		var spritebatch = getChildByTag(kTagSprite1)
-		var father  = spritebatch.getChildByTag(kTagSprite2)
-		var left = father.getChildByTag(kTagSpriteLeft)
-		var right = father.getChildByTag(kTagSpriteRight)
+		var spritebatch = getChildByTag(TAG.SPRITE1)
+		var father  = spritebatch.getChildByTag(TAG.SPRITE2)
+		var left = father.getChildByTag(TAG.SPRITE_LEFT)
+		var right = father.getChildByTag(TAG.SPRITE_RIGHT)
 		
 		var newZLeft = 1
 		
@@ -941,16 +877,12 @@ class SpriteBatchNodeReorderIssue767 : SpriteTestDemo
 	}
 }
 
-//------------------------------------------------------------------
-//
-// SpriteZVertex
-//
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 
 class SpriteZVertex : SpriteTestDemo
 {
-	m_dir = 1
-	m_time = 0
+	var _dir = 1
+	var _time = 0
 	
 	constructor()
 	{
@@ -972,14 +904,14 @@ class SpriteZVertex : SpriteTestDemo
 		node.position = cc.Point(s.width/2, s.height/2)
 		addChild(node, 0)
 		
-		for(var i=0; i<5; i++)
+		for (var i=0; i<5; i++)
 		{
 			var sprite = cc.Sprite(pack.locate("grossini_dance_atlas.png"), cc.Rect(0, 121, 85, 121))
 			sprite.position = cc.Point((i+1)*step, s.height/2)
 			sprite.vertexZ = 10 + i*40
 			node.addChild(sprite, 0)
 		}
-		for(var i=5; i<11; i++)
+		for (var i=5; i<11; i++)
 		{
 			var sprite = cc.Sprite(pack.locate("grossini_dance_atlas.png"), cc.Rect(85, 0, 85, 121))
 			sprite.position = cc.Point((i+1)*step, s.height/2)
@@ -987,7 +919,7 @@ class SpriteZVertex : SpriteTestDemo
 			node.addChild(sprite, 0)
 		}
 		
-		node.runAction( cc.action.OrbitCamera(10, 1, 0, 0, 360, 0, 0) )
+		node.runAction(cc.action.OrbitCamera(10, 1, 0, 0, 360, 0, 0))
 	}
 	
 	function onEnter()
@@ -995,7 +927,7 @@ class SpriteZVertex : SpriteTestDemo
 		print(this + ": onEnter")
 		// TIP: don't forget to enable Alpha test
 		
-		//NOTE: can't call functions below.
+		// NOTE: can't call functions below.
 		//glEnable(GL_ALPHA_TEST);
 		//glAlphaFunc(GL_GREATER, 0.0f);
 		cocos.director.projection = cocos.director.PROJ_3D
@@ -1015,16 +947,12 @@ class SpriteZVertex : SpriteTestDemo
 	}
 }
 
-//------------------------------------------------------------------
-//
-// SpriteBatchNodeZVertex
-//
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 
 class SpriteBatchNodeZVertex : SpriteTestDemo
 {
-	m_dir = 1
-	m_time = 0
+	var _dir = 1
+	var _time = 0
 	
 	constructor()
 	{
@@ -1045,16 +973,16 @@ class SpriteBatchNodeZVertex : SpriteTestDemo
 		batch.contentSize = cc.Size(s.width, s.height)
 		batch.anchorPoint = cc.Point(0.5, 0.5)
 		batch.position = cc.Point(s.width/2, s.height/2)
-		addChild(batch, 0, kTagSpriteBatchNode)
+		addChild(batch, 0, TAG.SPRITE_BATCH_NODE)
 		
-		for(var i=0; i<5; i++)
+		for (var i=0; i<5; i++)
 		{
 			var sprite = cc.Sprite(pack.locate("grossini_dance_atlas.png"), cc.Rect(0, 121, 85, 121))
 			sprite.position = cc.Point((i+1)*step, s.height/2)
 			sprite.vertexZ = 10 + i*40
 			batch.addChild(sprite, 0)
 		}
-		for(var i=5; i<11; i++)
+		for (var i=5; i<11; i++)
 		{
 			var sprite = cc.Sprite(pack.locate("grossini_dance_atlas.png"), cc.Rect(85, 0, 85, 121))
 			sprite.position = cc.Point((i+1)*step, s.height/2)
@@ -1062,7 +990,7 @@ class SpriteBatchNodeZVertex : SpriteTestDemo
 			batch.addChild(sprite, 0)
 		}
 		
-		batch.runAction( cc.action.OrbitCamera(10, 1, 0, 0, 360, 0, 0) )
+		batch.runAction(cc.action.OrbitCamera(10, 1, 0, 0, 360, 0, 0))
 	}
 	
 	function onEnter()
@@ -1090,11 +1018,7 @@ class SpriteBatchNodeZVertex : SpriteTestDemo
 	}
 }
 
-//------------------------------------------------------------------
-//
-// SpriteAnchorPoint
-//
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 
 class SpriteAnchorPoint : SpriteTestDemo
 {
@@ -1113,7 +1037,7 @@ class SpriteAnchorPoint : SpriteTestDemo
 		var rotate2 = cc.action.RotateBy(10, 360)
 		action.push(cc.action.RepeatForever(rotate2))
 		
-		for( var i=0; i<3; i++)
+		for (var i=0; i<3; i++)
 		{
 			var sprite = cc.Sprite(pack.locate("grossini_dance_atlas.png"),
 			cc.Rect(85*i, 121*1, 85, 121))
@@ -1124,7 +1048,7 @@ class SpriteAnchorPoint : SpriteTestDemo
 			point.position = sprite.position
 			addChild(point, 10)
 			
-			switch(i)
+			switch (i)
 			{
 				case 0:	sprite.anchorPoint= cc.Point(0,0) 		
 						break
@@ -1145,11 +1069,7 @@ class SpriteAnchorPoint : SpriteTestDemo
 	}
 }
 
-//------------------------------------------------------------------
-//
-// SpriteBatchNodeAnchorPoint
-//
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 
 class SpriteBatchNodeAnchorPoint : SpriteTestDemo
 {
@@ -1158,7 +1078,7 @@ class SpriteBatchNodeAnchorPoint : SpriteTestDemo
 		base.constructor()
 		
 		var batch = cc.SpriteBatchNode(pack.locate("grossini_dance_atlas.png"), 1)
-		addChild(batch, 0, kTagSpriteBatchNode)
+		addChild(batch, 0, TAG.SPRITE_BATCH_NODE)
 		
 		var action = []
 		var s = cocos.director.winSize
@@ -1171,7 +1091,7 @@ class SpriteBatchNodeAnchorPoint : SpriteTestDemo
 		var rotate2 = cc.action.RotateBy(10, 360)
 		action.push(cc.action.RepeatForever(rotate2))
 		
-		for( var i=0; i<3; i++)
+		for (var i=0; i<3; i++)
 		{
 			var sprite = cc.Sprite(batch.texture, cc.Rect(85*i, 121*1, 85, 121))
 			sprite.position = cc.Point(s.width/4*(i+1), s.height/2)
@@ -1181,7 +1101,7 @@ class SpriteBatchNodeAnchorPoint : SpriteTestDemo
 			point.position = sprite.position
 			addChild(point, 10)
 			
-			switch(i)
+			switch (i)
 			{
 				case 0:	sprite.anchorPoint= cc.Point(0,0) 		
 						break
@@ -1202,11 +1122,7 @@ class SpriteBatchNodeAnchorPoint : SpriteTestDemo
 	}
 }
 
-//------------------------------------------------------------------
-//
-// Sprite6
-//
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 
 class Sprite6 : SpriteTestDemo
 {
@@ -1215,7 +1131,7 @@ class Sprite6 : SpriteTestDemo
 		base.constructor()
 		
 		var batch = cc.SpriteBatchNode(pack.locate("grossini_dance_atlas.png"), 1)
-		addChild(batch, 0, kTagSpriteBatchNode)
+		addChild(batch, 0, TAG.SPRITE_BATCH_NODE)
 		batch.relativeAnchorPoint = false
 		
 		var action = []
@@ -1245,7 +1161,7 @@ class Sprite6 : SpriteTestDemo
 		var scale_forever = cc.action.RepeatForever(scale_seq)
 		
 		var step = s.width/4
-		for( var i=0; i<3; i++)
+		for (var i=0; i<3; i++)
 		{
 			var sprite = cc.Sprite(batch.texture, cc.Rect(85*i, 121*1, 85, 121))
 			sprite.position = cc.Point((i+1)*step, s.height/2)
@@ -1262,11 +1178,7 @@ class Sprite6 : SpriteTestDemo
 	}
 }
 
-//------------------------------------------------------------------
-//
-// SpriteFlip
-//
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 
 class SpriteFlip : SpriteTestDemo
 {
@@ -1277,22 +1189,22 @@ class SpriteFlip : SpriteTestDemo
 		var s = cocos.director.winSize
 		
 		var sprite1 = cc.Sprite(pack.locate("grossini_dance_atlas.png"), 
-			cc.Rect(85, 121, 85, 121) )
+			cc.Rect(85, 121, 85, 121))
 		sprite1.position = cc.Point(s.width/2 - 100, s.height/2)
-		addChild(sprite1, 0, kTagSprite1)	
+		addChild(sprite1, 0, TAG.SPRITE1)	
 			
 		var sprite2 = cc.Sprite(pack.locate("grossini_dance_atlas.png"), 
-			cc.Rect(85, 121, 85, 121) )
+			cc.Rect(85, 121, 85, 121))
 		sprite2.position = cc.Point(s.width/2 + 100, s.height/2)
-		addChild(sprite2, 0, kTagSprite2)
+		addChild(sprite2, 0, TAG.SPRITE2)
 		
-		session.scheduler.repeat(this, flipSprites, 1)
+		cocos.director.scheduler.repeat(this, flipSprites, 1)
 	}
 		
 	function flipSprites(dt)
 	{
-		var sprite1 = getChildByTag(kTagSprite1)
-		var sprite2 = getChildByTag(kTagSprite2)
+		var sprite1 = getChildByTag(TAG.SPRITE1)
+		var sprite2 = getChildByTag(TAG.SPRITE2)
 		
 		var x = sprite1.flipX
 		var y = sprite2.flipY
@@ -1308,11 +1220,7 @@ class SpriteFlip : SpriteTestDemo
 	}
 }
 
-//------------------------------------------------------------------
-//
-// SpriteBatchNodeFlip
-//
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 
 class SpriteBatchNodeFlip : SpriteTestDemo
 {
@@ -1321,26 +1229,26 @@ class SpriteBatchNodeFlip : SpriteTestDemo
 		base.constructor()
 		
 		var batch = cc.SpriteBatchNode(pack.locate("grossini_dance_atlas.png"),10)
-		addChild(batch, 0, kTagSpriteBatchNode)
+		addChild(batch, 0, TAG.SPRITE_BATCH_NODE)
 		
 		var s = cocos.director.winSize
 		
-		var sprite1 = cc.Sprite(batch.texture, cc.Rect(85, 121, 85, 121) )
+		var sprite1 = cc.Sprite(batch.texture, cc.Rect(85, 121, 85, 121))
 		sprite1.position = cc.Point(s.width/2 - 100, s.height/2)
-		batch.addChild(sprite1, 0, kTagSprite1)	
+		batch.addChild(sprite1, 0, TAG.SPRITE1)	
 			
-		var sprite2 = cc.Sprite(batch.texture, cc.Rect(85, 121, 85, 121) )
+		var sprite2 = cc.Sprite(batch.texture, cc.Rect(85, 121, 85, 121))
 		sprite2.position = cc.Point(s.width/2 + 100, s.height/2)
-		batch.addChild(sprite2, 0, kTagSprite2)
+		batch.addChild(sprite2, 0, TAG.SPRITE2)
 		
-		session.scheduler.repeat(this, flipSprites, 1)
+		cocos.director.scheduler.repeat(this, flipSprites, 1)
 	}
 		
 	function flipSprites()
 	{
-		var batch = getChildByTag(kTagSpriteBatchNode)
-		var sprite1 = batch.getChildByTag(kTagSprite1)
-		var sprite2 = batch.getChildByTag(kTagSprite2)
+		var batch = getChildByTag(TAG.SPRITE_BATCH_NODE)
+		var sprite1 = batch.getChildByTag(TAG.SPRITE1)
+		var sprite2 = batch.getChildByTag(TAG.SPRITE2)
 		
 		var x = sprite1.flipX
 		var y = sprite2.flipY
@@ -1356,11 +1264,7 @@ class SpriteBatchNodeFlip : SpriteTestDemo
 	}
 }
 
-//------------------------------------------------------------------
-//
-// SpriteAliased
-//
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 
 class SpriteAliased : SpriteTestDemo
 {
@@ -1371,21 +1275,21 @@ class SpriteAliased : SpriteTestDemo
 		var s = cocos.director.winSize
 		var sprite1 = cc.Sprite(pack.locate("grossini_dance_atlas.png"), 
 			cc.Rect(85, 121, 85, 121))
-		sprite1.position = cc.Point( s.width/2 - 100, s.height/2)
-		addChild(sprite1, 0, kTagSprite1)
+		sprite1.position = cc.Point(s.width/2 - 100, s.height/2)
+		addChild(sprite1, 0, TAG.SPRITE1)
 		
 		var sprite2 = cc.Sprite(pack.locate("grossini_dance_atlas.png"), 
 			cc.Rect(85, 121, 85, 121))
-		sprite2.position = cc.Point( s.width/2 + 100, s.height/2)
-		addChild(sprite2, 0, kTagSprite2)
+		sprite2.position = cc.Point(s.width/2 + 100, s.height/2)
+		addChild(sprite2, 0, TAG.SPRITE2)
 		
 		var scale = cc.action.ScaleBy(2, 5)
 		var scale_back = scale.reverse()
-		var seq = cc.action.Sequence( scale, scale_back)
+		var seq = cc.action.Sequence(scale, scale_back)
 		
 		var scale1 = cc.action.ScaleBy(2, 5)
 		var scale_back1 = scale1.reverse()
-		var seq1 = cc.action.Sequence( scale1, scale_back1)
+		var seq1 = cc.action.Sequence(scale1, scale_back1)
 		
 		var repeat = cc.action.RepeatForever(seq)
 		var repeat2 = cc.action.RepeatForever(seq1)
@@ -1402,7 +1306,7 @@ class SpriteAliased : SpriteTestDemo
 		// This change will affect every sprite that uses the same texture
 		// So sprite1 and sprite2 will be affected by this change
 		//
-		var sprite = getChildByTag(kTagSprite1)
+		var sprite = getChildByTag(TAG.SPRITE1)
 		sprite.texture.setAliasTexParameters()
 	}
 	
@@ -1410,7 +1314,7 @@ class SpriteAliased : SpriteTestDemo
 	{
 		print(this + ": onExit")
 		// restore the tex parameter to AntiAliased.
-		var sprite = getChildByTag(kTagSprite1)
+		var sprite = getChildByTag(TAG.SPRITE1)
 		sprite.texture.setAntiAliasTexParameters()
 	}
 	
@@ -1420,11 +1324,7 @@ class SpriteAliased : SpriteTestDemo
 	}
 }
 
-//------------------------------------------------------------------
-//
-// SpriteBatchNodeAliased
-//
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 
 class SpriteBatchNodeAliased : SpriteTestDemo
 {
@@ -1435,23 +1335,23 @@ class SpriteBatchNodeAliased : SpriteTestDemo
 		var s = cocos.director.winSize
 		
 		var batch = cc.SpriteBatchNode(pack.locate("grossini_dance_atlas.png"),10) 
-		addChild(batch, 0, kTagSpriteBatchNode)
+		addChild(batch, 0, TAG.SPRITE_BATCH_NODE)
 		
 		var sprite1 = cc.Sprite(batch.texture, cc.Rect(85, 121, 85, 121))
-		sprite1.position = cc.Point( s.width/2 - 100, s.height/2)
-		batch.addChild(sprite1, 0, kTagSprite1)
+		sprite1.position = cc.Point(s.width/2 - 100, s.height/2)
+		batch.addChild(sprite1, 0, TAG.SPRITE1)
 		
 		var sprite2 = cc.Sprite(batch.texture, cc.Rect(85, 121, 85, 121))
-		sprite2.position = cc.Point( s.width/2 + 100, s.height/2)
-		batch.addChild(sprite2, 0, kTagSprite2)
+		sprite2.position = cc.Point(s.width/2 + 100, s.height/2)
+		batch.addChild(sprite2, 0, TAG.SPRITE2)
 		
 		var scale = cc.action.ScaleBy(2, 5)
 		var scale_back = scale.reverse()
-		var seq = cc.action.Sequence( scale, scale_back)
+		var seq = cc.action.Sequence(scale, scale_back)
 		
 		var scale1 = cc.action.ScaleBy(2, 5)
 		var scale_back1 = scale1.reverse()
-		var seq1 = cc.action.Sequence( scale1, scale_back1)
+		var seq1 = cc.action.Sequence(scale1, scale_back1)
 		
 		var repeat = cc.action.RepeatForever(seq)
 		var repeat2 = cc.action.RepeatForever(seq1)
@@ -1468,7 +1368,7 @@ class SpriteBatchNodeAliased : SpriteTestDemo
 		// This change will affect every sprite that uses the same texture
 		// So sprite1 and sprite2 will be affected by this change
 		//
-		var batch = getChildByTag(kTagSpriteBatchNode)
+		var batch = getChildByTag(TAG.SPRITE_BATCH_NODE)
 		batch.texture.setAliasTexParameters()
 	}
 	
@@ -1476,7 +1376,7 @@ class SpriteBatchNodeAliased : SpriteTestDemo
 	{
 		print(this + ": onExit")
 		// restore the tex parameter to AntiAliased.
-		var batch = getChildByTag(kTagSpriteBatchNode)
+		var batch = getChildByTag(TAG.SPRITE_BATCH_NODE)
 		batch.texture.setAntiAliasTexParameters()
 	}
 	
@@ -1486,17 +1386,13 @@ class SpriteBatchNodeAliased : SpriteTestDemo
 	}
 }
 
-//------------------------------------------------------------------
-//
-// SpriteNewTexture
-//
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 
 class SpriteNewTexture : SpriteTestDemo
 {
-	m_texture1 = null
-	m_texture2 = null
-	m_usingTexture1 = null
+	var _texture1 = null
+	var _texture2 = null
+	var _usingTexture1 = null
 	
 	constructor()
 	{
@@ -1504,18 +1400,18 @@ class SpriteNewTexture : SpriteTestDemo
 		touchEnabled = true
 		
 		var node = cc.Node()
-		addChild(node, 0, kTagSpriteBatchNode)
+		addChild(node, 0, TAG.SPRITE_BATCH_NODE)
 		
-		m_texture1 = cocos.textureCache.addImage(pack.locate("grossini_dance_atlas.png"))
-		m_texture2 = cocos.textureCache.addImage(pack.locate("grossini_dance_atlas-mono.png"))
+		_texture1 = cocos.textureCache.addImage(pack.locate("grossini_dance_atlas.png"))
+		_texture2 = cocos.textureCache.addImage(pack.locate("grossini_dance_atlas-mono.png"))
 		
-		m_usingTexture1 = true
-		for( var i = 0; i<30; i++)
+		_usingTexture1 = true
+		for (var i = 0; i<30; i++)
 		{
 			addNewSprite()
 		}
 		
-		this.channel().priority(-10000).bind(Events.OnCCTouchEnded, this, ccTouchesEnded)
+		channel().bind(Events.OnCCTouchEnded, this, ccTouchesEnded)
 	}
 	
 	function onEnter()
@@ -1531,13 +1427,13 @@ class SpriteNewTexture : SpriteTestDemo
 	function addNewSprite()
 	{
 		var s = cocos.director.winSize
-		var p = cc.Point( math.random() * s.width, math.random()*s.height)
+		var p = cc.Point(math.random() * s.width, math.random()*s.height)
 		var idx = math.random() * 14;
 		var x = (idx mod 5) * 85;
 		var y = (idx div 5) * 125;
 		
-		var node = getChildByTag(kTagSpriteBatchNode)
-		var sprite = cc.Sprite(m_texture1, cc.Rect(x ,y, 85, 121) )
+		var node = getChildByTag(TAG.SPRITE_BATCH_NODE)
+		var sprite = cc.Sprite(_texture1, cc.Rect(x ,y, 85, 121))
 		node.addChild(sprite)
 		
 		sprite.position = cc.Point(p.x, p.y)
@@ -1545,43 +1441,43 @@ class SpriteNewTexture : SpriteTestDemo
 		var action = null;
 		var random = math.random()
 		
-		if( random < 0.20 )
+		if (random < 0.20)
 			action = cc.action.ScaleBy(3, 2);
-		else if(random < 0.40)
+		else if (random < 0.40)
 			action = cc.action.RotateBy(3, 360);
-		else if( random < 0.60)
+		else if (random < 0.60)
 			action = cc.action.Blink(1, 3);
-		else if( random < 0.8 )
+		else if (random < 0.8)
 			action = cc.action.TintBy(2, 0, -255, -255);
 		else 
 			action = cc.action.FadeOut(2);
 			
 		var action_back = action.reverse();
-		var seq = cc.action.Sequence( action, action_back);
+		var seq = cc.action.Sequence(action, action_back);
 		
-		sprite.runAction( cc.action.RepeatForever(seq) )
+		sprite.runAction(cc.action.RepeatForever(seq))
 	}
 	
 	function ccTouchesEnded(evt: cc.TouchEvent)
 	{
-		var node = getChildByTag(kTagSpriteBatchNode)
+		var node = getChildByTag(TAG.SPRITE_BATCH_NODE)
 		var children = node.children
 		
-		if (m_usingTexture1)
+		if (_usingTexture1)
 		{
 			foreach (sprite in children)
 			{
-				try sprite.texture = m_texture2
+				try sprite.texture = _texture2
 			}
-			m_usingTexture1 = false
+			_usingTexture1 = false
 		}
 		else
 		{
 			foreach (sprite in children)
 			{
-				try sprite.texture = m_texture1
+				try sprite.texture = _texture1
 			}
-			m_usingTexture1 = true
+			_usingTexture1 = true
 		}
 	}
 
@@ -1591,16 +1487,12 @@ class SpriteNewTexture : SpriteTestDemo
 	}
 }
 
-//------------------------------------------------------------------
-//
-// SpriteBatchNodeNewTexture
-//
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 
 class SpriteBatchNodeNewTexture : SpriteTestDemo
 {
-	m_texture1 = null
-	m_texture2 = null
+	var _texture1 = null
+	var _texture2 = null
 	
 	constructor()
 	{
@@ -1609,17 +1501,17 @@ class SpriteBatchNodeNewTexture : SpriteTestDemo
 		touchEnabled = true
 		
 		var batch = cc.SpriteBatchNode(pack.locate("grossini_dance_atlas.png"), 50)
-		addChild(batch, 0, kTagSpriteBatchNode)
+		addChild(batch, 0, TAG.SPRITE_BATCH_NODE)
 		
-		m_texture1 = batch.texture
-		m_texture2 = cocos.textureCache.addImage(pack.locate("grossini_dance_atlas-mono.png"))
+		_texture1 = batch.texture
+		_texture2 = cocos.textureCache.addImage(pack.locate("grossini_dance_atlas-mono.png"))
 		
-		for( var i = 0; i<30; i++)
+		for (var i = 0; i<30; i++)
 		{
 			addNewSprite()
 		}
 		
-		this.channel().priority(-10000).bind(Events.OnCCTouchEnded, this, ccTouchesEnded)
+		channel().bind(Events.OnCCTouchEnded, this, ccTouchesEnded)
 	}
 	
 	function onEnter()
@@ -1635,14 +1527,14 @@ class SpriteBatchNodeNewTexture : SpriteTestDemo
 	function addNewSprite()
 	{
 		var s = cocos.director.winSize
-		var p = cc.Point( math.random() * s.width, math.random()*s.height)
+		var p = cc.Point(math.random() * s.width, math.random()*s.height)
 		var idx = math.random() * 14;
 		var x = (idx mod 5) * 85;
 		var y = (idx div 5) * 125;
 		
-		var batch = getChildByTag(kTagSpriteBatchNode)
+		var batch = getChildByTag(TAG.SPRITE_BATCH_NODE)
 		
-		var sprite = cc.Sprite(batch.texture, cc.Rect(x ,y, 85, 121) )
+		var sprite = cc.Sprite(batch.texture, cc.Rect(x ,y, 85, 121))
 		batch.addChild(sprite)
 		
 		sprite.position = cc.Point(p.x, p.y)
@@ -1650,31 +1542,31 @@ class SpriteBatchNodeNewTexture : SpriteTestDemo
 		var action = null;
 		var random = math.random()
 		
-		if( random < 0.20 )
+		if (random < 0.20)
 			action = cc.action.ScaleBy(3, 2);
-		else if(random < 0.40)
+		else if (random < 0.40)
 			action = cc.action.RotateBy(3, 360);
-		else if( random < 0.60)
+		else if (random < 0.60)
 			action = cc.action.Blink(1, 3);
-		else if( random < 0.8 )
+		else if (random < 0.8)
 			action = cc.action.TintBy(2, 0, -255, -255);
 		else 
 			action = cc.action.FadeOut(2);
 			
 		var action_back = action.reverse();
-		var seq = cc.action.Sequence( action, action_back);
+		var seq = cc.action.Sequence(action, action_back);
 		
-		sprite.runAction( cc.action.RepeatForever(seq) )
+		sprite.runAction(cc.action.RepeatForever(seq))
 	}
 	
 	function ccTouchesEnded(evt: cc.TouchEvent)
 	{
-		var batch = getChildByTag(kTagSpriteBatchNode)
+		var batch = getChildByTag(TAG.SPRITE_BATCH_NODE)
 		
-		if (batch.texture == m_texture1)
-			batch.texture = m_texture2
+		if (batch.texture == _texture1)
+			batch.texture = _texture2
 		else
-			batch.texture = m_texture1
+			batch.texture = _texture1
 	}
 
 	function title()
@@ -1683,17 +1575,13 @@ class SpriteBatchNodeNewTexture : SpriteTestDemo
 	}
 }
 
-//------------------------------------------------------------------
-//
-// SpriteFrameTest
-//
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 
 class SpriteFrameTest : SpriteTestDemo
 {
-	m_pSprite1 = null
-	m_pSprite2 = null
-	m_nCounter = 0
+	var _pSprite1 = null
+	var _pSprite2 = null
+	var _nCounter = 0
 	
 	constructor()
 	{
@@ -1709,62 +1597,59 @@ class SpriteFrameTest : SpriteTestDemo
 		// Animation using Sprite BatchNode
 		//
 		var s = cocos.director.winSize
-		m_pSprite1 = cc.Sprite(cocos.spriteFrameCache.spriteFrameByName("grossini_dance_01.png"))
-		m_pSprite1.position = cc.Point(s.width/2-80, s.height/2)
+		_pSprite1 = cc.Sprite(cocos.spriteFrameCache.spriteFrameByName("grossini_dance_01.png"))
+		_pSprite1.position = cc.Point(s.width/2-80, s.height/2)
 		
 		var spritebatch  = cc.SpriteBatchNode(pack.locate("grossini.png"))
-		spritebatch.addChild(m_pSprite1)
+		spritebatch.addChild(_pSprite1)
 		addChild(spritebatch)
 		
 		var animation = cc.Animation()
-		for( var i = 1; i<15; i++)
+		for (var i = 1; i<15; i++)
 		{
 			var str = format("grossini_dance_%02d.png", i)
 			var frame = cocos.spriteFrameCache.spriteFrameByName(str)
-			animation.addFrame( frame )
+			animation.addFrame(frame)
 		}
 		
-		m_pSprite1.runAction( cc.action.RepeatForever(cc.action.Animate(animation, false)))
+		_pSprite1.runAction(cc.action.RepeatForever(cc.action.Animate(animation, false)))
 		 // to test issue #732, uncomment the following line
-		m_pSprite1.flipX=false
-		m_pSprite1.flipY=false
+		_pSprite1.flipX=false
+		_pSprite1.flipY=false
 		//
 		// Animation using standard Sprite
 		//
-		m_pSprite2 = cc.Sprite(cocos.spriteFrameCache.spriteFrameByName("grossini_dance_01.png"))
-		m_pSprite2.position = cc.Point(s.width/2 + 80, s.height/2)
-		addChild(m_pSprite2)
+		_pSprite2 = cc.Sprite(cocos.spriteFrameCache.spriteFrameByName("grossini_dance_01.png"))
+		_pSprite2.position = cc.Point(s.width/2 + 80, s.height/2)
+		addChild(_pSprite2)
 
 		
 		var animMixed = cc.Animation()
 		
-		for( var i = 1; i<15; i++)
+		for (var i = 1; i<15; i++)
 		{
 			var str = format("grossini_dance_gray_%02d.png", i)
 			var frame = cocos.spriteFrameCache.spriteFrameByName(str)
-			animMixed.addFrame( frame )
+			animMixed.addFrame(frame)
 		}
-		for( var i = 1; i<5; i++)
+		for (var i = 1; i<5; i++)
 		{
 			var str = format("grossini_blue_%02d.png", i)
 			var frame = cocos.spriteFrameCache.spriteFrameByName(str)
-			animMixed.addFrame( frame )
+			animMixed.addFrame(frame)
 		}
 			
-		m_pSprite2.runAction(cc.action.RepeatForever(cc.action.Animate(animMixed, false)))
+		_pSprite2.runAction(cc.action.RepeatForever(cc.action.Animate(animMixed, false)))
 		
-		m_pSprite2.flipX = false
-		m_pSprite2.flipY = false
+		_pSprite2.flipX = false
+		_pSprite2.flipY = false
 		
-		session.scheduler.once(this, StartIn05Secs, 0.5)
+		cocos.director.scheduler.once(this, StartIn05Secs, 0.5)
 	}
 	
 	function onEnter()
 	{
 		print(this + ": onEnter")
-
-		// 세션 닫기 감지
-		//session.channel().bind(Events.OnSessionStop, this, @{ print("pop"); cocos.director.PopScene() })
 	}
 	
 	function onExit()
@@ -1778,18 +1663,18 @@ class SpriteFrameTest : SpriteTestDemo
 
 	function StartIn05Secs()
 	{
-		session.scheduler.repeat(this, flipSprites, 1.0)
+		cocos.director.scheduler.repeat(this, flipSprites, 1.0)
 	}
 	
 	function flipSprites()
 	{
-		m_nCounter++;
+		_nCounter++;
 
 		var fx = false;
 		var fy = false;
-		var  i  = m_nCounter % 4;
+		var  i  = _nCounter % 4;
 
-		switch ( i ) {
+		switch (i) {
 			case 0:
 				fx = false;
 				fy = false;
@@ -1808,11 +1693,10 @@ class SpriteFrameTest : SpriteTestDemo
 				break;
 		}
 
-		m_pSprite1.flipX=fx;
-		m_pSprite1.flipY=fy;
-		m_pSprite2.flipX=fx;
-		m_pSprite2.flipY=fy;
-		//NSLog(@"flipX:%d, flipY:%d", fx, fy);
+		_pSprite1.flipX=fx;
+		_pSprite1.flipY=fy;
+		_pSprite2.flipX=fx;
+		_pSprite2.flipY=fy;
 	}
 	
 	function title()
@@ -1826,11 +1710,7 @@ class SpriteFrameTest : SpriteTestDemo
 	}
 }
 
-//------------------------------------------------------------------
-//
-// SpriteFrameAliasNameTest
-//
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 
 class SpriteFrameAliasNameTest : SpriteTestDemo
 {
@@ -1839,7 +1719,8 @@ class SpriteFrameAliasNameTest : SpriteTestDemo
 		base.constructor()
 		
 		var s = cocos.director.winSize
-		 // IMPORTANT:
+		
+		// IMPORTANT:
 		// The sprite frames will be cached AND RETAINED, and they won't be released unless you call
 		//     [[CCspriteFrameCache sharedspriteFrameCache] removeUnusedSpriteFrames];
 		//
@@ -1860,7 +1741,7 @@ class SpriteFrameAliasNameTest : SpriteTestDemo
 		// When setDisplayFrame: is used in the CCAnimation it changes the frame to one specified by the CCSpriteFrames that were added to the animation,
 		// but texture id is still the same and so the sprite is still a child of the CCSpriteBatchNode, 
 		// 
-		var sprite  = cc.Sprite( cocos.spriteFrameCache.spriteFrameByName("grossini_dance_01.png"))
+		var sprite  = cc.Sprite(cocos.spriteFrameCache.spriteFrameByName("grossini_dance_01.png"))
 		sprite.position = cc.Point(s.width * 0.5, s.height * 0.5)
 		
 		var spriteBatch = cc.SpriteBatchNode(pack.locate("grossini-aliases.png"))
@@ -1868,13 +1749,13 @@ class SpriteFrameAliasNameTest : SpriteTestDemo
 		addChild(spriteBatch)
 		
 		var anim = cc.Animation()
-		for( var i = 1; i<15; i++)
+		for (var i = 1; i<15; i++)
 		{
 			var str = format("dance_%02d", i)
 			var frame = cocos.spriteFrameCache.spriteFrameByName(str)
-			anim.addFrame( frame )
+			anim.addFrame(frame)
 		}
-		sprite.runAction( cc.action.Animate(14.0, anim, false))
+		sprite.runAction(cc.action.Animate(14.0, anim, false))
 	
 	}
 	
@@ -1896,11 +1777,7 @@ class SpriteFrameAliasNameTest : SpriteTestDemo
 	}
 }
 
-//------------------------------------------------------------------
-//
-// SpriteOffsetAnchorRotation
-//
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 
 class SpriteOffsetAnchorRotation : SpriteTestDemo
 {
@@ -1912,7 +1789,7 @@ class SpriteOffsetAnchorRotation : SpriteTestDemo
 		cocos.spriteFrameCache.addSpriteFramesWithFile(pack.locate("grossini.plist")) 
 		cocos.spriteFrameCache.addSpriteFramesWithFile(pack.locate("grossini_gray.plist"), "grossini_gray.png")
 		
-		for( var i=0; i<3; i++)
+		for (var i=0; i<3; i++)
 		{
 			// Animation using Sprite BatchNode
 			var sprite = cc.Sprite(cocos.spriteFrameCache.spriteFrameByName("grossini_dance_01.png"))
@@ -1923,7 +1800,7 @@ class SpriteOffsetAnchorRotation : SpriteTestDemo
 			point.position = sprite.position
 			addChild(point, 1)
 			
-			switch(i)
+			switch (i)
 			{
 				case 0:	sprite.anchorPoint= cc.Point(0,0) 		
 						break
@@ -1935,15 +1812,15 @@ class SpriteOffsetAnchorRotation : SpriteTestDemo
 			point.position = sprite.position
 			
 			var anim = cc.Animation()
-			for( var i = 1; i<14; i++)
+			for (var i = 1; i<14; i++)
 			{
 				var str = format("grossini_dance_%02d.png", i)
 				var frame = cocos.spriteFrameCache.spriteFrameByName(str)
-				anim.addFrame( frame )
+				anim.addFrame(frame)
 			}
 			
-			sprite.runAction( cc.action.RepeatForever(cc.action.Animate(anim, false)))
-			sprite.runAction( cc.action.RepeatForever(cc.action.RotateBy(10, 360) ))
+			sprite.runAction(cc.action.RepeatForever(cc.action.Animate(anim, false)))
+			sprite.runAction(cc.action.RepeatForever(cc.action.RotateBy(10, 360)))
 			addChild(sprite, 0)
 			
 		}
@@ -1963,11 +1840,7 @@ class SpriteOffsetAnchorRotation : SpriteTestDemo
 	}
 }
 
-//------------------------------------------------------------------
-//
-// SpriteBatchNodeOffsetAnchorRotation
-//
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 
 class SpriteBatchNodeOffsetAnchorRotation : SpriteTestDemo
 {
@@ -1976,7 +1849,7 @@ class SpriteBatchNodeOffsetAnchorRotation : SpriteTestDemo
 		base.constructor()
 		
 		var s = cocos.director.winSize
-		for( var i=0; i<3; i++)
+		for (var i=0; i<3; i++)
 		{
 			cocos.spriteFrameCache.addSpriteFramesWithFile(pack.locate("grossini.plist")) 
 			cocos.spriteFrameCache.addSpriteFramesWithFile(pack.locate("grossini_gray.plist"), "grossini_gray.png")
@@ -1990,7 +1863,7 @@ class SpriteBatchNodeOffsetAnchorRotation : SpriteTestDemo
 			point.position = sprite.position
 			addChild(point, 200)
 			
-			switch(i)
+			switch (i)
 			{
 				case 0:	sprite.anchorPoint= cc.Point(0,0) 		
 						break
@@ -2005,15 +1878,15 @@ class SpriteBatchNodeOffsetAnchorRotation : SpriteTestDemo
 			addChild(spritebatch)
 			
 			var anim = cc.Animation()
-			for( var i = 1; i<14; i++)
+			for (var i = 1; i<14; i++)
 			{
 				var str = format("grossini_dance_%02d.png", i)
 				var frame = cocos.spriteFrameCache.spriteFrameByName(str)
-				anim.addFrame( frame )
+				anim.addFrame(frame)
 			}
 			
-			sprite.runAction( cc.action.RepeatForever(cc.action.Animate(anim, false)))
-			sprite.runAction( cc.action.RepeatForever(cc.action.RotateBy(10, 360) ))
+			sprite.runAction(cc.action.RepeatForever(cc.action.Animate(anim, false)))
+			sprite.runAction(cc.action.RepeatForever(cc.action.RotateBy(10, 360)))
 			addChild(sprite, i)
 			
 		}
@@ -2033,12 +1906,7 @@ class SpriteBatchNodeOffsetAnchorRotation : SpriteTestDemo
 	}
 }
 
-
-//------------------------------------------------------------------
-//
-// SpriteOffsetAnchorScale
-//
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 
 class SpriteOffsetAnchorScale : SpriteTestDemo
 {
@@ -2050,7 +1918,7 @@ class SpriteOffsetAnchorScale : SpriteTestDemo
 		cocos.spriteFrameCache.addSpriteFramesWithFile(pack.locate("grossini.plist")) 
 		cocos.spriteFrameCache.addSpriteFramesWithFile(pack.locate("grossini_gray.plist"), "grossini_gray.png")
 		
-		for( var i=0; i<3; i++)
+		for (var i=0; i<3; i++)
 		{
 			// Animation using Sprite BatchNode
 			var sprite = cc.Sprite(cocos.spriteFrameCache.spriteFrameByName("grossini_dance_01.png"))
@@ -2061,7 +1929,7 @@ class SpriteOffsetAnchorScale : SpriteTestDemo
 			point.position = sprite.position
 			addChild(point, 1)
 			
-			switch(i)
+			switch (i)
 			{
 				case 0:	sprite.anchorPoint= cc.Point(0,0) 		
 						break
@@ -2073,17 +1941,17 @@ class SpriteOffsetAnchorScale : SpriteTestDemo
 			point.position = sprite.position
 			
 			var anim = cc.Animation()
-			for( var i = 1; i<14; i++)
+			for (var i = 1; i<14; i++)
 			{
 				var str = format("grossini_dance_%02d.png", i)
 				var frame = cocos.spriteFrameCache.spriteFrameByName(str)
-				anim.addFrame( frame )
+				anim.addFrame(frame)
 			}
 			
 			var scale = cc.action.ScaleBy(2, 2)
 			var scale_back = scale.reverse()
 			var seq_scale = cc.action.Sequence(scale, scale_back)
-			sprite.runAction( cc.action.RepeatForever(seq_scale))
+			sprite.runAction(cc.action.RepeatForever(seq_scale))
 			addChild(sprite, 0)
 			
 		}
@@ -2103,11 +1971,7 @@ class SpriteOffsetAnchorScale : SpriteTestDemo
 	}
 }
 
-//------------------------------------------------------------------
-//
-// SpriteBatchNodeOffsetAnchorScale
-//
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 
 class SpriteBatchNodeOffsetAnchorScale : SpriteTestDemo
 {
@@ -2116,7 +1980,7 @@ class SpriteBatchNodeOffsetAnchorScale : SpriteTestDemo
 		base.constructor()
 		
 		var s = cocos.director.winSize
-		for( var i=0; i<3; i++)
+		for (var i=0; i<3; i++)
 		{
 			cocos.spriteFrameCache.addSpriteFramesWithFile(pack.locate("grossini.plist")) 
 			cocos.spriteFrameCache.addSpriteFramesWithFile(pack.locate("grossini_gray.plist"), "grossini_gray.png")
@@ -2130,7 +1994,7 @@ class SpriteBatchNodeOffsetAnchorScale : SpriteTestDemo
 			point.position = sprite.position
 			addChild(point, 200)
 			
-			switch(i)
+			switch (i)
 			{
 				case 0:	sprite.anchorPoint= cc.Point(0,0) 		
 						break
@@ -2145,17 +2009,17 @@ class SpriteBatchNodeOffsetAnchorScale : SpriteTestDemo
 			addChild(spritesheet)
 			
 			var anim = cc.Animation()
-			for( var i = 1; i<14; i++)
+			for (var i = 1; i<14; i++)
 			{
 				var str = format("grossini_dance_%02d.png", i)
 				var frame = cocos.spriteFrameCache.spriteFrameByName(str)
-				anim.addFrame( frame )
+				anim.addFrame(frame)
 			}
 			
 			var scale = cc.action.ScaleBy(2, 2)
 			var scale_back = scale.reverse()
 			var seq_scale = cc.action.Sequence(scale, scale_back)
-			sprite.runAction( cc.action.RepeatForever(seq_scale))
+			sprite.runAction(cc.action.RepeatForever(seq_scale))
 			
 			spritesheet.addChild(sprite, i)
 			
@@ -2176,11 +2040,8 @@ class SpriteBatchNodeOffsetAnchorScale : SpriteTestDemo
 	}
 }
 
-//------------------------------------------------------------------
-//
-// SpriteAnimationSplit
-//
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
+
 class SpriteAnimationSplit : SpriteTestDemo
 {
 	constructor()
@@ -2207,15 +2068,15 @@ class SpriteAnimationSplit : SpriteTestDemo
 		
 		var animation = cc.Animation()
 		animation.delay = 0.2
-		animation.addFrame( frame0)
-		animation.addFrame( frame1)
-		animation.addFrame( frame2)
-		animation.addFrame( frame3)
-		animation.addFrame( frame4)
-		animation.addFrame( frame5)
+		animation.addFrame(frame0)
+		animation.addFrame(frame1)
+		animation.addFrame(frame2)
+		animation.addFrame(frame3)
+		animation.addFrame(frame4)
+		animation.addFrame(frame5)
 		
-		var animate = cc.action.Animate( animation, false)
-		var animatecopy = cc.action.Animate( animation, false)
+		var animate = cc.action.Animate(animation, false)
+		var animatecopy = cc.action.Animate(animation, false)
 		var seq = cc.action.Sequence(animate, cc.action.FlipX(true),
 									animatecopy, cc.action.FlipX(false))
 		
@@ -2235,15 +2096,11 @@ class SpriteAnimationSplit : SpriteTestDemo
 	}
 }
 
-//------------------------------------------------------------------
-//
-// SpriteHybrid
-//
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 
 class SpriteHybrid : SpriteTestDemo
 {
-	m_usingSpriteBatchNode = null
+	_usingSpriteBatchNode = null
 	
 	constructor()
 	{
@@ -2253,8 +2110,8 @@ class SpriteHybrid : SpriteTestDemo
 		
 		var parent1 = cc.Node()
 		var parent2 = cc.SpriteBatchNode(pack.locate("grossini.png"), 50)
-		addChild(parent1, 0, kTagNode)
-		addChild(parent2, 0, kTagSpriteBatchNode) 
+		addChild(parent1, 0, TAG.NODE)
+		addChild(parent2, 0, TAG.SPRITE_BATCH_NODE) 
 	
 		// IMPORTANT:
 		// The sprite frames will be cached AND RETAINED, and they won't be released unless you call
@@ -2263,7 +2120,7 @@ class SpriteHybrid : SpriteTestDemo
 
 		// create 250 sprites
 		// only show 80% of them
-		for( var i = 1; i<250; i++)
+		for (var i = 1; i<250; i++)
 		{
 			var spriteIdx = math.floor(math.random() * 14) + 1
 
@@ -2279,23 +2136,23 @@ class SpriteHybrid : SpriteTestDemo
 				x = math.random() * s.width
 				y = math.random() * s.height
 			}
-			sprite.position = cc.Point( x, y )
+			sprite.position = cc.Point(x, y)
 			
 			var action = cc.action.RotateBy(4, 360)
-			sprite.runAction( cc.action.RepeatForever(action))
+			sprite.runAction(cc.action.RepeatForever(action))
 		}
-		m_usingSpriteBatchNode = false
+		_usingSpriteBatchNode = false
 		
-		session.scheduler.repeat(this, reparentSprite, 2)
+		cocos.director.scheduler.repeat(this, reparentSprite, 2)
 	}
 	
 	function reparentSprite(dt)
 	{	
-		var p1 = getChildByTag(kTagNode)
-		var p2 = getChildByTag(kTagSpriteBatchNode)
+		var p1 = getChildByTag(TAG.NODE)
+		var p2 = getChildByTag(TAG.SPRITE_BATCH_NODE)
 		
 		var retArray = []
-		if (m_usingSpriteBatchNode)
+		if (_usingSpriteBatchNode)
 		{
 			var temp = cc.Node()
 			temp = p1
@@ -2306,7 +2163,7 @@ class SpriteHybrid : SpriteTestDemo
 		var node = null
 		var pObject = null
 		var children = p1.children
-		foreach(k, v in children)
+		foreach (k, v in children)
 		{	
 			node = v
 			if (!node)
@@ -2317,7 +2174,7 @@ class SpriteHybrid : SpriteTestDemo
 		var i=0;
 		p1.removeAllChildren(false)
 	
-		foreach(k, v in retArray)
+		foreach (k, v in retArray)
 		{	
 			node = v
 			if (!node)
@@ -2325,7 +2182,7 @@ class SpriteHybrid : SpriteTestDemo
 			p2.addChild(node, i, i)
 			i++
 		}
-		m_usingSpriteBatchNode = !m_usingSpriteBatchNode
+		_usingSpriteBatchNode = !_usingSpriteBatchNode
 			
 	}
 		
@@ -2342,11 +2199,7 @@ class SpriteHybrid : SpriteTestDemo
 	}
 }
 
-//------------------------------------------------------------------
-//
-// SpriteBatchNodeChildren
-//
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 
 class SpriteBatchNodeChildren : SpriteTestDemo
 {
@@ -2358,7 +2211,7 @@ class SpriteBatchNodeChildren : SpriteTestDemo
 		var s = cocos.director.winSize
 		
 		var batch = cc.SpriteBatchNode(pack.locate("grossini.png"), 50)
-		addChild(batch, 0, kTagSpriteBatchNode) 
+		addChild(batch, 0, TAG.SPRITE_BATCH_NODE) 
 		
 		cocos.spriteFrameCache.addSpriteFramesWithFile(pack.locate("grossini.plist"))
 	
@@ -2378,11 +2231,11 @@ class SpriteBatchNodeChildren : SpriteTestDemo
 		//BEGIN NEW CODE
 		var anim = cc.Animation()
 		anim.delay = 0.2
-		for( var i = 1; i<15; i++)
+		for (var i = 1; i<15; i++)
 		{
 			var str = format("grossini_dance_%02d.png", i)
 			var frame = cocos.spriteFrameCache.spriteFrameByName(str)
-			anim.addFrame( frame )
+			anim.addFrame(frame)
 		}
 		sprite1.runAction(cc.action.RepeatForever(cc.action.Animate(anim, false)))
 		//END NEW CODE
@@ -2396,9 +2249,9 @@ class SpriteBatchNodeChildren : SpriteTestDemo
 		var seq2 = action_rot.reverse()
 		sprite2.runAction(cc.action.RepeatForever(seq2))
 		
-		sprite1.runAction( cc.action.RepeatForever(action_rot))
-		sprite1.runAction( cc.action.RepeatForever(cc.action.Sequence(action, action_back)))
-		sprite1.runAction( cc.action.RepeatForever(cc.action.Sequence(action_s, action_s_back)))
+		sprite1.runAction(cc.action.RepeatForever(action_rot))
+		sprite1.runAction(cc.action.RepeatForever(cc.action.Sequence(action, action_back)))
+		sprite1.runAction(cc.action.RepeatForever(cc.action.Sequence(action_s, action_s_back)))
 		
 	}
 	
@@ -2415,11 +2268,7 @@ class SpriteBatchNodeChildren : SpriteTestDemo
 	}
 }
 
-//------------------------------------------------------------------
-//
-// SpriteBatchNodeChildren2
-//
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 
 class SpriteBatchNodeChildren2 : SpriteTestDemo
 {
@@ -2431,7 +2280,7 @@ class SpriteBatchNodeChildren2 : SpriteTestDemo
 		var s = cocos.director.winSize
 		
 		var batch = cc.SpriteBatchNode(pack.locate("grossini.png"), 50)
-		addChild(batch, 0, kTagSpriteBatchNode) 
+		addChild(batch, 0, TAG.SPRITE_BATCH_NODE) 
 		
 		cocos.spriteFrameCache.addSpriteFramesWithFile(pack.locate("grossini.plist"))
 	
@@ -2461,9 +2310,9 @@ class SpriteBatchNodeChildren2 : SpriteTestDemo
 		var action_s = cc.action.ScaleBy(2, 2)
 		var action_s_back = action_s.reverse()
 		
-		sprite11.runAction( cc.action.RepeatForever(action_rot))
-		sprite11.runAction( cc.action.RepeatForever(cc.action.Sequence(action, action_back)))
-		sprite11.runAction( cc.action.RepeatForever(cc.action.Sequence(action_s, action_s_back)))
+		sprite11.runAction(cc.action.RepeatForever(action_rot))
+		sprite11.runAction(cc.action.RepeatForever(cc.action.Sequence(action, action_back)))
+		sprite11.runAction(cc.action.RepeatForever(cc.action.Sequence(action_s, action_s_back)))
 		
 		//
 		// another set of parent / children
@@ -2489,9 +2338,9 @@ class SpriteBatchNodeChildren2 : SpriteTestDemo
 		// don't scale and rotate with it's parent
 		sprite23.honorParentTransform = (sprite23.honorParentTransform & ~cc.Sprite with HONOR_ROTATE | HONOR_SCALE)
 		
-		sprite21.runAction( cc.action.RepeatForever(cc.action.RotateBy(1, 360)))
-		sprite21.runAction( cc.action.RepeatForever(cc.action.Sequence(
-			cc.action.ScaleTo(0.5, 5.0), cc.action.ScaleTo(0.5, 1) )))
+		sprite21.runAction(cc.action.RepeatForever(cc.action.RotateBy(1, 360)))
+		sprite21.runAction(cc.action.RepeatForever(cc.action.Sequence(
+			cc.action.ScaleTo(0.5, 5.0), cc.action.ScaleTo(0.5, 1))))
 	}
 	
 	function onExit()
@@ -2507,11 +2356,7 @@ class SpriteBatchNodeChildren2 : SpriteTestDemo
 	}
 }
 
-//------------------------------------------------------------------
-//
-// SpriteBatchNodeChildrenZ
-//
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 
 class SpriteBatchNodeChildrenZ : SpriteTestDemo
 {
@@ -2525,7 +2370,7 @@ class SpriteBatchNodeChildrenZ : SpriteTestDemo
 		
 		// test 1
 		var batch = cc.SpriteBatchNode(pack.locate("grossini.png"), 50)
-		addChild(batch, 0, kTagSpriteBatchNode) 
+		addChild(batch, 0, TAG.SPRITE_BATCH_NODE) 
 	
 		var sprite1 = cc.Sprite(cocos.spriteFrameCache.spriteFrameByName("grossini_dance_01.png"))
 		sprite1.position = cc.Point(s.width/3, s.height/2)
@@ -2542,7 +2387,7 @@ class SpriteBatchNodeChildrenZ : SpriteTestDemo
 		
 		// test 2
 		batch = cc.SpriteBatchNode(pack.locate("grossini.png"), 50)
-		addChild(batch, 0, kTagSpriteBatchNode) 
+		addChild(batch, 0, TAG.SPRITE_BATCH_NODE) 
 	
 		sprite1 = cc.Sprite(cocos.spriteFrameCache.spriteFrameByName("grossini_dance_01.png"))
 		sprite1.position = cc.Point(2 * s.width/3, s.height/2)
@@ -2559,7 +2404,7 @@ class SpriteBatchNodeChildrenZ : SpriteTestDemo
 		
 		// test 3
 		batch = cc.SpriteBatchNode(pack.locate("grossini.png"), 50)
-		addChild(batch, 0, kTagSpriteBatchNode) 
+		addChild(batch, 0, TAG.SPRITE_BATCH_NODE) 
 	
 		sprite1 = cc.Sprite(cocos.spriteFrameCache.spriteFrameByName("grossini_dance_01.png"))
 		sprite1.position = cc.Point(s.width/2 - 90, s.height/4)
@@ -2576,7 +2421,7 @@ class SpriteBatchNodeChildrenZ : SpriteTestDemo
 		
 		// test 4
 		batch = cc.SpriteBatchNode(pack.locate("grossini.png"), 50)
-		addChild(batch, 0, kTagSpriteBatchNode) 
+		addChild(batch, 0, TAG.SPRITE_BATCH_NODE) 
 	
 		sprite1 = cc.Sprite(cocos.spriteFrameCache.spriteFrameByName("grossini_dance_01.png"))
 		sprite1.position = cc.Point(s.width/2 + 30, s.height/4)
@@ -2605,15 +2450,10 @@ class SpriteBatchNodeChildrenZ : SpriteTestDemo
 	}
 }
 
-//------------------------------------------------------------------
-//
-// SpriteChildrenVisibility
-//
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 
 class SpriteChildrenVisibility : SpriteTestDemo
 {
-	
 	constructor()
 	{
 		base.constructor()
@@ -2642,7 +2482,7 @@ class SpriteChildrenVisibility : SpriteTestDemo
 		sprite1.addChild(sprite2, -2)
 		sprite1.addChild(sprite3, 2)
 		
-		sprite1.runAction( cc.action.Blink(5, 10))
+		sprite1.runAction(cc.action.Blink(5, 10))
 		//
 		// Sprite
 		//
@@ -2679,15 +2519,10 @@ class SpriteChildrenVisibility : SpriteTestDemo
 	}
 }
 
-//------------------------------------------------------------------
-//
-// SpriteChildrenVisibilityIssue665
-//
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 
 class SpriteChildrenVisibilityIssue665 : SpriteTestDemo
 {
-	
 	constructor()
 	{
 		base.constructor()
@@ -2761,15 +2596,10 @@ class SpriteChildrenVisibilityIssue665 : SpriteTestDemo
 	}
 }
 
-//------------------------------------------------------------------
-//
-// SpriteChildrenAnchorPoint
-//
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 
 class SpriteChildrenAnchorPoint : SpriteTestDemo
 {
-	
 	constructor()
 	{
 		base.constructor()
@@ -2872,15 +2702,10 @@ class SpriteChildrenAnchorPoint : SpriteTestDemo
 	}
 }
 
-//------------------------------------------------------------------
-//
-// SpriteBatchNodeChildrenAnchorPoint
-//
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 
 class SpriteBatchNodeChildrenAnchorPoint : SpriteTestDemo
 {
-	
 	constructor()
 	{
 		base.constructor()
@@ -2983,15 +2808,10 @@ class SpriteBatchNodeChildrenAnchorPoint : SpriteTestDemo
 	}
 }
 
-//------------------------------------------------------------------
-//
-// SpriteBatchNodeChildrenScale
-//
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 
 class SpriteBatchNodeChildrenScale : SpriteTestDemo
 {
-	
 	constructor()
 	{
 		base.constructor()
@@ -3087,11 +2907,7 @@ class SpriteBatchNodeChildrenScale : SpriteTestDemo
 	}
 }
 
-//------------------------------------------------------------------
-//
-// SpriteChildrenChildren
-//
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 
 class SpriteChildrenChildren : SpriteTestDemo
 {
@@ -3109,15 +2925,15 @@ class SpriteChildrenChildren : SpriteTestDemo
 		//
 		
 		aParent = cc.Node()
-		addChild(aParent, 0, kTagSprite1)
+		addChild(aParent, 0, TAG.SPRITE1)
 		
 		//parent
 		var rot1 = cc.action.RotateBy(10, 360)
 		var seq1 = cc.action.RepeatForever(rot1)
-		l1 = cc.Sprite( cocos.spriteFrameCache.spriteFrameByName("father.gif"))
+		l1 = cc.Sprite(cocos.spriteFrameCache.spriteFrameByName("father.gif"))
 		l1.position = cc.Point(s.width/2, s.height/2)
 		l1.runAction(seq1)
-		aParent.addChild(l1, 0, kTagSprite2)
+		aParent.addChild(l1, 0, TAG.SPRITE2)
 		var l1Size = l1.contentSize;
 		
 		//child left
@@ -3132,7 +2948,7 @@ class SpriteChildrenChildren : SpriteTestDemo
 		//child right
 		var rot3 = cc.action.RotateBy(10, 360)
 		var seq3 = cc.action.RepeatForever(rot3)
-		l2b = cc.Sprite( cocos.spriteFrameCache.spriteFrameByName("sister2.gif") )
+		l2b = cc.Sprite(cocos.spriteFrameCache.spriteFrameByName("sister2.gif"))
 		l2b.position = cc.Point(50 + l1Size.width/2, 0 + l1Size.height/2)
 		l2b.runAction(seq3.reverse())
 		l1.addChild(l2b)
@@ -3163,7 +2979,6 @@ class SpriteChildrenChildren : SpriteTestDemo
 		l3b2.flipY = true
 		l3b2.position = cc.Point(l2bSize.width/2, 100 + l2bSize.height/2)
 		l2b.addChild(l3b2)
-		
 	}
 
 	function title()
@@ -3172,11 +2987,7 @@ class SpriteChildrenChildren : SpriteTestDemo
 	}
 }
 
-//------------------------------------------------------------------
-//
-// SpriteBatchNodeChildrenChildren
-//
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 
 class SpriteBatchNodeChildrenChildren : SpriteTestDemo
 {
@@ -3200,10 +3011,10 @@ class SpriteBatchNodeChildrenChildren : SpriteTestDemo
 		//parent
 		var rot1 = cc.action.RotateBy(10, 360)
 		var seq1 = cc.action.RepeatForever(rot1)
-		l1 = cc.Sprite( cocos.spriteFrameCache.spriteFrameByName("father.gif"))
+		l1 = cc.Sprite(cocos.spriteFrameCache.spriteFrameByName("father.gif"))
 		l1.position = cc.Point(s.width/2, s.height/2)
 		l1.runAction(seq1)
-		aParent.addChild(l1, 0, kTagSprite2)
+		aParent.addChild(l1, 0, TAG.SPRITE2)
 		var l1Size = l1.contentSize;
 		
 		//child left
@@ -3218,7 +3029,7 @@ class SpriteBatchNodeChildrenChildren : SpriteTestDemo
 		//child right
 		var rot3 = cc.action.RotateBy(10, 360)
 		var seq3 = cc.action.RepeatForever(rot3)
-		l2b = cc.Sprite( cocos.spriteFrameCache.spriteFrameByName("sister2.gif") )
+		l2b = cc.Sprite(cocos.spriteFrameCache.spriteFrameByName("sister2.gif"))
 		l2b.position = cc.Point(50 + l1Size.width/2, 0 + l1Size.height/2)
 		l2b.runAction(seq3.reverse())
 		l1.addChild(l2b)
@@ -3249,7 +3060,6 @@ class SpriteBatchNodeChildrenChildren : SpriteTestDemo
 		l3b2.flipY = true
 		l3b2.position = cc.Point(l2bSize.width/2, 100 + l2bSize.height/2)
 		l2b.addChild(l3b2)
-		
 	}
 
 	function title()
@@ -3258,11 +3068,7 @@ class SpriteBatchNodeChildrenChildren : SpriteTestDemo
 	}
 }
 
-//------------------------------------------------------------------
-//
-// SpriteNilTexture
-//
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 
 class SpriteNilTexture : SpriteTestDemo
 {
@@ -3301,11 +3107,7 @@ class SpriteNilTexture : SpriteTestDemo
 	}
 }
 
-//------------------------------------------------------------------
-//
-// SpriteSubclass
-//
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 
 class MySprite1
 {
@@ -3315,10 +3117,11 @@ class MySprite1
 	
 	static function spriteWithSpriteFrameName(pszSpriteFrameName)
 	{
-		var pobSprite = cc.Sprite( cocos.spriteFrameCache.spriteFrameByName(pszSpriteFrameName))
+		var pobSprite = cc.Sprite(cocos.spriteFrameCache.spriteFrameByName(pszSpriteFrameName))
 		return pobSprite
 	}
 }
+
 class MySprite2
 {
 	constructor()
@@ -3366,13 +3169,9 @@ class SpriteSubclass : SpriteTestDemo
 	}
 }
 
-//------------------------------------------------------------------
-//
-// animationCache
-//
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 
-class animationCache : SpriteTestDemo
+class AnimationCache : SpriteTestDemo
 {
 	constructor()
 	{
@@ -3390,11 +3189,11 @@ class animationCache : SpriteTestDemo
 		var animation = cc.Animation()
 		animation.delay = 0.2
 		
-		for( var i = 1; i<15; i++)
+		for (var i = 1; i<15; i++)
 		{
 			var str = format("grossini_dance_%02d.png", i)
 			var frame = cocos.spriteFrameCache.spriteFrameByName(str)
-			animation.addFrame( frame )
+			animation.addFrame(frame)
 		}
 		cocos.animationCache.add(animation, "dance")
 		
@@ -3405,11 +3204,11 @@ class animationCache : SpriteTestDemo
 		var animationgray = cc.Animation()
 		animationgray.delay = 0.2
 		
-		for( var i = 1; i<15; i++)
+		for (var i = 1; i<15; i++)
 		{
 			var str = format("grossini_dance_gray_%02d.png", i)
 			var frame = cocos.spriteFrameCache.spriteFrameByName(str)
-			animationgray.addFrame( frame )
+			animationgray.addFrame(frame)
 		}
 		cocos.animationCache.add(animationgray, "dance_gray")
 		
@@ -3420,11 +3219,11 @@ class animationCache : SpriteTestDemo
 		var animationblue = cc.Animation()
 		animationblue.delay = 0.2
 		
-		for( var i = 1; i<4; i++)
+		for (var i = 1; i<4; i++)
 		{
 			var str = format("grossini_blue_%02d.png", i)
 			var frame = cocos.spriteFrameCache.spriteFrameByName(str)
-			animationblue.addFrame( frame )
+			animationblue.addFrame(frame)
 		}
 		cocos.animationCache.add(animationblue, "dance_blue")
 		
@@ -3456,11 +3255,8 @@ class animationCache : SpriteTestDemo
 		return "Sprite should be animated";
 	}
 }
-//------------------------------------------------------------------
-//
-// SpriteOffsetAnchorSkew
-// 
-//------------------------------------------------------------------
+
+////////////////////////////////////////////////////////////////////////////////
 
 class SpriteOffsetAnchorSkew : SpriteTestDemo
 {
@@ -3470,7 +3266,7 @@ class SpriteOffsetAnchorSkew : SpriteTestDemo
 		
 		var s = cocos.director.winSize
 		
-		for( var i=0; i<3; i++)
+		for (var i=0; i<3; i++)
 		{
 			cocos.spriteFrameCache.addSpriteFramesWithFile(pack.locate("grossini.plist")) 
 			cocos.spriteFrameCache.addSpriteFramesWithFile(pack.locate("grossini_gray.plist"), "grossini_gray.png")
@@ -3484,7 +3280,7 @@ class SpriteOffsetAnchorSkew : SpriteTestDemo
 			point.position = sprite.position
 			addChild(point, 1)
 			
-			switch(i)
+			switch (i)
 			{
 				case 0:	sprite.anchorPoint= cc.Point(0,0) 		
 						break
@@ -3496,13 +3292,13 @@ class SpriteOffsetAnchorSkew : SpriteTestDemo
 			point.position = sprite.position
 			
 			var anim = cc.Animation()
-			for( var i = 1; i<14; i++)
+			for (var i = 1; i<14; i++)
 			{
 				var str = format("grossini_dance_%02d.png", i)
 				var frame = cocos.spriteFrameCache.spriteFrameByName(str)
-				anim.addFrame( frame )
+				anim.addFrame(frame)
 			}
-			sprite.runAction( cc.action.RepeatForever(cc.action.Animate(2.8, anim, false)))
+			sprite.runAction(cc.action.RepeatForever(cc.action.Animate(2.8, anim, false)))
 
 			
 			var skewX = cc.action.SkewBy(2, 45, 0)
@@ -3512,7 +3308,7 @@ class SpriteOffsetAnchorSkew : SpriteTestDemo
 			var skewY_back = skewY.reverse()
 			
 			var seq_skew = cc.action.Sequence(skewX, skewX_back, skewY, skewY_back)
-			sprite.runAction( cc.action.RepeatForever(seq_skew))
+			sprite.runAction(cc.action.RepeatForever(seq_skew))
 			
 			addChild(sprite, 0)
 			
@@ -3533,11 +3329,7 @@ class SpriteOffsetAnchorSkew : SpriteTestDemo
 	}
 }
 
-//------------------------------------------------------------------
-//
-// SpriteBatchNodeOffsetAnchorSkew
-//
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 
 class SpriteBatchNodeOffsetAnchorSkew : SpriteTestDemo
 {
@@ -3546,7 +3338,7 @@ class SpriteBatchNodeOffsetAnchorSkew : SpriteTestDemo
 		base.constructor()
 		
 		var s = cocos.director.winSize
-		for( var i=0; i<3; i++)
+		for (var i=0; i<3; i++)
 		{
 			cocos.spriteFrameCache.addSpriteFramesWithFile(pack.locate("grossini.plist")) 
 			cocos.spriteFrameCache.addSpriteFramesWithFile(pack.locate("grossini_gray.plist"), "grossini_gray.png")
@@ -3560,7 +3352,7 @@ class SpriteBatchNodeOffsetAnchorSkew : SpriteTestDemo
 			point.position = sprite.position
 			addChild(point, 200)
 			
-			switch(i)
+			switch (i)
 			{
 				case 0:	sprite.anchorPoint= cc.Point(0,0) 		
 						break
@@ -3575,13 +3367,13 @@ class SpriteBatchNodeOffsetAnchorSkew : SpriteTestDemo
 			addChild(spritebatch)
 			
 			var anim = cc.Animation()
-			for( var i = 1; i<14; i++)
+			for (var i = 1; i<14; i++)
 			{
 				var str = format("grossini_dance_%02d.png", i)
 				var frame = cocos.spriteFrameCache.spriteFrameByName(str)
-				anim.addFrame( frame )
+				anim.addFrame(frame)
 			}
-			sprite.runAction( cc.action.RepeatForever(cc.action.Animate(2.8, anim, false)))
+			sprite.runAction(cc.action.RepeatForever(cc.action.Animate(2.8, anim, false)))
 			
 			var skewX = cc.action.SkewBy(2, 45, 0)
 			var skewX_back = skewX.reverse()
@@ -3590,7 +3382,7 @@ class SpriteBatchNodeOffsetAnchorSkew : SpriteTestDemo
 			var skewY_back = skewY.reverse()
 			
 			var seq_skew = cc.action.Sequence(skewX, skewX_back, skewY, skewY_back)
-			sprite.runAction( cc.action.RepeatForever(seq_skew))
+			sprite.runAction(cc.action.RepeatForever(seq_skew))
 			
 			addChild(sprite, i)
 			
@@ -3611,12 +3403,7 @@ class SpriteBatchNodeOffsetAnchorSkew : SpriteTestDemo
 	}
 }
 
-
-//------------------------------------------------------------------
-//
-// SpriteOffsetAnchorSkewScale
-//
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 
 class SpriteOffsetAnchorSkewScale : SpriteTestDemo
 {
@@ -3628,7 +3415,7 @@ class SpriteOffsetAnchorSkewScale : SpriteTestDemo
 		cocos.spriteFrameCache.addSpriteFramesWithFile(pack.locate("grossini.plist")) 
 		cocos.spriteFrameCache.addSpriteFramesWithFile(pack.locate("grossini_gray.plist"), "grossini_gray.png")
 		
-		for( var i=0; i<3; i++)
+		for (var i=0; i<3; i++)
 		{
 			// Animation using Sprite BatchNode
 			var sprite = cc.Sprite(cocos.spriteFrameCache.spriteFrameByName("grossini_dance_01.png"))
@@ -3639,7 +3426,7 @@ class SpriteOffsetAnchorSkewScale : SpriteTestDemo
 			point.position = sprite.position
 			addChild(point, 1)
 			
-			switch(i)
+			switch (i)
 			{
 				case 0:	sprite.anchorPoint= cc.Point(0,0) 		
 						break
@@ -3651,13 +3438,13 @@ class SpriteOffsetAnchorSkewScale : SpriteTestDemo
 			point.position = sprite.position
 			
 			var anim = cc.Animation()
-			for( var i = 1; i<14; i++)
+			for (var i = 1; i<14; i++)
 			{
 				var str = format("grossini_dance_%02d.png", i)
 				var frame = cocos.spriteFrameCache.spriteFrameByName(str)
-				anim.addFrame( frame )
+				anim.addFrame(frame)
 			}
-			sprite.runAction( cc.action.RepeatForever(cc.action.Animate(2.8, anim, false)))
+			sprite.runAction(cc.action.RepeatForever(cc.action.Animate(2.8, anim, false)))
 			
 			//Skew
 			var skewX = cc.action.SkewBy(2, 45, 0)
@@ -3667,13 +3454,13 @@ class SpriteOffsetAnchorSkewScale : SpriteTestDemo
 			var skewY_back = skewY.reverse()
 			
 			var seq_skew = cc.action.Sequence(skewX, skewX_back, skewY, skewY_back)
-			sprite.runAction( cc.action.RepeatForever(seq_skew))
+			sprite.runAction(cc.action.RepeatForever(seq_skew))
 			
 			//Scale
 			var scale = cc.action.ScaleBy(2, 2)
 			var scale_back = scale.reverse()
 			var seq_scale = cc.action.Sequence(scale, scale_back)
-			sprite.runAction( cc.action.RepeatForever(seq_scale))
+			sprite.runAction(cc.action.RepeatForever(seq_scale))
 			addChild(sprite, 0)
 			
 		}
@@ -3693,11 +3480,7 @@ class SpriteOffsetAnchorSkewScale : SpriteTestDemo
 	}
 }
 
-//------------------------------------------------------------------
-//
-// SpriteBatchNodeOffsetAnchorSkewScale
-//
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 
 class SpriteBatchNodeOffsetAnchorSkewScale : SpriteTestDemo
 {
@@ -3706,7 +3489,7 @@ class SpriteBatchNodeOffsetAnchorSkewScale : SpriteTestDemo
 		base.constructor()
 		
 		var s = cocos.director.winSize
-		for( var i=0; i<3; i++)
+		for (var i=0; i<3; i++)
 		{
 			cocos.spriteFrameCache.addSpriteFramesWithFile(pack.locate("grossini.plist")) 
 			cocos.spriteFrameCache.addSpriteFramesWithFile(pack.locate("grossini_gray.plist"), "grossini_gray.png")
@@ -3720,7 +3503,7 @@ class SpriteBatchNodeOffsetAnchorSkewScale : SpriteTestDemo
 			point.position = sprite.position
 			addChild(point, 200)
 			
-			switch(i)
+			switch (i)
 			{
 				case 0:	sprite.anchorPoint= cc.Point(0,0) 		
 						break
@@ -3735,13 +3518,13 @@ class SpriteBatchNodeOffsetAnchorSkewScale : SpriteTestDemo
 			addChild(spritesheet)
 			
 			var anim = cc.Animation()
-			for( var i = 1; i<14; i++)
+			for (var i = 1; i<14; i++)
 			{
 				var str = format("grossini_dance_%02d.png", i)
 				var frame = cocos.spriteFrameCache.spriteFrameByName(str)
-				anim.addFrame( frame )
+				anim.addFrame(frame)
 			}
-			sprite.runAction( cc.action.RepeatForever(cc.action.Animate(2.8, anim, false)))
+			sprite.runAction(cc.action.RepeatForever(cc.action.Animate(2.8, anim, false)))
 			
 			//Skew
 			var skewX = cc.action.SkewBy(2, 45, 0)
@@ -3751,13 +3534,13 @@ class SpriteBatchNodeOffsetAnchorSkewScale : SpriteTestDemo
 			var skewY_back = skewY.reverse()
 			
 			var seq_skew = cc.action.Sequence(skewX, skewX_back, skewY, skewY_back)
-			sprite.runAction( cc.action.RepeatForever(seq_skew))
+			sprite.runAction(cc.action.RepeatForever(seq_skew))
 			
 			//Scale
 			var scale = cc.action.ScaleBy(2, 2)
 			var scale_back = scale.reverse()
 			var seq_scale = cc.action.Sequence(scale, scale_back)
-			sprite.runAction( cc.action.RepeatForever(seq_scale))
+			sprite.runAction(cc.action.RepeatForever(seq_scale))
 			
 			spritesheet.addChild(sprite, i)
 			
@@ -3778,11 +3561,7 @@ class SpriteBatchNodeOffsetAnchorSkewScale : SpriteTestDemo
 	}
 }
 
-//------------------------------------------------------------------
-//
-// SpriteOffsetAnchorFlip
-//
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 
 class SpriteOffsetAnchorFlip : SpriteTestDemo
 {
@@ -3794,7 +3573,7 @@ class SpriteOffsetAnchorFlip : SpriteTestDemo
 		cocos.spriteFrameCache.addSpriteFramesWithFile(pack.locate("grossini.plist")) 
 		cocos.spriteFrameCache.addSpriteFramesWithFile(pack.locate("grossini_gray.plist"), "grossini_gray.png")
 		
-		for( var i=0; i<3; i++)
+		for (var i=0; i<3; i++)
 		{
 			// Animation using Sprite BatchNode
 			var sprite = cc.Sprite(cocos.spriteFrameCache.spriteFrameByName("grossini_dance_01.png"))
@@ -3805,7 +3584,7 @@ class SpriteOffsetAnchorFlip : SpriteTestDemo
 			point.position = sprite.position
 			addChild(point, 1)
 			
-			switch(i)
+			switch (i)
 			{
 				case 0:	sprite.anchorPoint= cc.Point(0,0) 		
 						break
@@ -3817,13 +3596,13 @@ class SpriteOffsetAnchorFlip : SpriteTestDemo
 			point.position = sprite.position
 			
 			var anim = cc.Animation()
-			for( var i = 1; i<14; i++)
+			for (var i = 1; i<14; i++)
 			{
 				var str = format("grossini_dance_%02d.png", i)
 				var frame = cocos.spriteFrameCache.spriteFrameByName(str)
-				anim.addFrame( frame )
+				anim.addFrame(frame)
 			}
-			sprite.runAction( cc.action.RepeatForever(cc.action.Animate(2.8, anim, false)))
+			sprite.runAction(cc.action.RepeatForever(cc.action.Animate(2.8, anim, false)))
 			
 			var flip = cc.action.FlipY(true)
 			var flip_back = cc.action.FlipY(false)
@@ -3832,7 +3611,7 @@ class SpriteOffsetAnchorFlip : SpriteTestDemo
 			var delay1 = cc.action.DelayTime(1)
 			var seq = cc.action.Sequence(delay, flip, delay1, flip_back)
 
-			sprite.runAction( cc.action.RepeatForever(seq))
+			sprite.runAction(cc.action.RepeatForever(seq))
 			addChild(sprite, 0)
 		}
 	}
@@ -3856,11 +3635,7 @@ class SpriteOffsetAnchorFlip : SpriteTestDemo
 	}
 }
 
-//------------------------------------------------------------------
-//
-// SpriteBatchNodeOffsetAnchorFlip
-//
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 
 class SpriteBatchNodeOffsetAnchorFlip : SpriteTestDemo
 {
@@ -3869,7 +3644,7 @@ class SpriteBatchNodeOffsetAnchorFlip : SpriteTestDemo
 		base.constructor()
 		
 		var s = cocos.director.winSize
-		for( var i=0; i<3; i++)
+		for (var i=0; i<3; i++)
 		{
 			cocos.spriteFrameCache.addSpriteFramesWithFile(pack.locate("grossini.plist")) 
 			cocos.spriteFrameCache.addSpriteFramesWithFile(pack.locate("grossini_gray.plist"), "grossini_gray.png")
@@ -3883,7 +3658,7 @@ class SpriteBatchNodeOffsetAnchorFlip : SpriteTestDemo
 			point.position = sprite.position
 			addChild(point, 200)
 			
-			switch(i)
+			switch (i)
 			{
 				case 0:	sprite.anchorPoint= cc.Point(0,0) 		
 						break
@@ -3898,13 +3673,13 @@ class SpriteBatchNodeOffsetAnchorFlip : SpriteTestDemo
 			addChild(spritesheet)
 			
 			var anim = cc.Animation()
-			for( var i = 1; i<14; i++)
+			for (var i = 1; i<14; i++)
 			{
 				var str = format("grossini_dance_%02d.png", i)
 				var frame = cocos.spriteFrameCache.spriteFrameByName(str)
-				anim.addFrame( frame )
+				anim.addFrame(frame)
 			}
-			sprite.runAction( cc.action.RepeatForever(cc.action.Animate(2.8, anim, false)))
+			sprite.runAction(cc.action.RepeatForever(cc.action.Animate(2.8, anim, false)))
 			
 			var flip = cc.action.FlipY(true)
 			var flip_back = cc.action.FlipY(false)
@@ -3913,7 +3688,7 @@ class SpriteBatchNodeOffsetAnchorFlip : SpriteTestDemo
 			var delay1 = cc.action.DelayTime(1)
 			var seq = cc.action.Sequence(delay, flip, delay1, flip_back)
 
-			sprite.runAction( cc.action.RepeatForever(seq))
+			sprite.runAction(cc.action.RepeatForever(seq))
 			spritesheet.addChild(sprite, i)
 		}
 	}
@@ -3937,6 +3712,21 @@ class SpriteBatchNodeOffsetAnchorFlip : SpriteTestDemo
 	}
 }
 
+////////////////////////////////////////////////////////////////////////////////
 
+class SpriteTestScene : TestScene
+{
+	constructor()
+	{
+		base.constructor()
+	}
+	
+	function runThisTest()
+	{
+		var pLayer = nextSpriteTestAction()
+		addChild(pLayer);
+		cocos.director.replaceScene(this)
+	}
+}
 
 return SpriteTestScene()

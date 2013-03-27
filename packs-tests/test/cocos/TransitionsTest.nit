@@ -1,84 +1,91 @@
 var pack = script.locator
 
-TRANSITION_DURATION := 1.2
+////////////////////////////////////////////////////////////////////////////////
 
-function fadeWhiteTransition(t, s)
+var TRANSITION_DURATION = 1.2
+
+var function fadeWhiteTransition(t, s)
 {
 	return cc.transition.Fade (t, s, nit.Color.WHITE)
 }
 
-function flipXLeftOver(t, s)
+var function flipXLeftOver(t, s)
 {
 	return cc.transition.FlipX (t, s, 0)
 }
-function flipXRightOver(t, s)
+
+var function flipXRightOver(t, s)
 {
 	return cc.transition.FlipX (t, s, 1)
 }
 
-function flipYUpOver(t, s)
+var function flipYUpOver(t, s)
 {
 	return cc.transition.FlipY (t, s, 0)
 }
-function flipYDownOver(t, s)
+
+var function flipYDownOver(t, s)
 {
 	return cc.transition.FlipY (t, s, 1)
 }
 
-function flipAngularLeftOver(t, s)
+var function flipAngularLeftOver(t, s)
 {
 	return cc.transition.FlipAngular(t, s, 0)
 }
-function flipAngularRightOver(t, s)
+
+var function flipAngularRightOver(t, s)
 {
 	return cc.transition.FlipAngular(t, s, 1)
 }
 
-
-function zoomFlipXLeftOver(t, s)
+var function zoomFlipXLeftOver(t, s)
 {
 	return cc.transition.ZoomFlipX (t, s, 0)
 }
-function zoomFlipXRightOver(t, s)
+
+var function zoomFlipXRightOver(t, s)
 {
 	return cc.transition.ZoomFlipX (t, s, 1)
 }
 
-function zoomFlipYUpOver(t, s)
+var function zoomFlipYUpOver(t, s)
 {
 	return cc.transition.ZoomFlipY (t, s, 0)
 }
-function zoomFlipYDownOver(t, s)
+
+var function zoomFlipYDownOver(t, s)
 {
 	return cc.transition.ZoomFlipY (t, s, 1)
 }
 
-function zoomFlipAngularLeftOver(t, s)
+var function zoomFlipAngularLeftOver(t, s)
 {
 	return cc.transition.ZoomFlipAngular(t, s, 0)
 }
-function zoomFlipAngularRightOver(t, s)
+
+var function zoomFlipAngularRightOver(t, s)
 {
 	return cc.transition.ZoomFlipAngular(t, s, 1)
 }
 
-function pageTransitionForward(t, s)
+var function pageTransitionForward(t, s)
 {
 	return cc.transition.PageTurn(t, s, false)
 }
-function pageTransitionBackward(t, s)
+
+var function pageTransitionBackward(t, s)
 {
 	return cc.transition.PageTurn(t, s, true)
 }
 
-
-transitionInfo :=
+var transitionInfo =
 {
 	MAX_LAYER = 37
-	s_nSceneIdx = 0
+	sceneIdx = 0
 }
 
-transitions := 
+var transitions =
 [
 	"JumpZoomTransition",
     "FadeTransition",
@@ -123,9 +130,9 @@ transitions :=
     "SplitColsTransition",
 ]
 
-function createTransition(nIndex, t, s)
+var function createTransition(nIndex, t, s)
 {
-	switch(nIndex)
+	switch (nIndex)
 	{
 		case 0: return cc.transition.JumpZoom(t, s);
 		case 1: return cc.transition.Fade(t, s);
@@ -168,21 +175,7 @@ function createTransition(nIndex, t, s)
 	}
 }
 
-
-class TransitionsTestScene : TestScene
-{
-	constructor()
-	{
-		base.constructor()
-	}
-	
-	function runThisTest()
-	{
-		var pLayer = TestLayer1()
-		addChild(pLayer);
-		cocos.director.replaceScene(this)
-	}
-}
+////////////////////////////////////////////////////////////////////////////////
 
 class TestLayer1 : cc.ScriptLayer
 {
@@ -199,7 +192,7 @@ class TestLayer1 : cc.ScriptLayer
 		this.addChild(bg1, -1);
 		
 		
-		var title = cc.LabelTTF(transitions[transitionInfo.s_nSceneIdx], "Arial", 32)
+		var title = cc.LabelTTF(transitions[transitionInfo.sceneIdx], "Arial", 32)
 		title.color = nit.Color.RED
 		title.position = cc.Point(w / 2, h - 100)
 		this.addChild(title)
@@ -215,21 +208,21 @@ class TestLayer1 : cc.ScriptLayer
 		
 		var menu = cc.Menu(item1, item2, item3);
 		menu.position= cc.Point(0,0);
-		item1.position= cc.Point( w/2 - 100,30) ;
-		item2.position= cc.Point( w/2, 30) ;
-		item3.position= cc.Point( w/2 + 100,30) ;
-		this.addChild( menu, 1 );	
+		item1.position= cc.Point(w/2 - 100,30) ;
+		item2.position= cc.Point(w/2, 30) ;
+		item3.position= cc.Point(w/2 + 100,30) ;
+		this.addChild(menu, 1);	
 		
 		var m_emitter = cc.particle.Galaxy()
 		m_emitter.texture = cocos.textureCache.addImage(pack.locate("fire.png"))
-		m_emitter.position = cc.Point( 0 , h / 2 + 100)
+		m_emitter.position = cc.Point(0 , h / 2 + 100)
 		m_emitter.positionType = 1;
 			
 		var action = cc.action.MoveTo(2, cc.Point(w, h/2 + 100))
 		var action_back = cc.action.MoveTo(2, cc.Point(0, h/2 + 100))
 		var seq = cc.action.Sequence(action, action_back)
 		
-		m_emitter.runAction( cc.action.RepeatForever( seq ) )
+		m_emitter.runAction(cc.action.RepeatForever(seq))
 		this.addChild(m_emitter, 10);
 	}
 	
@@ -245,17 +238,17 @@ class TestLayer1 : cc.ScriptLayer
 	
 	function backCallBack(evt: cc.MenuItemEvent)
 	{
-		transitionInfo.s_nSceneIdx--;
+		transitionInfo.sceneIdx--;
 		var total = transitionInfo.MAX_LAYER;
-		if (transitionInfo.s_nSceneIdx < 0)
-			transitionInfo.s_nSceneIdx += total
+		if (transitionInfo.sceneIdx < 0)
+			transitionInfo.sceneIdx += total
 		
 		var s = TransitionsTestScene()
 		var pLayer = TestLayer2()
 		s.addChild(pLayer)
 		
-		print("TransitionInfo.s_nSceneIdx :" + transitionInfo.s_nSceneIdx)
-		var pScene = createTransition(transitionInfo.s_nSceneIdx, TRANSITION_DURATION, s)
+		print("TransitionInfo.sceneIdx :" + transitionInfo.sceneIdx)
+		var pScene = createTransition(transitionInfo.sceneIdx, TRANSITION_DURATION, s)
 		if (pScene)
 		{
 			cocos.director.replaceScene(pScene)
@@ -268,7 +261,7 @@ class TestLayer1 : cc.ScriptLayer
 		var pLayer = TestLayer2()
 		s.addChild(pLayer)
 		
-		var pScene = createTransition(transitionInfo.s_nSceneIdx, TRANSITION_DURATION, s)
+		var pScene = createTransition(transitionInfo.sceneIdx, TRANSITION_DURATION, s)
 		if (pScene)
 		{
 			cocos.director.replaceScene(pScene)
@@ -277,16 +270,16 @@ class TestLayer1 : cc.ScriptLayer
 	
 	function nextCallBack(evt: cc.MenuItemEvent)
 	{
-		transitionInfo.s_nSceneIdx++
-		if (transitionInfo.s_nSceneIdx >= transitionInfo.MAX_LAYER)
-			transitionInfo.s_nSceneIdx = 0
+		transitionInfo.sceneIdx++
+		if (transitionInfo.sceneIdx >= transitionInfo.MAX_LAYER)
+			transitionInfo.sceneIdx = 0
 		
 		var s = TransitionsTestScene()
 		var pLayer = TestLayer2()
 		s.addChild(pLayer)
 		
-		print("TransitionInfo.s_nSceneIdx :" + transitionInfo.s_nSceneIdx)
-		var pScene = createTransition(transitionInfo.s_nSceneIdx, TRANSITION_DURATION, s)
+		print("TransitionInfo.sceneIdx :" + transitionInfo.sceneIdx)
+		var pScene = createTransition(transitionInfo.sceneIdx, TRANSITION_DURATION, s)
 		if (pScene)
 		{
 			cocos.director.replaceScene(pScene)
@@ -294,6 +287,7 @@ class TestLayer1 : cc.ScriptLayer
 	}
 }
 
+////////////////////////////////////////////////////////////////////////////////
 
 class TestLayer2 : cc.ScriptLayer
 {
@@ -310,7 +304,7 @@ class TestLayer2 : cc.ScriptLayer
 		bg1.position = cc.Point(w/2, h/2);
 		this.addChild(bg1, -1);
 		
-		var title = cc.LabelTTF(transitions[transitionInfo.s_nSceneIdx], "Arial", 32)
+		var title = cc.LabelTTF(transitions[transitionInfo.sceneIdx], "Arial", 32)
 		title.color = nit.Color.RED
 		title.position = cc.Point(w / 2, h - 100)
 		this.addChild(title)
@@ -326,23 +320,23 @@ class TestLayer2 : cc.ScriptLayer
 		
 		var menu = cc.Menu(item1, item2, item3);
 		menu.position= cc.Point(0,0);
-		item1.position= cc.Point( w/2 - 100,30) ;
-		item2.position= cc.Point( w/2, 30) ;
-		item3.position= cc.Point( w/2 + 100,30) ;
-		this.addChild( menu, 1 );	
+		item1.position= cc.Point(w/2 - 100,30) ;
+		item2.position= cc.Point(w/2, 30) ;
+		item3.position= cc.Point(w/2 + 100,30) ;
+		this.addChild(menu, 1);	
 		
 		var m_emitter = cc.particle.Sun()
 		m_emitter.texture = cocos.textureCache.addImage(pack.locate("fire.png"))
-		m_emitter.position = cc.Point( 0 , h / 2 - 100)
+		m_emitter.position = cc.Point(0 , h / 2 - 100)
 		m_emitter.positionType = 1;
 		
 		var action = cc.action.MoveTo(2, cc.Point(w, h/2 - 100))
 		var action_back = cc.action.MoveTo(2, cc.Point(0, h/2 - 100))
 		var seq = cc.action.Sequence(action, action_back)
 		
-		m_emitter.runAction( cc.action.RepeatForever( seq ) )
+		m_emitter.runAction(cc.action.RepeatForever(seq))
 		this.addChild(m_emitter, 10);
-		//cocos.Director.Timer.Channel().Bind(Events.OnTick, this, Tick );
+		//cocos.Director.Timer.Channel().Bind(Events.OnTick, this, Tick);
 	}
 	
 	function onEnter()
@@ -357,17 +351,17 @@ class TestLayer2 : cc.ScriptLayer
 	
 	function backCallBack(evt: cc.MenuItemEvent)
 	{
-		transitionInfo.s_nSceneIdx--
+		transitionInfo.sceneIdx--
 		var total = transitionInfo.MAX_LAYER;
-		if (transitionInfo.s_nSceneIdx < 0)
-			transitionInfo.s_nSceneIdx += total
+		if (transitionInfo.sceneIdx < 0)
+			transitionInfo.sceneIdx += total
 		
 		var s = TransitionsTestScene()
 		var pLayer = TestLayer1()
 		s.addChild(pLayer)
 		
-		print("TransitionInfo.s_nSceneIdx :" + transitionInfo.s_nSceneIdx)
-		var pScene = createTransition(transitionInfo.s_nSceneIdx, TRANSITION_DURATION, s)
+		print("TransitionInfo.sceneIdx :" + transitionInfo.sceneIdx)
+		var pScene = createTransition(transitionInfo.sceneIdx, TRANSITION_DURATION, s)
 		if (pScene)
 		{
 			cocos.director.replaceScene(pScene)
@@ -380,7 +374,7 @@ class TestLayer2 : cc.ScriptLayer
 		var pLayer = TestLayer1()
 		s.addChild(pLayer)
 		
-		var pScene = createTransition(transitionInfo.s_nSceneIdx, TRANSITION_DURATION, s)
+		var pScene = createTransition(transitionInfo.sceneIdx, TRANSITION_DURATION, s)
 		if (pScene)
 		{
 			cocos.director.replaceScene(pScene)
@@ -389,15 +383,15 @@ class TestLayer2 : cc.ScriptLayer
 	
 	function nextCallBack(evt: cc.MenuItemEvent)
 	{
-		transitionInfo.s_nSceneIdx++
-		if (transitionInfo.s_nSceneIdx >= transitionInfo.MAX_LAYER)
-			transitionInfo.s_nSceneIdx = 0
+		transitionInfo.sceneIdx++
+		if (transitionInfo.sceneIdx >= transitionInfo.MAX_LAYER)
+			transitionInfo.sceneIdx = 0
 		
 		var s = TransitionsTestScene()
 		var pLayer = TestLayer1()
 		s.addChild(pLayer)
 		
-		var pScene = createTransition(transitionInfo.s_nSceneIdx, TRANSITION_DURATION, s)
+		var pScene = createTransition(transitionInfo.sceneIdx, TRANSITION_DURATION, s)
 		if (pScene)
 		{
 			cocos.director.replaceScene(pScene)
@@ -406,5 +400,20 @@ class TestLayer2 : cc.ScriptLayer
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+class TransitionsTestScene : TestScene
+{
+	constructor()
+	{
+		base.constructor()
+	}
+	
+	function runThisTest()
+	{
+		var pLayer = TestLayer1()
+		addChild(pLayer);
+		cocos.director.replaceScene(this)
+	}
+}
 
 return TransitionsTestScene()

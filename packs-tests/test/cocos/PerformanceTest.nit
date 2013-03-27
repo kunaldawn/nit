@@ -44,10 +44,10 @@ class PerformanceMainLayer : cc.ScriptLayer
 		
 		cc.MenuItemFont.setDefaultFontName("Arial")
 		cc.MenuItemFont.setDefaultFontSize(24)
-		for( var i = 0; i<MAX_COUNT; i++)
+		for (var i = 0; i<MAX_COUNT; i++)
 		{	
 			var pItem = null
-			pItem = cc.MenuItemFont( testsName[i], this, @menuCallback(pItem))
+			pItem = cc.MenuItemFont(testsName[i], this, @menuCallback(pItem))
 			pItem.position = cc.Point(s.width/2, s.height - (i+1) * LINE_SPACE)
 			pMenu.addChild(pItem, kItemTagBasic + i)
 		}
@@ -60,7 +60,7 @@ function menuCallback(pSender)
 	var pItem = pSender
 	var nIndex = pItem.zOrder - kItemTagBasic
 	
-	switch(nIndex)
+	switch (nIndex)
 	{
 		case 0:
 			require "PerformanceNodeChildrenTest"
@@ -93,17 +93,17 @@ function menuCallback(pSender)
 ////////////////////////////////////////////////////////
 class PerformBasicLayer : cc.ScriptLayer
 {
-	m_bControlMenuVisible  = null
-	m_nMaxCases = null
-	m_nCurCase = null
+	var _controlMenuVisible  = null
+	var _maxCases = null
+	var _curCase = null
 	
 	constructor(bControlMenuVisible, nMaxCasec, nCurCase)
 	{
 		base.constructor()
 		
-		m_bControlMenuVisible 	= bControlMenuVisible
-		m_nMaxCases				= nMaxCasec
-		m_nCurCase				= nCurCase
+		_controlMenuVisible 	= bControlMenuVisible
+		_maxCases				= nMaxCasec
+		_curCase				= nCurCase
 	}
 	
 	function onEnter()
@@ -117,7 +117,7 @@ class PerformBasicLayer : cc.ScriptLayer
 		var pMenu = cc.Menu(pMainItem)
 		pMenu.position = cc.Point(0,0)
 		
-		if (m_bControlMenuVisible)
+		if (_controlMenuVisible)
 		{
 			var item1 = cc.MenuItemImage(s_pPathB1, s_pPathB2, this, backCallback)
 			var item2 = cc.MenuItemImage(s_pPathR1, s_pPathR2, this, restartCallback)
@@ -158,17 +158,17 @@ class PerformBasicLayer : cc.ScriptLayer
 	
 	function nextCallback(evt: cc.MenuItemEvent)
 	{
-		m_nCurCase++
-		m_nCurCase=m_nCurCase%m_nMaxCases
+		_curCase++
+		_curCase=_curCase%_maxCases
 		
 		showCurrentTest()
 	}
 	
 	function backCallback(evt: cc.MenuItemEvent)
 	{
-		m_nCurCase--
-		if( m_nCurCase < 0 )
-			m_nCurCase += m_nMaxCases
+		_curCase--
+		if (_curCase < 0)
+			_curCase += _maxCases
 
 		showCurrentTest()
 	}

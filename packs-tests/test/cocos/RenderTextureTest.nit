@@ -1,27 +1,15 @@
 ﻿var pack = script.locator
 
-sceneIdx 	:= -1; 
+////////////////////////////////////////////////////////////////////////////////
 
-MAX_LAYER 	:= 4
+var sceneIdx = -1
+var MAX_LAYER = 4
 
-class RenderTextureScene : TestScene
+////////////////////////////////////////////////////////////////////////////////
+
+var function createTestCase(nIndex)
 {
-	constructor()
-	{
-		base.constructor()
-	}
-	
-	function runThisTest()
-	{
-		var pLayer = nextTestCase()
-		addChild(pLayer)
-		cocos.director.replaceScene(this)
-	}
-}
-
-function createTestCase(nIndex)
-{
-	switch(nIndex)
+	switch (nIndex)
 	{
 		case 0: return RenderTextureTest();
 		case 1: return RenderTextureIssue937();
@@ -32,7 +20,7 @@ function createTestCase(nIndex)
 	return NULL;
 }
 
-function nextTestCase()
+var function nextTestCase()
 {
 	sceneIdx++;
 	sceneIdx = sceneIdx % MAX_LAYER;
@@ -42,11 +30,11 @@ function nextTestCase()
 	return pLayer;
 }
 
-function backTestCase()
+var function backTestCase()
 {
 	sceneIdx--;
 	var total = MAX_LAYER;
-	if( sceneIdx < 0 )
+	if (sceneIdx < 0)
 		sceneIdx += total;	
 	
 	var pLayer = createTestCase(sceneIdx);
@@ -54,18 +42,19 @@ function backTestCase()
 	return pLayer;
 }
 
-function restartTestCase()
+var function restartTestCase()
 {
 	var pLayer = createTestCase(sceneIdx);
 
 	return pLayer;
 } 
 
+////////////////////////////////////////////////////////////////////////////////
 
 class RenderTextureTestDemo : cc.ScriptLayer
 {
-	m_atlas = null
-	m_strTitle = null
+	var _atlas = null
+	var _strTitle = null
 	
 	constructor()
 	{
@@ -75,14 +64,14 @@ class RenderTextureTestDemo : cc.ScriptLayer
 		var x = size.width
 		var y = size.height
 	
-		var label = cc.LabelTTF( title(), "Arial", 28)
+		var label = cc.LabelTTF(title(), "Arial", 28)
 		label.position = cc.Point(x/2, y-50)
 		addChild(label, 1)
 		
 		var strSubtitle = subtitle()
-		if ( strSubtitle != "")
+		if (strSubtitle != "")
 		{
-			var l = cc.LabelTTF( strSubtitle, "Thonburi", 16)
+			var l = cc.LabelTTF(strSubtitle, "Arial", 16)
 			addChild(l, 1)
 			l.position = cc.Point(size.width/2, size.height-80)
 		}
@@ -92,11 +81,11 @@ class RenderTextureTestDemo : cc.ScriptLayer
 		var item3 = cc.MenuItemImage(s_pPathF1, s_pPathF2, this,nextCallBack);
 		
 		var menu = cc.Menu(item1, item2, item3);
-		menu.position= cc.Point(0,0);
-		item1.position= cc.Point( size.width/2 - 100,30) ;
-		item2.position= cc.Point( size.width/2, 30) ;
-		item3.position= cc.Point( size.width/2 + 100,30) ;
-		this.addChild( menu, 1 );	
+		menu.position = cc.Point(0,0);
+		item1.position = cc.Point(size.width/2 - 100,30) ;
+		item2.position = cc.Point(size.width/2, 30) ;
+		item3.position = cc.Point(size.width/2 + 100,30) ;
+		addChild(menu, 1);	
 		
 	}
 	
@@ -113,32 +102,32 @@ class RenderTextureTestDemo : cc.ScriptLayer
 	function restartCallBack(evt: cc.MenuItemEvent)
 	{
 		var s = RenderTextureScene()
-		s.addChild( restartTestCase() )
+		s.addChild(restartTestCase())
 		cocos.director.replaceScene(s)
 	}
 	
 	function nextCallBack(evt: cc.MenuItemEvent)
 	{
 		var s = RenderTextureScene()
-		s.addChild( nextTestCase() )
+		s.addChild(nextTestCase())
 		cocos.director.replaceScene(s)
 	}
 	
 	function backCallBack(evt: cc.MenuItemEvent)
 	{
 		var s = RenderTextureScene()
-		s.addChild( backTestCase() )
+		s.addChild(backTestCase())
 		cocos.director.replaceScene(s)
 	}
 }
 
-//------------------------------------------------------------------
-// RenderTextureTest
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
+
 class RenderTextureTest : RenderTextureTestDemo
 {
-	m_target = null
-	m_brush	= null
+	var _target = null
+	var _brush	= null
+	
 	constructor()
 	{
 		base.constructor()
@@ -146,32 +135,30 @@ class RenderTextureTest : RenderTextureTestDemo
 		var s = cocos.director.winSize
 		
 		// create a render texture, this is what we're going to draw into
-		m_target = cc.RenderTexture(s.width, s.height)
+		_target = cc.RenderTexture(s.width, s.height)
 		
-		if (null == m_target)
-		{
-			return;
-		}
+		if (null == _target) return;
 		
 		var ctx = render.beginContext(cocos.renderView)
-		m_target.clear(ctx)
+		_target.clear(ctx)
 		render.endContext(ctx)
 		
-		m_target.position = cc.Point(s.width/2, s.height/2)
+		_target.position = cc.Point(s.width/2, s.height/2)
+		
 		// note that the render texture is a cocosnode, and contains a sprite of it's texture for convience,
 		// so we can just parent it to the scene like any other cocos node
-		addChild(m_target, 1);
+		addChild(_target, 1);
 		
 		// create a brush image to draw into the texture with
-		m_brush = cc.Sprite(pack.locate("stars.png"))
+		_brush = cc.Sprite(pack.locate("stars.png"))
 		
-		m_brush.blendFuncSrc = cc.Sprite.SRC_BLEND_ONE
-		m_brush.blendFuncDst = cc.Sprite.DST_BLEND_ONE_MINUS_SRC_ALPHA
-		m_brush.opacity = 20
+		_brush.blendFuncSrc = cc.Sprite.SRC_BLEND_ONE
+		_brush.blendFuncDst = cc.Sprite.DST_BLEND_ONE_MINUS_SRC_ALPHA
+		_brush.opacity = 20
 		
-		this.touchEnabled = true;
-		this.channel().priority(-10000).bind(Events.OnCCTouchMoved, this, cctouchesMoved)
-		this.channel().priority(-10000).bind(Events.OnCCTouchEnded, this, cctouchesEnded)
+		touchEnabled = true;
+		channel().bind(Events.OnCCTouchMoved, this, cctouchesMoved)
+		channel().bind(Events.OnCCTouchEnded, this, cctouchesEnded)
 	}
 	
 	function cctouchesMoved(evt: cc.TouchEvent)
@@ -184,73 +171,53 @@ class RenderTextureTest : RenderTextureTestDemo
 		
 		var ctx = render.beginContext(cocos.renderView)
 		
-		//begin drawing to the render texture
-		m_target.begin(ctx)
+		// begin drawing to the render texture
+		_target.begin(ctx)
 		
-		 // for extra points, we'll draw this smoothly from the last position and vary the sprite's
+		// for extra points, we'll draw this smoothly from the last position and vary the sprite's
 		// scale/rotation/offset
-		var distance =  math.sqrt( math.pow((start.x-end.x), 2) + math.pow((start.y-end.y),2) )
+		var distance =  math.sqrt(math.pow((start.x-end.x), 2) + math.pow((start.y-end.y),2))
 		if (distance > 1)
 		{
 			var d = distance
-			for( var i=0; i<d; i++)
+			for (var i=0; i<d; i++)
 			{
 				var difx = end.x - start.x
 				var dify = end.y - start.y
 				var delta = i/distance
-				m_brush.position = cc.Point(start.x + (difx*delta), start.y + (dify*delta))
-				m_brush.rotation = math.rand()%360
-				var r = math.rand()%50/50.0 + 0.25
-				m_brush.scale(r)
+				_brush.position = cc.Point(start.x + (difx*delta), start.y + (dify*delta))
+				_brush.rotation = math.rand() % 360
+				var r = math.rand() % 50 / 50.0 + 0.25
+				_brush.scale(r)
+				
 				// Call visit to draw the brush, don't call draw..
-				m_brush.renderVisit(ctx)
+				_brush.renderVisit(ctx)
 			}
 		}
 		
-		//#if CC_ENABLE_CACHE_TEXTTURE_DATA == if platform is android then
-		//m_target.End()
-		m_target.end(ctx)
+		_target.end(ctx)
 		
 		render.endContext(ctx)
 	}
 	
 	function cctouchesEnded(evt: cc.TouchEvent)
 	{
-	//#if CC_ENABLE_CACHE_TEXTTURE_DATA == if platform is android then
-		// for (var i = 0; i < evt.touches.len(); i++)
-		// {
-			// var touch = evt.touches[i]
-
-			// if(!touch)
-				// break
-			
-			// var location = touch.locationInView(touch.view)
-			// location = cocos.director.toGl(location);
-		
-			// m_brush.position = location
-			// m_brush.Rotation = rand()%360
-		// }
-		// m_target.Begin()
-		// m_brush.Visit()
-		// m_target.End(true)
-	//#endif
 	}
 
 	function OnExit()
 	{
 		print(this + ": onExit")
-				
 	}
 }
 
-//------------------------------------------------------------------
-// RenderTextureSave
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
+
 class RenderTextureSave : RenderTextureTestDemo
 {
-	counter = 0
-	m_target = null
-	m_brush	= null
+	var _counter = 0
+	var _target = null
+	var _brush	= null
+	
 	constructor()
 	{
 		base.constructor()
@@ -260,21 +227,21 @@ class RenderTextureSave : RenderTextureTestDemo
 		var ctx = render.beginContext(cocos.renderView)
 		
 		// create a render texture, this is what we're going to draw into
-		m_target = cc.RenderTexture(s.width, s.height)
-		m_target.clear(ctx)
-		m_target.position = cc.Point(s.width/2, s.height/2)
+		_target = cc.RenderTexture(s.width, s.height)
+		_target.clear(ctx)
+		_target.position = cc.Point(s.width/2, s.height/2)
 		
-		::rt := m_target
+		::rt := _target
 		
 		render.endContext(ctx)
 		
 		// note that the render texture is a cocosnode, and contains a sprite of it's texture for convience,
 		// so we can just parent it to the scene like any other cocos node
-		addChild(m_target, -1);
+		addChild(_target, -1);
 		
 		// create a brush image to draw into the texture with
-		m_brush = cc.Sprite(pack.locate("fire.png"))
-		m_brush.opacity = 20
+		_brush = cc.Sprite(pack.locate("fire.png"))
+		_brush.opacity = 20
 		
 		//Save Image Menu
 		var item1 = cc.MenuItemFont("Save Image", this, saveImage)
@@ -282,13 +249,13 @@ class RenderTextureSave : RenderTextureTestDemo
 		var item2 = cc.MenuItemFont("clear", this, clearImage)
 		item2.fontSize = 16
 		
-		var menu = cc.Menu( item1, item2)
-		this.addChild(menu)
+		var menu = cc.Menu(item1, item2)
+		addChild(menu)
 		menu.alignItemsVertically()
 		menu.position = cc.Point(s.width - 80, s.height - 30)
 		
-		this.touchEnabled = true;
-		this.channel().priority(-10000).bind(Events.OnCCTouchMoved, this, cctouchesMoved)
+		touchEnabled = true;
+		channel().bind(Events.OnCCTouchMoved, this, cctouchesMoved)
 	}
 	
 	function cctouchesMoved(evt: cc.TouchEvent)
@@ -301,29 +268,29 @@ class RenderTextureSave : RenderTextureTestDemo
 		var ctx = render.beginContext(cocos.renderView)
 		
 		//begin drawing to the render texture
-		m_target.begin(ctx)
+		_target.begin(ctx)
 		 // for extra points, we'll draw this smoothly from the last position and vary the sprite's
 		// scale/rotation/offset
-		var distance =  math.sqrt( math.pow((start.x-end.x), 2) + math.pow((start.y-end.y),2) )
+		var distance =  math.sqrt(math.pow((start.x-end.x), 2) + math.pow((start.y-end.y),2))
 		if (distance > 1)
 		{
 			var d = distance
-			for( var i=0; i<d; i++)
+			for (var i=0; i<d; i++)
 			{
 				var difx = end.x - start.x
 				var dify = end.y - start.y	
 				var delta = i/distance
-				m_brush.position = cc.Point(start.x + (difx*delta), start.y + (dify*delta))
-				m_brush.rotation = math.rand()%360
+				_brush.position = cc.Point(start.x + (difx*delta), start.y + (dify*delta))
+				_brush.rotation = math.rand()%360
 				var r = math.rand()%50/50.0 + 0.25
-				m_brush.scale(r)
-				m_brush.color = nit.Color((math.rand()%127 + 128)/255, 255/255, 255/255, 255/255)
+				_brush.scale(r)
+				_brush.color = nit.Color((math.rand()%127 + 128)/255, 255/255, 255/255, 255/255)
 				// Call visit to draw the brush, don't call draw..
-				m_brush.renderVisit(ctx)
+				_brush.renderVisit(ctx)
 			}
 		}
 		
-		m_target.end(ctx)
+		_target.end(ctx)
 		
 		render.endContext(ctx)
 	}
@@ -331,16 +298,16 @@ class RenderTextureSave : RenderTextureTestDemo
 	function clearImage(pSender)
 	{
 		var ctx = render.beginContext(cocos.renderView)
-		m_target.clear(ctx, math.random(),  math.random(),  math.random(),  math.random())
+		_target.clear(ctx, math.random(),  math.random(),  math.random(),  math.random())
 		render.endContext(ctx)
 	}
 
 	function saveImage(pSender)
 	{	
-		var str = format("image-%03d.png", counter)
+		var str = format("image-%03d.png", _counter)
 		
 		var ctx = render.beginContext(cocos.renderView)
-		var img = m_target.newImageCopy(ctx)
+		var img = _target.newImageCopy(ctx)
 		render.endContext(ctx)
 		
 		if (img)
@@ -352,13 +319,13 @@ class RenderTextureSave : RenderTextureTestDemo
 			dump(fl.find("*.png"))
 		}
 		
-		counter++
+		_counter++
 	}
 	
 	function onExit()
 	{
 		print(this + ": onExit")
-		m_target.cleanup()
+		_target.cleanup()
 		cocos.textureCache.removeUnusedTextures()
 	}
 	
@@ -373,9 +340,8 @@ class RenderTextureSave : RenderTextureTestDemo
 	}
 }
 
-//------------------------------------------------------------------
-// RenderTextureIssue937
-//------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
+
 class RenderTextureIssue937 : RenderTextureTestDemo
 {
 	constructor()
@@ -451,9 +417,7 @@ class RenderTextureIssue937 : RenderTextureTestDemo
 	}
 }
 
-/**
-* Impelmentation of RenderTextureZbuffer
-*/
+////////////////////////////////////////////////////////////////////////////////
 
 class RenderTextureZbuffer : RenderTextureTestDemo
 {
@@ -466,17 +430,17 @@ class RenderTextureZbuffer : RenderTextureTestDemo
 	
 		var size = cocos.director.winSize
 		
-		var label = cc.LabelTTF("vertexZ = 50", "Marker Felt", 64)
+		var label = cc.LabelTTF("vertexZ = 50", "Arial", 64)
 		label.position = cc.Point(size.width/2, size.height * 0.25)
-		this.addChild(label)
+		addChild(label)
 		
-		var label2 = cc.LabelTTF("vertexZ = 0", "Marker Felt", 64)
+		var label2 = cc.LabelTTF("vertexZ = 0", "Arial", 64)
 		label2.position = cc.Point(size.width/2, size.height * 0.5)
-		this.addChild(label2)
+		addChild(label2)
 		
-		var label3 = cc.LabelTTF("vertexZ = -50", "Marker Felt", 64)
+		var label3 = cc.LabelTTF("vertexZ = -50", "Arial", 64)
 		label3.position = cc.Point(size.width/2, size.height * 0.75)
-		this.addChild(label3)
+		addChild(label3)
 		
 		label.vertexZ = 50
 		label2.vertexZ = 0
@@ -484,24 +448,24 @@ class RenderTextureZbuffer : RenderTextureTestDemo
 		
 		cocos.spriteFrameCache.addSpriteFramesWithFile(pack.locate("circle.plist"))
 		mgr = cc.SpriteBatchNode(pack.locate("circle.png"), 9)
-		this.addChild(mgr)
+		addChild(mgr)
 		
-		for( var i=0; i<9; i++)
+		for (var i=0; i<9; i++)
 		{
 			var sprite = cc.Sprite(pack.locate("circle.png"))
 			sprite.vertexZ = 400 - (i*100)
-			sp.push( sprite )
+			sp.push(sprite)
 			
-			mgr.addChild( sprite, 9-i)
+			mgr.addChild(sprite, 9-i)
 		}
 		
 		sp[8].scale(2)
 		sp[8].color = nit.Color(255/255, 255/255, 0, 0)	
 		
-		this.touchEnabled = true;
-		this.channel().priority(-10000).bind(Events.OnCCTouchBegin, this, cctouchesBegin)
-		this.channel().priority(-10000).bind(Events.OnCCTouchMoved, this, cctouchesMoved)
-		this.channel().priority(-10000).bind(Events.OnCCTouchEnded, this, cctouchesEnded)
+		touchEnabled = true;
+		channel().bind(Events.OnCCTouchBegin, this, cctouchesBegin)
+		channel().bind(Events.OnCCTouchMoved, this, cctouchesMoved)
+		channel().bind(Events.OnCCTouchEnded, this, cctouchesEnded)
 	}
 	
 	function cctouchesBegin(evt: cc.TouchEvent)
@@ -511,7 +475,7 @@ class RenderTextureZbuffer : RenderTextureTestDemo
 			var location = touch.locationInView(touch.view)
 			location = cocos.director.toGl(location);
 			
-			foreach(k, v in sp)
+			foreach (k, v in sp)
 			{
 				v.position = location
 			}
@@ -525,7 +489,7 @@ class RenderTextureZbuffer : RenderTextureTestDemo
 			var location = touch.locationInView(touch.view)
 			location = cocos.director.toGl(location);
 			
-			foreach(k, v in sp)
+			foreach (k, v in sp)
 			{
 				v.position = location
 			}
@@ -540,10 +504,8 @@ class RenderTextureZbuffer : RenderTextureTestDemo
 	function renderScreenShot()
 	{
 		var texture = cc.RenderTexture(512, 512)
-		if (null == texture)
-		{
-			return
-		}
+
+		if (null == texture) return
 		
 		var ctx = render.beginContext(cocos.renderView)
 		
@@ -551,7 +513,7 @@ class RenderTextureZbuffer : RenderTextureTestDemo
 		texture.anchorPoint = cc.Point(0,0)
 		
 		texture.begin(ctx)
-		this.renderVisit(ctx)
+		renderVisit(ctx)
 		texture.end(ctx)
 		
 		render.endContext(ctx)
@@ -561,7 +523,7 @@ class RenderTextureZbuffer : RenderTextureTestDemo
 		sprite.position = cc.Point(256, 256)
 		sprite.opacity = 182
 		sprite.flipY = true
-		this.addChild(sprite, 999999)
+		addChild(sprite, 999999)
 		sprite.color = nit.Color.GREEN
 		
 		sprite.runAction(cc.action.Sequence(cc.action.FadeTo(2, 0), cc.action.Hide()))
@@ -583,5 +545,21 @@ class RenderTextureZbuffer : RenderTextureTestDemo
 	}
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+class RenderTextureScene : TestScene
+{
+	constructor()
+	{
+		base.constructor()
+	}
+	
+	function runThisTest()
+	{
+		var pLayer = nextTestCase()
+		addChild(pLayer)
+		cocos.director.replaceScene(this)
+	}
+}
 
 return RenderTextureScene()

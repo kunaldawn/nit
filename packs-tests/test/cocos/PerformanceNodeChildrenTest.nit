@@ -1,30 +1,32 @@
 ﻿var pack = script.locator
 
-kTagInfoLayer 		:= 1
-kTagMainLayer 		:= 2
-kTagLabelAtlas 		:= 3
+////////////////////////////////////////////////////////////////////////////////
 
-kTagBase			:= 20000
-
-TEST_COUNT			:= 4
-	
-kMaxNodes 			:= 15000
-kNodesIncrease 		:= 500
-	
-s_nCurCase 			:= 0
-
-function runNodeChildrenTest()
+var TAG =
 {
-    var pScene = IterateSpriteSheetCArray()
-    pScene.initWithQuantityOfNodes(kNodesIncrease);
-	cocos.director.replaceScene(pScene);
+	INFO_LAYER 		= 1
+	MAIN_LAYER 		= 2
+	LABEL_ATLAS 	= 3
+
+	BASE			= 20000
 }
 
-////////////////////////////////////////////////////////
-//
-// NodeChildrenMenuLayer
-//
-////////////////////////////////////////////////////////
+var TEST_COUNT		= 4
+	
+var MAX_NODES 		= 15000
+var NODES_INCREASE 	= 500
+	
+var curCase 		= 0
+
+var function runNodeChildrenTest()
+{
+    var scene = IterateSpriteSheetCArray()
+    scene.initWith_quantityOfNodes(NODES_INCREASE);
+	cocos.director.replaceScene(scene);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 class NodeChildrenMenuLayer : PerformBasicLayer
 {	
 	constructor(bControlMenuVisible, nMaxCases, nCurCase)
@@ -34,72 +36,71 @@ class NodeChildrenMenuLayer : PerformBasicLayer
 	
 	function showCurrentTest()
 	{
-		var nNodes = parent.getQuantityOfNodes()
+		var nNodes = parent.get_quantityOfNodes()
 		var pScene = null
 		
-		switch (m_nCurCase)
+		switch (_curCase)
 		{
-			 case 0:
-				pScene = IterateSpriteSheetCArray();
-				break;
-			case 1:
-				pScene = AddSpriteSheet();
-				break;
-			case 2:
-				pScene = RemoveSpriteSheet();
-				break;
-			case 3:
-				pScene = ReorderSpriteSheet();
-				break;
+		case 0:
+			pScene = IterateSpriteSheetCArray();
+			break;
+		case 1:
+			pScene = AddSpriteSheet();
+			break;
+		case 2:
+			pScene = RemoveSpriteSheet();
+			break;
+		case 3:
+			pScene = ReorderSpriteSheet();
+			break;
 		}
-		s_nCurCase = m_nCurCase
+		curCase = _curCase
 
 		if (pScene)
 		{
-			pScene.initWithQuantityOfNodes(nNodes)
+			pScene.initWith_quantityOfNodes(nNodes)
 			cocos.director.replaceScene(pScene)
 		}
 	}
 }
-////////////////////////////////////////////////////////
-//
-// NodeChildrenMainScene
-//
-////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+
 class NodeChildrenMainScene : cc.ScriptScene
 {
-	lastRenderedCount = null
-    quantityOfNodes = null
-    currentQuantityOfNodes = null
+	var _lastRenderedCount = null
+    var _quantityOfNodes = null
+    var _currentQuantityOfNodes = null
 	
-	function getQuantityOfNodes()
+	function get_quantityOfNodes()
 	{
-		return quantityOfNodes;
-	}
-	function updateQuantityOfNodes()
-	{
+		return _quantityOfNodes;
 	}
 	
-	function initWithQuantityOfNodes(nNodes)
+	function update_quantityOfNodes()
+	{
+	}
+	
+	function initWith_quantityOfNodes(nNodes)
 	{
 		var s = cocos.director.winSize
 		
 		//title label
-		var label = cc.LabelTTF( title(), "Arial", 40)
+		var label = cc.LabelTTF(title(), "Arial", 40)
 		addChild(label, 1)
 		label.position = cc.Point(s.width/2, s.height- 32)
 		label.color = nit.Color(255/255, 255/255, 40/255, 0)
 		var strSubTitle = subtitle()
 		if (strSubTitle.len()!=0)
 		{
-			var l = cc.LabelTTF(strSubTitle, "Thonburi", 16)
+			var l = cc.LabelTTF(strSubTitle, "Arial", 16)
 			addChild(l, 1)
 			l.position = cc.Point(s.width/2, s.height -80)
 		}
 		
-		lastRenderedCount = 0;
-		currentQuantityOfNodes = 0;
-		quantityOfNodes = nNodes;
+		_lastRenderedCount = 0;
+		_currentQuantityOfNodes = 0;
+		_quantityOfNodes = nNodes;
 		
 		cc.MenuItemFont.setDefaultFontSize(65)
 		var decrease = cc.MenuItemFont("-", this, onDecrease)
@@ -112,16 +113,16 @@ class NodeChildrenMainScene : cc.ScriptScene
 		menu.position = cc.Point(s.width/2, s.height/2+15)
 		addChild(menu, 1)
 		
-		var infoLabel = cc.LabelTTF("0 nodes", "Marker Felt", 30)
+		var infoLabel = cc.LabelTTF("0 nodes", "Arial", 30)
 		infoLabel.color = nit.Color(0, 200/255, 20/255, 0)
 		infoLabel.position = cc.Point(s.width/2, s.height/2 - 15)
-		addChild(infoLabel, 1, kTagInfoLayer)
+		addChild(infoLabel, 1, TAG.INFO_LAYER)
 		
-		var pMenu = NodeChildrenMenuLayer(true, TEST_COUNT, s_nCurCase)
+		var pMenu = NodeChildrenMenuLayer(true, TEST_COUNT, curCase)
 		addChild(pMenu)
 
 		updateQuantityLabel()
-		updateQuantityOfNodes()
+		update_quantityOfNodes()
 	}
 	
 	function title()
@@ -136,41 +137,39 @@ class NodeChildrenMainScene : cc.ScriptScene
 	
 	function updateQuantityLabel()
 	{
-		if( quantityOfNodes != lastRenderedCount )
+		if (_quantityOfNodes != _lastRenderedCount)
 		{
-			var infoLabel = getChildByTag(kTagInfoLayer)
-			var str = "" + quantityOfNodes+ " nodes"
+			var infoLabel = getChildByTag(TAG.INFO_LAYER)
+			var str = "" + _quantityOfNodes+ " nodes"
 			infoLabel.string = str
 
-			lastRenderedCount = quantityOfNodes;
+			_lastRenderedCount = _quantityOfNodes;
 		}
 	}
 	
 	function onIncrease(pSender)
 	{
-		quantityOfNodes += kNodesIncrease
-		if( quantityOfNodes > kMaxNodes )
-			quantityOfNodes = kMaxNodes
+		_quantityOfNodes += NODES_INCREASE
+		if (_quantityOfNodes > MAX_NODES)
+			_quantityOfNodes = MAX_NODES
 
 		updateQuantityLabel()
-		updateQuantityOfNodes()
+		update_quantityOfNodes()
 	}
 
 	function onDecrease(pSender)
 	{
-		quantityOfNodes -= kNodesIncrease
-		if( quantityOfNodes < 0 )
-			quantityOfNodes = 0
+		_quantityOfNodes -= NODES_INCREASE
+		if (_quantityOfNodes < 0)
+			_quantityOfNodes = 0
 
 		updateQuantityLabel()
-		updateQuantityOfNodes()
+		update_quantityOfNodes()
 	}
 }
-////////////////////////////////////////////////////////
-//
-// IterateSpriteSheet
-//
-////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+
 class IterateSpriteSheet : NodeChildrenMainScene
 {
 	batchNode = null
@@ -185,45 +184,47 @@ class IterateSpriteSheet : NodeChildrenMainScene
 	{
 	}
 
-	function updateQuantityOfNodes()
+	function update_quantityOfNodes()
 	{
 		var s = cocos.director.winSize
+		
 		//increase nodes
-		if( currentQuantityOfNodes < quantityOfNodes )
+		if (_currentQuantityOfNodes < _quantityOfNodes)
 		{
-			for(var i = 0; i < (quantityOfNodes-currentQuantityOfNodes); i++)
+			for (var i = 0; i < (_quantityOfNodes-_currentQuantityOfNodes); i++)
 			{
 				var sprite = cc.Sprite(batchNode.texture, cc.Rect(0, 0, 32, 32))
 				batchNode.addChild(sprite)
 				sprite.position=cc.Point(math.random()*s.width, math.random()*s.height)
 			}
-		}// decrease nodes
-		else if ( currentQuantityOfNodes > quantityOfNodes )
+		}
+		
+		// decrease nodes
+		else if (_currentQuantityOfNodes > _quantityOfNodes)
 		{
-			for(var i = 0; i < (currentQuantityOfNodes-quantityOfNodes); i++)
+			for (var i = 0; i < (_currentQuantityOfNodes-_quantityOfNodes); i++)
 			{
-				var index = currentQuantityOfNodes-i-1;
+				var index = _currentQuantityOfNodes-i-1;
 				batchNode.removeChildAtIndex(index, true);
 			}
 		}
-		currentQuantityOfNodes = quantityOfNodes;
+		
+		_currentQuantityOfNodes = _quantityOfNodes;
 	}
 	
-	function initWithQuantityOfNodes(nNodes)
+	function initWith_quantityOfNodes(nNodes)
 	{
 		batchNode = cc.SpriteBatchNode(pack.locate("spritesheet1.png"))
 		addChild(batchNode)
 
-		base.initWithQuantityOfNodes(nNodes)
+		base.initWith_quantityOfNodes(nNodes)
 
-		session.scheduler.repeat(this, @(evt)=>update(evt.delta), 0.01)
+		cocos.director.scheduler.repeat(this, @(evt)=>update(evt.delta), 0.01)
 	}
 }
-////////////////////////////////////////////////////////
-//
-// IterateSpriteSheetFastEnum
-//
-////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+
 class IterateSpriteSheetFastEnum : IterateSpriteSheet
 {
 	function title()
@@ -238,27 +239,22 @@ class IterateSpriteSheetFastEnum : IterateSpriteSheet
 	function update(dt)
 	{
 		// iterate using fast enumeration protocol
-		var pChildren = batchNode.children
-		var pObject = null;
-		
-		foreach(k, v in pChildren)
+		foreach (sprite in batchNode.children)
 		{
-			var pSprite = v
-			pSprite.visible = false
+			sprite.visible = false
 		}
 	}
 }
-////////////////////////////////////////////////////////
-//
-// IterateSpriteSheetCArray
-//
-////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+
 class IterateSpriteSheetCArray : IterateSpriteSheet
 {
 	function title()
 	{
 		return  "B - Iterate SpriteSheet";
 	}
+	
 	function subtitle()
 	{
 		return  "Iterate children using C Array API. See console";
@@ -270,18 +266,16 @@ class IterateSpriteSheetCArray : IterateSpriteSheet
 		var pChildren = batchNode.children
 		var pObject = null;
 		
-		foreach(k, v in pChildren)
+		foreach (k, v in pChildren)
 		{
 			var pSprite = v
 			pSprite.visible = false
 		}
 	}
 }
-////////////////////////////////////////////////////////
-//
-// AddRemoveSpriteSheet
-//
-////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+
 class AddRemoveSpriteSheet : NodeChildrenMainScene
 {
 	batchNode = null
@@ -290,47 +284,48 @@ class AddRemoveSpriteSheet : NodeChildrenMainScene
 	{
 	}
 	
-	function initWithQuantityOfNodes(nNodes)
+	function initWith_quantityOfNodes(nNodes)
 	{
 		batchNode = cc.SpriteBatchNode(pack.locate("spritesheet1.png"))
 		addChild(batchNode)
 		
-		base.initWithQuantityOfNodes(nNodes)
+		base.initWith_quantityOfNodes(nNodes)
 		
-		session.scheduler.repeat(this, @(evt)=>update(evt.delta), 0.02) 
+		cocos.director.scheduler.repeat(this, @(evt)=>update(evt.delta), 0.02) 
 	}
 	
-	function updateQuantityOfNodes()
+	function update_quantityOfNodes()
 	{
 		var s = cocos.director.winSize
+		
 		//increase nodes
-		if( currentQuantityOfNodes < quantityOfNodes )
+		if (_currentQuantityOfNodes < _quantityOfNodes)
 		{
-			for(var i = 0; i < (quantityOfNodes-currentQuantityOfNodes); i++)
+			for (var i = 0; i < (_quantityOfNodes-_currentQuantityOfNodes); i++)
 			{
 				var sprite = cc.Sprite(batchNode.texture, cc.Rect(0, 0, 32, 32))
 				batchNode.addChild(sprite)
 				sprite.position=cc.Point(math.random()*s.width, math.random()*s.height)
 				sprite.visible = false
 			}
-		}// decrease nodes
-		else if ( currentQuantityOfNodes > quantityOfNodes )
+		}
+		
+		// decrease nodes
+		else if (_currentQuantityOfNodes > _quantityOfNodes)
 		{
-			for(var i = 0; i < (currentQuantityOfNodes-quantityOfNodes); i++)
+			for (var i = 0; i < (_currentQuantityOfNodes-_quantityOfNodes); i++)
 			{
-				var index = currentQuantityOfNodes-i-1;
+				var index = _currentQuantityOfNodes-i-1;
 				batchNode.removeChildAtIndex(index, true);
 			}
 		}
-		currentQuantityOfNodes = quantityOfNodes;
+		
+		_currentQuantityOfNodes = _quantityOfNodes;
 	}
 }
 
-////////////////////////////////////////////////////////
-//
-// AddSpriteSheet
-//
-////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
 class AddSpriteSheet : AddRemoveSpriteSheet
 {
 	function title()
@@ -344,42 +339,43 @@ class AddSpriteSheet : AddRemoveSpriteSheet
 
 	function update(dt)
 	{
-		var totalToAdd = currentQuantityOfNodes * 0.15
+		var totalToAdd = _currentQuantityOfNodes * 0.15
 		if (totalToAdd > 0)
 		{
 			var sprites = []
 			var zs = []
+			
 			// Don't include the sprite creation time and random as part of the profiling
-			for(var i=0; i<totalToAdd; i++)
+			for (var i=0; i < totalToAdd; i++)
 			{
 				var pSprite = cc.Sprite(batchNode.texture, cc.Rect(0,0,32,32))
 				sprites.push(pSprite)
 				zs.insert(i,(math.random()*2 -1) * 50)
 			}
 			
-			for( var i=0; i < totalToAdd;i++ )
+			for (var i=0; i < totalToAdd; i++)
 			{
-				batchNode.addChild( sprites[i], zs[i], kTagBase+i);
+				batchNode.addChild(sprites[i], zs[i], TAG.BASE+i);
 			}
+			
 			// remove them
-			for( var i=0;i <  totalToAdd;i++)
+			for (var i=0; i < totalToAdd; i++)
 			{
-				batchNode.removeChildByTag(kTagBase+i, true);
+				batchNode.removeChildByTag(TAG.BASE+i, true);
 			}
 		}
 	}
 }
-////////////////////////////////////////////////////////
-//
-// RemoveSpriteSheet
-//
-////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+
 class RemoveSpriteSheet : AddRemoveSpriteSheet
 {
 	function title()
 	{
 		return  "D - Del from spritesheet"
 	}
+	
 	function subtitle()
 	{
 		return  "Remove %10 of total sprites placed randomly. See console";
@@ -387,34 +383,35 @@ class RemoveSpriteSheet : AddRemoveSpriteSheet
 
 	function update(dt)
 	{
-		var totalToAdd = currentQuantityOfNodes * 0.15
+		var totalToAdd = _currentQuantityOfNodes * 0.15
 		if (totalToAdd > 0)
 		{
 			var sprites = []
+			
 			// Don't include the sprite creation time and random as part of the profiling
-			for(var i=0; i<totalToAdd; i++)
+			for (var i=0; i<totalToAdd; i++)
 			{
 				var pSprite = cc.Sprite(batchNode.texture, cc.Rect(0,0,32,32))
 				sprites.push(pSprite)
 			}
+			
 			// add them with random Z (very important!)
-			for( var i=0; i < totalToAdd;i++ )
+			for (var i=0; i < totalToAdd;i++)
 			{
-				batchNode.addChild( sprites[i], (math.random()*2 -1) * 50, kTagBase+i);
+				batchNode.addChild(sprites[i], (math.random()*2 -1) * 50, TAG.BASE+i);
 			}
+			
 			// remove them
-			for( var i=0;i <  totalToAdd;i++)
+			for (var i=0;i <  totalToAdd;i++)
 			{
-				batchNode.removeChildByTag(kTagBase+i, true);
+				batchNode.removeChildByTag(TAG.BASE+i, true);
 			}
 		}
 	}
 }
-////////////////////////////////////////////////////////
-//
-// ReorderSpriteSheet
-//
-////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+
 class ReorderSpriteSheet : AddRemoveSpriteSheet
 {
 	function title()
@@ -428,31 +425,35 @@ class ReorderSpriteSheet : AddRemoveSpriteSheet
 
 	function update(dt)
 	{
-		var totalToAdd = currentQuantityOfNodes * 0.15
+		var totalToAdd = _currentQuantityOfNodes * 0.15
 		if (totalToAdd > 0)
 		{
 			var sprites = []
+			
 			// Don't include the sprite creation time and random as part of the profiling
-			for(var i=0; i<totalToAdd; i++)
+			for (var i=0; i<totalToAdd; i++)
 			{
 				var pSprite = cc.Sprite(batchNode.texture, cc.Rect(0,0,32,32))
 				sprites.push(pSprite)
 			}
+			
 			// add them with random Z (very important!)
-			for( var i=0; i < totalToAdd;i++ )
+			for (var i=0; i < totalToAdd;i++)
 			{
-				batchNode.addChild( sprites[i], (math.random()*2 -1) * 50, kTagBase+i);
+				batchNode.addChild(sprites[i], (math.random()*2 -1) * 50, TAG.BASE+i);
 			}
+			
 			// reorder them
-			 for( var i=0;i <  totalToAdd;i++)
+			 for (var i=0;i <  totalToAdd;i++)
 			{
 				var pNode = batchNode.children[i]
-				batchNode.reorderChild(pNode,(math.random()*2 -1) * 50 );
+				batchNode.reorderChild(pNode,(math.random()*2 -1) * 50);
 			}
+			
 			// remove them
-			for( var i=0;i <  totalToAdd;i++)
+			for (var i=0;i <  totalToAdd;i++)
 			{
-				batchNode.removeChildByTag(kTagBase+i, true);
+				batchNode.removeChildByTag(TAG.BASE+i, true);
 			}
 		}
 	}

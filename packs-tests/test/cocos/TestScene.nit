@@ -24,6 +24,10 @@ class TestScene : cc.ScriptScene
 		addChild(menu)
 	}
 	
+	function onExit()
+	{
+	}
+	
 	function onReturnToMain()
 	{
 		startTestMain()

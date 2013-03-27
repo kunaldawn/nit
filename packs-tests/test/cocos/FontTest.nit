@@ -1,11 +1,13 @@
 ﻿var pack = script.locator
 
 ////////////////////////////////////////////////////////////////////////////////
+
 class FontTest
 {
-	sceneindex = -1
-	scenemaxcnt = 9
-	fontlist = 
+	_sceneIndex = -1
+	_sceneMax = 9
+	
+	_fontList = 
 	[
 		"Arial",
 		"A Damn Mess",
@@ -26,58 +28,40 @@ class FontTest
 	{
 		var layer = null
 		
-		layer = FontDemo(fontlist[sceneindex])
+		layer = FontDemo(_fontList[_sceneIndex])
 		
 		return layer
 	}
 	
 	function nextTest()
 	{
-		sceneindex++
-		sceneindex = sceneindex % scenemaxcnt
+		_sceneIndex++
+		_sceneIndex = _sceneIndex % _sceneMax
 		
-		return _createTest(sceneindex)
+		return _createTest(_sceneIndex)
 	}
+	
 	function backTest()
 	{
-		sceneindex--
-		if (sceneindex < 0)
-			sceneindex = scenemaxcnt -1
+		_sceneIndex--
+		if (_sceneIndex < 0)
+			_sceneIndex = _sceneMax -1
 			
-		return _createTest(sceneindex)
+		return _createTest(_sceneIndex)
 	}
+	
 	function restartTest()
 	{
-		return _createTest(sceneindex)
+		return _createTest(_sceneIndex)
 	}
 }
-fontTest := FontTest()
-////////////////////////////////////////////////////////////////////////////////
+
+var fontTest = FontTest()
 
 ////////////////////////////////////////////////////////////////////////////////
-class FontTestScene : TestScene
-{
-	constructor()
-	{
-		base.constructor()
-	}
-	
-	function runThisTest()
-	{
-		var layer = fontTest.nextTest()
-		this.addChild(layer)
-		cocos.director.replaceScene(this)
-	}
-}
-////////////////////////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// FontDemo
-//
 class FontDemo : cc.ScriptLayer
 {
-	
 	constructor(fontname)
 	{
 		base.constructor()
@@ -102,22 +86,17 @@ class FontDemo : cc.ScriptLayer
 		item1.position = cc.Point(s.width / 2 - 100, 30)
 		item2.position = cc.Point(s.width / 2, 30)
 		item3.position = cc.Point(s.width / 2 + 100, 30)
-		this.addChild(menu, 1)
+		addChild(menu, 1)
 		
 		showFont(fontname)
-		
-		
-		
-		
-		
-		
 	}
+
 	function showFont(fontname)
 	{
-		this.removeChildByTag(0, true)
-		this.removeChildByTag(1, true)
-		this.removeChildByTag(2, true)
-		this.removeChildByTag(3, true)
+		removeChildByTag(0, true)
+		removeChildByTag(1, true)
+		removeChildByTag(2, true)
+		removeChildByTag(3, true)
 		
 		var s = cocos.director.winSize
 
@@ -134,11 +113,10 @@ class FontDemo : cc.ScriptLayer
 		center.position = cc.Point(s.width / 2, 150)
 		right.position = cc.Point(s.width / 2, 100)
 		
-		this.addChild(left, 0, 0)
-		this.addChild(right, 0, 1)
-		this.addChild(center, 0, 2)
-		this.addChild(top, 0, 3)
-	
+		addChild(left, 0, 0)
+		addChild(right, 0, 1)
+		addChild(center, 0, 2)
+		addChild(top, 0, 3)
 	}
 	
 	function title()
@@ -146,21 +124,23 @@ class FontDemo : cc.ScriptLayer
 		return "Font test"
 	}
 	
-	function onBackMenu(evt: cc.MenyItemEvent)
+	function onBackMenu(evt: cc.MenuItemEvent)
 	{
-		var s =  FontTestScene()
+		var s = FontTestScene()
 		s.addChild(fontTest.backTest())
 		cocos.director.replaceScene(s)
 	}
-	function onRestartMenu(evt: cc.MenyItemEvent)
+
+	function onRestartMenu(evt: cc.MenuItemEvent)
 	{
-		var s =  FontTestScene()
+		var s = FontTestScene()
 		s.addChild(fontTest.restartTest())
 		cocos.director.replaceScene(s)
 	}
-	function onNextMenu(evt: cc.MenyItemEvent)
+
+	function onNextMenu(evt: cc.MenuItemEvent)
 	{
-		var s =  FontTestScene()
+		var s = FontTestScene()
 		s.addChild(fontTest.nextTest())
 		cocos.director.replaceScene(s)
 	}
@@ -168,5 +148,19 @@ class FontDemo : cc.ScriptLayer
 
 ////////////////////////////////////////////////////////////////////////////////
 
+class FontTestScene : TestScene
+{
+	constructor()
+	{
+		base.constructor()
+	}
+	
+	function runThisTest()
+	{
+		var layer = fontTest.nextTest()
+		addChild(layer)
+		cocos.director.replaceScene(this)
+	}
+}
 
 return FontTestScene()

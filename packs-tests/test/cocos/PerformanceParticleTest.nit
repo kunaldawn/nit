@@ -1,30 +1,32 @@
 ﻿var pack = script.locator
 
-kTagInfoLayer 		:= 1
-kTagMainLayer 		:= 2
-kTagParticleSystem 	:= 3
-kTagLabelAtlas 		:= 4
-kTagMenuLayer 		:= 1000
+////////////////////////////////////////////////////////////////////////////////
 
-TEST_COUNT			:= 4
-	
-kMaxParticles 		:= 14000
-kNodesIncrease 		:= 100
-	
-s_nParCurIdx 		:= 0
+var TAG =
+{
+	TAG.INFO_LAYER 		= 1
+	TAG.MAIN_LAYER 		= 2
+	TAG.PARTILE_SYSTEM 	= 3
+	TAG.LABEL_ATLAS 	= 4
+	TAG.MENU_LAYER 		= 1000
+}
 
-function runParticleTest()
+var TEST_COUNT			= 4
+	
+var MAX_PARTICLES 		= 14000
+var NODES_INCREASE 		= 100
+	
+var curIdx 				= 0
+
+var function runParticleTest()
 {
     var pScene = ParticlePerformTest1()
-    pScene.initWithSubTest(1, kNodesIncrease);
+    pScene.initWithSubTest(1, NODES_INCREASE);
 	cocos.director.replaceScene(pScene);
 }
 
-////////////////////////////////////////////////////////
-//
-// ParticleMenuLayer
-//
-////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
 class ParticleMenuLayer : PerformBasicLayer
 {	
 	constructor(bControlMenuVisible, nMaxCases, nCurCase)
@@ -40,7 +42,7 @@ class ParticleMenuLayer : PerformBasicLayer
 		
 		var pNewScene = null
 		
-		switch (m_nCurCase)
+		switch (_curCase)
 		{
 			case 0:
 				pNewScene = ParticlePerformTest1()
@@ -55,7 +57,7 @@ class ParticleMenuLayer : PerformBasicLayer
 				pNewScene = ParticlePerformTest4()
 				break;
 		}
-		s_nParCurIdx = m_nCurCase
+		curIdx = _curCase
 
 		if (pNewScene)
 		{
@@ -64,33 +66,31 @@ class ParticleMenuLayer : PerformBasicLayer
 		}
 	}
 }
-////////////////////////////////////////////////////////
-//
-// ParticleMainScene
-//
-////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+
 class ParticleMainScene : cc.ScriptScene
 {
-	lastRenderedCount = null
-    quantityParticles = null
-    subtestNumber = null
+	var _lastRenderedCount = null
+    var _quantityParticles = null
+    var _subtestNumber = null
 	
 	function getSubTestNum()
 	{
-		return subtestNumber;
+		return _subtestNumber;
 	}
 	function getParticlesNum()
 	{
-		return quantityParticles;
+		return _quantityParticles;
 	}
 	
 	function initWithSubTest(asubtest, particles)
 	{
-		subtestNumber = asubtest;		
+		_subtestNumber = asubtest;		
 		var s = cocos.director.winSize
 		
-		lastRenderedCount = 0
-		quantityParticles   = particles
+		_lastRenderedCount = 0
+		_quantityParticles   = particles
 		
 		cc.MenuItemFont.setDefaultFontSize(65)
 		var decrease = cc.MenuItemFont("-", this, onDecrease)
@@ -103,19 +103,19 @@ class ParticleMainScene : cc.ScriptScene
 		menu.position = cc.Point(s.width/2, s.height/2+15)
 		addChild(menu, 1)
 		
-		var infoLabel = cc.LabelTTF("0 nodes", "Marker Felt", 30)
+		var infoLabel = cc.LabelTTF("0 nodes", "Arial", 30)
 		infoLabel.color = nit.Color(0, 200/255, 20/255, 0)
 		infoLabel.position = cc.Point(s.width/2, s.height - 90)
-		addChild(infoLabel, 1, kTagInfoLayer)
+		addChild(infoLabel, 1, TAG.INFO_LAYER)
 		
 	    // particles on stage
 		var labelAtlas = cc.LabelAtlas("0000", pack.locate("fps_images.png"), 16, 24, char('.'))
-		addChild(labelAtlas, 0, kTagLabelAtlas)
+		addChild(labelAtlas, 0, TAG.LABEL_ATLAS)
 		labelAtlas.position = cc.Point(s.width - 80, 50)
 		
 		//Next Prev Test
-		var pMenu = ParticleMenuLayer(true, TEST_COUNT, s_nParCurIdx)
-		addChild(pMenu, 1, kTagMenuLayer)
+		var pMenu = ParticleMenuLayer(true, TEST_COUNT, curIdx)
+		addChild(pMenu, 1, TAG.MENU_LAYER)
 		
 		//Sub Tests
 		cc.MenuItemFont.setDefaultFontSize(40)
@@ -138,7 +138,7 @@ class ParticleMainScene : cc.ScriptScene
 		addChild(pSubMenu, 2)
 		
 		//Add title label
-		var label = cc.LabelTTF( title(), "Arial", 40)
+		var label = cc.LabelTTF(title(), "Arial", 40)
 		addChild(label, 1)
 		label.position = cc.Point(s.width/2, s.height- 32)
 		label.color = nit.Color(255/255, 255/255, 40/255, 0)
@@ -146,7 +146,7 @@ class ParticleMainScene : cc.ScriptScene
 		updateQuantityLabel()
 		createParticleSystem()
 
-		session.scheduler.repeat(this, step, 0.05)
+		cocos.director.scheduler.repeat(this, step, 0.05)
 	}
 	
 	function title()
@@ -156,18 +156,18 @@ class ParticleMainScene : cc.ScriptScene
 	
 	function step(dt)
 	{
-		var atlas = getChildByTag(kTagLabelAtlas)
-		var emitter = getChildByTag(kTagParticleSystem)
+		var atlas = getChildByTag(TAG.LABEL_ATLAS)
+		var emitter = getChildByTag(TAG.PARTILE_SYSTEM)
 		
 		var str = ""
 		var count = emitter.particleCount
-		if( count < 10 )
+		if (count < 10)
 			str = "0000" + count
-		else if( count < 100 ) 
+		else if (count < 100) 
 			str = "000" + count
-		else if( count < 1000 ) 
+		else if (count < 1000) 
 			str = "00" + count
-		else if( count < 10000 ) 
+		else if (count < 10000) 
 			str = "0" + count
 		else 
 			str = ""+ count
@@ -189,21 +189,21 @@ class ParticleMainScene : cc.ScriptScene
 		* 7: Quad Particle System using 8-bit textures (PNG)
 		* 8: Quad Particle System using 4-bit textures (PVRTC)
 		*/
-		removeChildByTag(kTagParticleSystem, true)
+		removeChildByTag(TAG.PARTILE_SYSTEM, true)
 		// remove the "fire.png" from the textureCache cache. 
 		var texture = cocos.textureCache.addImage(pack.locate("fire.png"))
 		cocos.textureCache.removeTexture(texture)
 		
-		if (subtestNumber <= 3)
+		if (_subtestNumber <= 3)
 		{
-			particleSystem = cc.ParticleSystemPoint(quantityParticles)
+			particleSystem = cc.ParticleSystemPoint(_quantityParticles)
 		}
 		else
 		{
-			particleSystem = cc.ParticleSystemQuad(quantityParticles)
+			particleSystem = cc.ParticleSystemQuad(_quantityParticles)
 		}
 		
-		switch(subtestNumber)
+		switch (_subtestNumber)
 		{
 			case 1:
 				cc.Texture2D.setDefaultAlphaPixelFormat(cc.Texture2D.FORMAT_RGBA8888)
@@ -235,7 +235,7 @@ class ParticleMainScene : cc.ScriptScene
 				print("** Shall not happne!")
 				break;
 		}
-		addChild(particleSystem, 0, kTagParticleSystem)
+		addChild(particleSystem, 0, TAG.PARTILE_SYSTEM)
 		
 		doTest()
 		// restore the default pixel format
@@ -244,16 +244,16 @@ class ParticleMainScene : cc.ScriptScene
 	
 	function testNCallback(pSender)
 	{
-		subtestNumber = pSender.tag
-		var pMenu = getChildByTag(kTagMenuLayer)
+		_subtestNumber = pSender.tag
+		var pMenu = getChildByTag(TAG.MENU_LAYER)
 		pMenu.restartCallback(pSender)
 	}
 	
 	function onIncrease(pSender)
 	{
-		quantityParticles += kNodesIncrease
-		if( quantityParticles > kMaxParticles )
-			quantityParticles = kMaxParticles
+		_quantityParticles += NODES_INCREASE
+		if (_quantityParticles > MAX_PARTICLES)
+			_quantityParticles = MAX_PARTICLES
 
 		updateQuantityLabel()
 		createParticleSystem()
@@ -261,9 +261,9 @@ class ParticleMainScene : cc.ScriptScene
 
 	function onDecrease(pSender)
 	{
-		quantityParticles -= kNodesIncrease
-		if( quantityParticles < 0 )
-			quantityParticles = 0
+		_quantityParticles -= NODES_INCREASE
+		if (_quantityParticles < 0)
+			_quantityParticles = 0
 
 		updateQuantityLabel()
 		createParticleSystem()
@@ -271,127 +271,123 @@ class ParticleMainScene : cc.ScriptScene
 	
 	function updateQuantityLabel()
 	{
-		if( quantityParticles != lastRenderedCount )
+		if (_quantityParticles != _lastRenderedCount)
 		{
-			var infoLabel = getChildByTag(kTagInfoLayer)
-			var str = "" + quantityParticles+ " particles"
+			var infoLabel = getChildByTag(TAG.INFO_LAYER)
+			var str = "" + _quantityParticles+ " particles"
 			infoLabel.string = str
 
-			lastRenderedCount = quantityParticles;
+			_lastRenderedCount = _quantityParticles;
 		}
 	}
 }
-////////////////////////////////////////////////////////
-//
-// ParticlePerformTest1
-//
-////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+
 class ParticlePerformTest1 : ParticleMainScene
 {
 	function title()
 	{
-		var str = "A ("+subtestNumber+") Size=4"
+		var str = "A ("+_subtestNumber+") Size=4"
 		return str;
 	}
 
 	function doTest()
 	{
 		var s = cocos.director.winSize
-		var particleSystem = getChildByTag(kTagParticleSystem)
+		var particleSystem = getChildByTag(TAG.PARTILE_SYSTEM)
 		
 		particleSystem with
 		{
 			// duration
-			duration=-1
+			duration = -1
 
 			// gravity
-			gravity=cc.Point(0,-90)
+			gravity = cc.Point(0,-90)
 
 			// angle
-			angle =90
-			angleVar=0
+			angle = 90
+			angleVar = 0
 
 			// radial
-			radialAccel=0
-			radialAccelVar=0
+			radialAccel = 0
+			radialAccelVar = 0
 
 			// speed of particles
-			speed=180
-			speedVar=50
+			speed = 180
+			speedVar = 50
 
 			// emitter position
-			position=cc.Point(s.width/2, 100)
-			posVar=cc.Point(s.width/2,0)
+			position = cc.Point(s.width/2, 100)
+			posVar = cc.Point(s.width/2,0)
 
 			// life of particles
-			life=2.0
-			lifeVar=1
+			life = 2.0
+			lifeVar = 1
 
 			// emits per frame
 			emissionRate = particleSystem.totalParticles/particleSystem.life
 
 			// color of particles
-			startColor=nit.Color(0.5, 0.5, 0.5, 1.0)
-			startColorVar=nit.Color(0.5, 0.5, 0.5, 1.0)
-			endColor=nit.Color(0.1, 0.1, 0.1, 0.2)
+			startColor = nit.Color(0.5, 0.5, 0.5, 1.0)
+			startColorVar = nit.Color(0.5, 0.5, 0.5, 1.0)
+			endColor = nit.Color(0.1, 0.1, 0.1, 0.2)
 			endColorVar = nit.Color(0.1, 0.1, 0.1, 0.2)	
 
 			// size, in pixels
-			endSize =4.0
-			startSize=4.0
-			endSizeVar=0
-			startSizeVar=0
+			endSize = 4.0
+			startSize = 4.0
+			endSizeVar = 0
+			startSizeVar = 0
 
 			// additive
-			blendAdditive=false
+			blendAdditive = false
 		}
 	}
 }
-////////////////////////////////////////////////////////
-//
-// ParticlePerformTest2
-//
-////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+
 class ParticlePerformTest2 : ParticleMainScene
 {
 	function title()
 	{
-		var str = "B ("+subtestNumber+") Size=8"
+		var str = "B ("+_subtestNumber+") Size=8"
 		return str;
 	}
 
 	function doTest()
 	{
 		var s = cocos.director.winSize
-		var particleSystem = getChildByTag(kTagParticleSystem)
+		var particleSystem = getChildByTag(TAG.PARTILE_SYSTEM)
 		
 		particleSystem with
 		{
 			// duration
-			duration=-1
+			duration = -1
 
 			// gravity
-			gravity=cc.Point(0,-90)
+			gravity = cc.Point(0,-90)
 
 			// angle
-			angle =90
-			angleVar=0
+			angle = 90
+			angleVar = 0
 
 			// radial
-			radialAccel=0
-			radialAccelVar=0
+			radialAccel = 0
+			radialAccelVar = 0
 
 			// speed of particles
-			speed=180
-			speedVar=50
+			speed = 180
+			speedVar = 50
 
 			// emitter position
-			position=cc.Point(s.width/2, 100)
-			posVar=cc.Point(s.width/2,0)
+			position = cc.Point(s.width/2, 100)
+			posVar = cc.Point(s.width/2,0)
 
 			// life of particles
-			life=2.0
-			lifeVar=1
+			life = 2.0
+			lifeVar = 1
 
 			// emits per frame
 			emissionRate = particleSystem.totalParticles/particleSystem.life
@@ -403,64 +399,62 @@ class ParticlePerformTest2 : ParticleMainScene
 			endColorVar = nit.Color(0.1, 0.1, 0.1, 0.2)	
 
 			// size, in pixels
-			endSize =8.0
-			startSize=8.0
-			endSizeVar=0
-			startSizeVar=0
+			endSize = 8.0
+			startSize = 8.0
+			endSizeVar = 0
+			startSizeVar = 0
 
 			// additive
-			blendAdditive=false
+			blendAdditive = false
 		}
 	}
 }
-////////////////////////////////////////////////////////
-//
-// ParticlePerformTest3
-//
-////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+
 class ParticlePerformTest3 : ParticleMainScene
 {
 	function title()
 	{
-		var str = "C ("+subtestNumber+") Size=32"
+		var str = "C ("+_subtestNumber+") Size=32"
 		return str;
 	}
 
 	function doTest()
 	{
 		var s = cocos.director.winSize
-		var particleSystem = getChildByTag(kTagParticleSystem)
+		var particleSystem = getChildByTag(TAG.PARTILE_SYSTEM)
 		
 		particleSystem with
 		{
 			// duration
-			duration=-1
+			duration = -1
 
 			// gravity
-			gravity=cc.Point(0,-90)
+			gravity = cc.Point(0,-90)
 
 			// angle
-			angle =90
-			angleVar=0
+			angle = 90
+			angleVar = 0
 
 			// radial
-			radialAccel=0
-			radialAccelVar=0
+			radialAccel = 0
+			radialAccelVar = 0
 
 			// speed of particles
-			speed=180
-			speedVar=50
+			speed = 180
+			speedVar = 50
 
 			// emitter position
-			position=cc.Point(s.width/2, 100)
-			posVar=cc.Point(s.width/2,0)
+			position = cc.Point(s.width/2, 100)
+			posVar = cc.Point(s.width/2,0)
 
 			// life of particles
-			life=2.0
-			lifeVar=1
+			life = 2.0
+			lifeVar = 1
 
 			// emits per frame
-			emissionRate = particleSystem.totalParticles/particleSystem.life
+			emissionRate = totalParticles / life
 
 			// color of particles
 			startColor = nit.Color(0.5, 0.5, 0.5, 1.0)
@@ -469,64 +463,62 @@ class ParticlePerformTest3 : ParticleMainScene
 			endColorVar = nit.Color(0.1, 0.1, 0.1, 0.2)	
 
 			// size, in pixels
-			endSize =32.0
-			startSize=32.0
-			endSizeVar=0
-			startSizeVar=0
+			endSize = 32.0
+			startSize = 32.0
+			endSizeVar = 0
+			startSizeVar = 0
 
 			// additive
-			blendAdditive=false
+			blendAdditive = false
 		}
 	}
 }
-////////////////////////////////////////////////////////
-//
-// ParticlePerformTest4
-//
-////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+
 class ParticlePerformTest4 : ParticleMainScene
 {
 	function title()
 	{
-		var str = "D ("+subtestNumber+") Size=64"
+		var str = "D ("+_subtestNumber+") Size=64"
 		return str;
 	}
 
 	function doTest()
 	{
 		var s = cocos.director.winSize
-		var particleSystem = getChildByTag(kTagParticleSystem)
+		var particleSystem = getChildByTag(TAG.PARTILE_SYSTEM)
 		
 		particleSystem with
 		{
 			// duration
-			duration=-1
+			duration = -1
 
 			// gravity
-			gravity=cc.Point(0,-90)
+			gravity = cc.Point(0,-90)
 
 			// angle
-			angle =90
-			angleVar=0
+			angle = 90
+			angleVar = 0
 
 			// radial
-			radialAccel=0
-			radialAccelVar=0
+			radialAccel = 0
+			radialAccelVar = 0
 
 			// speed of particles
-			speed=180
-			speedVar=50
+			speed = 180
+			speedVar = 50
 
 			// emitter position
-			position=cc.Point(s.width/2, 100)
-			posVar=cc.Point(s.width/2,0)
+			position = cc.Point(s.width/2, 100)
+			posVar = cc.Point(s.width/2,0)
 
 			// life of particles
-			life=2.0
-			lifeVar=1
+			life = 2.0
+			lifeVar = 1
 
 			// emits per frame
-			emissionRate = particleSystem.totalParticles/particleSystem.life
+			emissionRate = totalParticles / life
 
 			// color of particles
 			startColor = nit.Color(0.5, 0.5, 0.5, 1.0)
@@ -535,13 +527,13 @@ class ParticlePerformTest4 : ParticleMainScene
 			endColorVar = nit.Color(0.1, 0.1, 0.1, 0.2)	
 
 			// size, in pixels
-			endSize =64.0
-			startSize=64.0
-			endSizeVar=0
-			startSizeVar=0
+			endSize = 64.0
+			startSize = 64.0
+			endSizeVar = 0
+			startSizeVar = 0
 
 			// additive
-			blendAdditive=false
+			blendAdditive = false
 		}
 	}
 }
