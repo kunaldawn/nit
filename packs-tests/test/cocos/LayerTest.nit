@@ -76,9 +76,9 @@ class LayerTest : cc.ScriptLayer
 			l.position = cc.Point(size.width/2, size.height-80)
 		}
 		
-		var item1 = cc.MenuItemImage(s_pPathB1, s_pPathB2, this, backCallBack)
-		var item2 = cc.MenuItemImage(s_pPathR1, s_pPathR2, this, restartCallBack)	
-		var item3 = cc.MenuItemImage(s_pPathF1, s_pPathF2, this, nextCallBack)
+		var item1 = cc.MenuItemImage(IMG.B1, IMG.B2, this, backCallBack)
+		var item2 = cc.MenuItemImage(IMG.R1, IMG.R2, this, restartCallBack)	
+		var item3 = cc.MenuItemImage(IMG.F1, IMG.F2, this, nextCallBack)
 		
 		var menu = cc.Menu(item1, item2, item3)
 		menu.position= cc.Point(0, 0)
@@ -225,8 +225,8 @@ class LayerTestBlend : LayerTest
 		var s = cocos.director.winSize
 		var layer1 = cc.LayerColor(nit.Color(1, 1, 1, 80/255))
 		
-		var sister1 = cc.Sprite(s_pPathSister1)
-		var sister2 = cc.Sprite(s_pPathSister2)
+		var sister1 = cc.Sprite(IMG.SISTER1)
+		var sister2 = cc.Sprite(IMG.SISTER2)
 		
 		addChild(sister1)
 		addChild(sister2)

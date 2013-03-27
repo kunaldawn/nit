@@ -137,13 +137,13 @@ class SpriteProgressToRadial : SpriteDemo
 		var to1 = cc.action.ProgressTo(2, 100)
 		var to2 = cc.action.ProgressTo(2, 100)
 		
-		var left = cc.ProgressTimer(s_pPathSister1)
+		var left = cc.ProgressTimer(IMG.SISTER1)
 		left.type = cc.ProgressTimer.TYPE_RADIAL_CW
 		addChild(left)
 		left.position = cc.Point(100, s.height / 2)
 		left.runAction(cc.action.RepeatForever(to1))
 		
-		var right = cc.ProgressTimer(s_pPathBlock)
+		var right = cc.ProgressTimer(IMG.BLOCKS)
 		right.type = cc.ProgressTimer.TYPE_RADIAL_CCW
 		addChild(right)
 		right.position = cc.Point(s.width - 100, s.height / 2)
@@ -172,13 +172,13 @@ class SpriteProgressToHorizontal : SpriteDemo
 		var to1 = cc.action.ProgressTo(2, 100)
 		var to2 = cc.action.ProgressTo(2, 100)
 		
-		var left = cc.ProgressTimer(s_pPathSister1)
+		var left = cc.ProgressTimer(IMG.SISTER1)
 		left.type = cc.ProgressTimer.TYPE_HORZ_BAR_LR
 		addChild(left)
 		left.position = cc.Point(100, s.height / 2)
 		left.runAction(cc.action.RepeatForever(to1))
 		
-		var right = cc.ProgressTimer(s_pPathSister2)
+		var right = cc.ProgressTimer(IMG.SISTER2)
 		right.type = cc.ProgressTimer.TYPE_HORZ_BAR_RL
 		addChild(right)
 		right.position = cc.Point(s.width - 100, s.height / 2)
@@ -208,13 +208,13 @@ class SpriteProgressToVertical : SpriteDemo
 		var to1 = cc.action.ProgressTo(2, 100)
 		var to2 = cc.action.ProgressTo(2, 100)
 		
-		var left = cc.ProgressTimer(s_pPathSister1)
+		var left = cc.ProgressTimer(IMG.SISTER1)
 		left.type = cc.ProgressTimer.TYPE_VERT_BAR_BT
 		addChild(left)
 		left.position = cc.Point(100, s.height / 2)
 		left.runAction(cc.action.RepeatForever(to1))
 		
-		var right = cc.ProgressTimer(s_pPathSister2)
+		var right = cc.ProgressTimer(IMG.SISTER2)
 		right.type = cc.ProgressTimer.TYPE_VERT_BAR_TB
 		addChild(right)
 		right.position = cc.Point(s.width - 100, s.height / 2)

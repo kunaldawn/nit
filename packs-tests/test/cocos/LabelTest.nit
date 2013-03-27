@@ -88,16 +88,16 @@ class AtlasDemo : cc.ScriptLayer
 		}
 		
 		var item1 = cc.MenuItemImage(
-			s_pPathB1,
-			s_pPathB2,
+			IMG.B1,
+			IMG.B2,
 			this, onBackMenu)
 		var item2 = cc.MenuItemImage(
-			s_pPathR1,
-			s_pPathR2,
+			IMG.R1,
+			IMG.R2,
 			this, onRestartMenu)
 		var item3 = cc.MenuItemImage(
-			s_pPathF1,
-			s_pPathF2,
+			IMG.F1,
+			IMG.F2,
 			this, onNextMenu)
 			
 		var menu = cc.Menu(item1, item2, item3)
@@ -154,7 +154,7 @@ class Atlas1 : AtlasDemo
 		// TODO: not implemented
 		return
 		
-		_textureAtlas = cc.TextureAtlas(s_AtlasTest, 3)
+		_textureAtlas = cc.TextureAtlas(IMG.ATLAS_TEST, 3)
 		
 		var s = cocos.director.winSize()
 		

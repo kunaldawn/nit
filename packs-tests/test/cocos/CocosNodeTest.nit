@@ -76,9 +76,9 @@ class TestCocosNodeDemo : cc.ScriptLayer
 			sublabel.position = cc.Point(winSize.width / 2, winSize.height - 80)
 		}
 		
-		var backBT = cc.MenuItemImage(s_pPathB1, s_pPathB2, this, backCallback)
-		var resetBT = cc.MenuItemImage(s_pPathR1,s_pPathR2, this, restartCallback)
-		var nextBT = cc.MenuItemImage(s_pPathF1, s_pPathF2, this, nextCallback)
+		var backBT = cc.MenuItemImage(IMG.B1, IMG.B2, this, backCallback)
+		var resetBT = cc.MenuItemImage(IMG.R1,IMG.R2, this, restartCallback)
+		var nextBT = cc.MenuItemImage(IMG.F1, IMG.F2, this, nextCallback)
 		
 		var testmenu = cc.Menu(backBT, resetBT, nextBT)
 		testmenu.position = cc.Point(0, 0)
@@ -189,10 +189,10 @@ class TestTest2 : TestCocosNodeDemo
 		base.onEnter()
 		
 		var s = cocos.director.winSize
-		var sp1 = cc.Sprite(s_pPathSister1)
-		var sp2 = cc.Sprite(s_pPathSister2)
-		var sp3 = cc.Sprite(s_pPathSister1)
-		var sp4 = cc.Sprite(s_pPathSister2)
+		var sp1 = cc.Sprite(IMG.SISTER1)
+		var sp2 = cc.Sprite(IMG.SISTER2)
+		var sp3 = cc.Sprite(IMG.SISTER1)
+		var sp4 = cc.Sprite(IMG.SISTER2)
 		
 		sp1.position = cc.Point(100, s.height / 2)
 		sp2.position = cc.Point(300, s.height / 2)
@@ -233,8 +233,8 @@ class TestTest4 : TestCocosNodeDemo
 	{
 		base.constructor()
 		
-		var sp1 = cc.Sprite(s_pPathSister1)
-		var sp2 = cc.Sprite(s_pPathSister2)		
+		var sp1 = cc.Sprite(IMG.SISTER1)
+		var sp2 = cc.Sprite(IMG.SISTER2)		
 		
 		sp1.position = cc.Point(100, 160)
 		sp2.position = cc.Point(380, 160)	
@@ -276,8 +276,8 @@ class TestTest5 : TestCocosNodeDemo
 	{
 		base.constructor()
 		
-		var sp1 = cc.Sprite(s_pPathSister1)
-		var sp2 = cc.Sprite(s_pPathSister2)		
+		var sp1 = cc.Sprite(IMG.SISTER1)
+		var sp2 = cc.Sprite(IMG.SISTER2)		
 		
 		sp1.position = cc.Point(100, 160)
 		sp2.position = cc.Point(380, 160)	
@@ -327,11 +327,11 @@ class TestTest6 : TestCocosNodeDemo
 	{
 		base.constructor()
 		
-		var sp1 = cc.Sprite(s_pPathSister1)
-		var sp11 = cc.Sprite(s_pPathSister1)
+		var sp1 = cc.Sprite(IMG.SISTER1)
+		var sp11 = cc.Sprite(IMG.SISTER1)
 		
-		var sp2 = cc.Sprite(s_pPathSister2)		
-		var sp21 = cc.Sprite(s_pPathSister2)		
+		var sp2 = cc.Sprite(IMG.SISTER2)		
+		var sp21 = cc.Sprite(IMG.SISTER2)		
 		
 		sp1.position = cc.Point(100, 160)
 		sp2.position = cc.Point(380, 160)	
@@ -388,7 +388,7 @@ class StressTest1 : TestCocosNodeDemo
 		base.constructor()
 	
 		var s = cocos.director.winSize
-		var sp1 = cc.Sprite(s_pPathSister1)
+		var sp1 = cc.Sprite(IMG.SISTER1)
 		addChild(sp1, 0, TAG.SPRITE1)
 		
 		sp1.position = cc.Point(s.width/2, s.height/2)
@@ -432,7 +432,7 @@ class StressTest2 : TestCocosNodeDemo
 		var s = cocos.director.winSize	
 		var sublayer = cc.ScriptLayer()
 
-		var sp1 = cc.Sprite(s_pPathSister1)
+		var sp1 = cc.Sprite(IMG.SISTER1)
 		sp1.position = cc.Point(80, s.height / 2)
 		
 		var move = cc.action.MoveBy(3, cc.Point(350, 0))
@@ -506,12 +506,12 @@ class NodeToWorld : TestCocosNodeDemo
 	{
 		base.constructor()
 		
-		var back = cc.Sprite(s_back3)
+		var back = cc.Sprite(IMG.BACK3)
 		addChild(back, -10)
 		back.anchorPoint = cc.Point(0,0)
 		var backSize = back.contentSize
 		
-		var item = cc.MenuItemImage(s_PlayNormal, s_PlaySelect)
+		var item = cc.MenuItemImage(IMG.PLAY_NORMAL, IMG.PLAY_SELECT)
 		var menu = cc.Menu(item)
 		menu.alignItemsVertically()
 		menu.position = cc.Point(backSize.width/2, backSize.height/2)
@@ -559,7 +559,7 @@ class CameraOrbitTest : TestCocosNodeDemo
 		var cam = null
 		var ss = null
 		
-		var p = cc.Sprite(s_back3)
+		var p = cc.Sprite(IMG.BACK3)
 		addChild(p, 0)
 		p.position = cc.Point(winSize.width/2, winSize.height/2)
 		p.opacity = 128

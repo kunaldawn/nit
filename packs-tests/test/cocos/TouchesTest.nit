@@ -23,7 +23,7 @@ class Paddle	: cc.ScriptNode
 		channel().bind(Events.OnCCTargetedTouchMoved, this, onTouchMove)
 		channel().bind(Events.OnCCTargetedTouchEnded, this, onTouchEnded)
 		
-		_sprite = cc.Sprite( cocos.textureCache.addImage(s_Paddle))
+		_sprite = cc.Sprite( cocos.textureCache.addImage(IMG.PADDLE))
 		addChild(_sprite)
 		_state = PADDLE_UNGRABBED
 	}
@@ -164,12 +164,12 @@ class PongLayer : cc.ScriptLayer
 		
 		_ballStartingVelocity = cc.Point(20, -100)
 		
-		_ball = Ball(cocos.textureCache.addImage(s_Ball))
+		_ball = Ball(cocos.textureCache.addImage(IMG.BALL))
 		_ball.position = cc.Point(160, 240);
 		_ball.velocity = _ballStartingVelocity
 		addChild(_ball._sprite);
 		
-		var paddleTexture = cocos.textureCache.addImage(s_Paddle);
+		var paddleTexture = cocos.textureCache.addImage(IMG.PADDLE);
 		_paddles = [];
 		var paddle0 = Paddle();
 		paddle0.position = cc.Point(160, 15);

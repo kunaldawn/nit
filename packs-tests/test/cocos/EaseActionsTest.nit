@@ -93,9 +93,9 @@ class EaseSpriteDemo : cc.ScriptLayer
 		label.position = cc.Point(x / 2, y - 50)
 		addChild(label)
 		
-		var item1 = cc.MenuItemImage(s_pPathB1, s_pPathB2, this, onBack);
-		var item2 = cc.MenuItemImage(s_pPathR1, s_pPathR2, this, onRestart);		
-		var item3 = cc.MenuItemImage(s_pPathF1, s_pPathF2, this, onNext);
+		var item1 = cc.MenuItemImage(IMG.B1, IMG.B2, this, onBack);
+		var item2 = cc.MenuItemImage(IMG.R1, IMG.R2, this, onRestart);		
+		var item3 = cc.MenuItemImage(IMG.F1, IMG.F2, this, onNext);
 		
 		var menu = cc.Menu(item1, item2, item3);
 		menu.position = cc.Point(0, 0);

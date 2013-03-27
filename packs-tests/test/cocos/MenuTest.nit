@@ -44,13 +44,13 @@ class MenuLayer1 : cc.ScriptLayer
 		touchEnabled = true    
 		
 		// Font Item
-		var spriteNormal = cc.Sprite(s_MenuItem, cc.Rect(0, 23*2, 115, 23))
-		var spriteSelected = cc.Sprite(s_MenuItem, cc.Rect(0,23*1, 115, 23))
-		var spriteDisabled = cc.Sprite(s_MenuItem, cc.Rect(0, 23*0, 115, 23))
+		var spriteNormal = cc.Sprite(IMG.MENU_ITEM, cc.Rect(0, 23*2, 115, 23))
+		var spriteSelected = cc.Sprite(IMG.MENU_ITEM, cc.Rect(0,23*1, 115, 23))
+		var spriteDisabled = cc.Sprite(IMG.MENU_ITEM, cc.Rect(0, 23*0, 115, 23))
 		
 		var item1 = cc.MenuItemSprite(spriteNormal, spriteSelected, spriteDisabled,this, onMenu)
 		// Image Item
-		var item2 = cc.MenuItemImage(s_SendScore, s_PressSendScore, this, onMenu2)
+		var item2 = cc.MenuItemImage(IMG.SEND_SCORE, IMG.SEND_SCORE_PRESS, this, onMenu2)
 		
 		// Label Item (LabelAtlas)
 		var labelAtlas = cc.LabelAtlas("0123456789", pack.locate("fps_images.png", "*fonts"), 16, 24, char('.'))
@@ -167,10 +167,10 @@ class MenuLayer2 : cc.ScriptLayer
 		
 		for (var i=0; i<2; i++)
 		{
-			var item1 = cc.MenuItemImage(s_PlayNormal, s_PlaySelect, this, onMenu)
+			var item1 = cc.MenuItemImage(IMG.PLAY_NORMAL, IMG.PLAY_SELECT, this, onMenu)
 			var item2 = null
-			item2 = cc.MenuItemImage(s_HighNormal, s_HighSelect, this, @onMenuOpacity(item2))
-			var item3 = cc.MenuItemImage(s_AboutNormal, s_AboutSelect, this, onMenuAlign)
+			item2 = cc.MenuItemImage(IMG.HIGH_NORMAL, IMG.HIGH_SELECT, this, @onMenuOpacity(item2))
+			var item3 = cc.MenuItemImage(IMG.ABOUT_NORMAL, IMG.ABOUT_SELECT, this, onMenuAlign)
 			
 			item1.scaleX = 1.5
 			item2.scaleX = 0.5
@@ -280,9 +280,9 @@ class MenuLayer3 : cc.ScriptLayer
 		var item1 = cc.MenuItemLabel(label, this, onMenu2)
 		var item2 = cc.MenuItemFont("--- Go Back ---", this, onMenu)
 		
-		var spriteNormal = cc.Sprite(s_MenuItem, cc.Rect(0, 23*2, 115, 23))
-		var spriteSelected = cc.Sprite(s_MenuItem, cc.Rect(0, 23*1, 115, 23))
-		var spriteDisabled = cc.Sprite(s_MenuItem, cc.Rect(0, 23*0, 115, 23))
+		var spriteNormal = cc.Sprite(IMG.MENU_ITEM, cc.Rect(0, 23*2, 115, 23))
+		var spriteSelected = cc.Sprite(IMG.MENU_ITEM, cc.Rect(0, 23*1, 115, 23))
+		var spriteDisabled = cc.Sprite(IMG.MENU_ITEM, cc.Rect(0, 23*0, 115, 23))
 		
 		var item3 = cc.MenuItemSprite(spriteNormal, spriteSelected, spriteDisabled, this, onMenu3)
 		_disabledItem = item3

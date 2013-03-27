@@ -74,9 +74,9 @@ class MotionStreakTest : cc.ScriptLayer
 			l.position = cc.Point(size.width/2, size.height-80)
 		}
 		
-		var item1 = cc.MenuItemImage(s_pPathB1,s_pPathB2, this,backCallBack);
-		var item2 = cc.MenuItemImage(s_pPathR1, s_pPathR2, this,restartCallBack)	
-		var item3 = cc.MenuItemImage(s_pPathF1, s_pPathF2, this,nextCallBack);
+		var item1 = cc.MenuItemImage(IMG.B1,IMG.B2, this,backCallBack);
+		var item2 = cc.MenuItemImage(IMG.R1, IMG.R2, this,restartCallBack)	
+		var item3 = cc.MenuItemImage(IMG.F1, IMG.F2, this,nextCallBack);
 		
 		var menu = cc.Menu(item1, item2, item3);
 		menu.position= cc.Point(0,0);
@@ -136,17 +136,17 @@ class MotionStreakTest1 : MotionStreakTest
 		var y = size.height
 		
 		// the root object just rotates around
-		_root = cc.Sprite(s_pPathR1)
+		_root = cc.Sprite(IMG.R1)
 		addChild(_root, 1)
 		_root.position = cc.Point(x/2, y/2)
 		
 		// the target object is offset from root, and the streak is moved to follow it
-		_target = cc.Sprite(s_pPathR1)
+		_target = cc.Sprite(IMG.R1)
 		_root.addChild(_target)
 		_target.position = cc.Point(100, 0)
 		
 		// create the streak object and add it to the scene
-		_streak = cc.MotionStreak(2, 3, s_streak, 32, 32, nit.Color(0,1,0,1))
+		_streak = cc.MotionStreak(2, 3, IMG.STREAK, 32, 32, nit.Color(0,1,0,1))
 		addChild(_streak)
 		
 		// schedule an update on each frame so we can syncronize the streak with the target
@@ -190,7 +190,7 @@ class MotionStreakTest2 : MotionStreakTest
 		var s = cocos.director.winSize
 		
 		// create the streak object and add it to the scene
-		_streak = cc.MotionStreak(3, 3, s_streak, 64, 32, nit.Color(1,1,1,1));
+		_streak = cc.MotionStreak(3, 3, IMG.STREAK, 64, 32, nit.Color(1,1,1,1));
 		addChild(_streak);
 		
 		_streak.position = cc.Point(s.width/2, s.height/2)

@@ -119,9 +119,9 @@ class PerformBasicLayer : cc.ScriptLayer
 		
 		if (_controlMenuVisible)
 		{
-			var item1 = cc.MenuItemImage(s_pPathB1, s_pPathB2, this, backCallback)
-			var item2 = cc.MenuItemImage(s_pPathR1, s_pPathR2, this, restartCallback)
-			var item3 = cc.MenuItemImage(s_pPathF1, s_pPathF2, this, nextCallback)
+			var item1 = cc.MenuItemImage(IMG.B1, IMG.B2, this, backCallback)
+			var item2 = cc.MenuItemImage(IMG.R1, IMG.R2, this, restartCallback)
+			var item3 = cc.MenuItemImage(IMG.F1, IMG.F2, this, nextCallback)
 			
 			item1.position = cc.Point(s.width/2 -100, 30)
 			item2.position = cc.Point(s.width/2, 30)
