@@ -1260,13 +1260,13 @@ public:
 
 		runtime->_unitStack.push_back(unit);
 
-		// push 'this'
-		sq_push(v, 1);
+		// push 'rootable'
+		sq_pushroottable(v);
 		SQRESULT r = unit->execute(v);
 
 		runtime->_unitStack.pop_back();
 
-		// removes 'this' from stack
+		// removes 'roottable' from stack
 		if (SQ_SUCCEEDED(r))
 			sq_replace(v, -2);
 		else
@@ -1310,7 +1310,7 @@ public:
 		{
 			LOG_TIMESCOPE(0, ".. executing '%s'", reader->getUrl().c_str());
 
-			sq_push(v, 1);						// [this] [closure] [this]
+			sq_pushroottable(v);				// [this] [closure] [root]
 			r = sq_call(v, 1, true, true);		// [this] [closure] [ret]
 
 			if (SQ_FAILED(r)) { sq_settop(v, top); return r; }
@@ -1566,10 +1566,12 @@ SQRESULT ScriptUnit::execute(HSQUIRRELVM v)
 	
 	// removes the closure
 	if (SQ_SUCCEEDED(r))
+	{
 		sq_remove(v, -2);
-	else
-		sq_poptop(v);
+		return 1;
+	}
 
+	sq_poptop(v);
 	return r;
 }
 
@@ -1987,7 +1989,7 @@ void ScriptRuntime::stepGC()
 
 	if (info.sweepcount > 0)
 	{
-		LOG(0, ".. GC sweeps: %d\n", info.sweepcount);
+//		LOG(0, ".. GC sweeps: %d\n", info.sweepcount);
 	}
 }
 
