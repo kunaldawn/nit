@@ -68,7 +68,6 @@ CCNode::CCNode(void)
 , m_bIsRelativeAnchorPoint(true)
 , m_nTag(kCCNodeTagInvalid)
 // userData is always inited as nil
-, m_pUserData(NULL)
 , m_Name(NULL)
 , m_bIsTransformDirty(true)
 , m_bIsInverseDirty(true)
@@ -479,16 +478,16 @@ void CCNode::setTag(int var)
 	m_nTag = var;
 }
 
-/// userData getter
-void * CCNode::getUserData()
+/// userValue getter
+const DataValue& CCNode::getUserValue()
 {
-	return m_pUserData;
+	return m_UserValue;
 }
 
-/// userData setter
-void CCNode::setUserData(void *var)
+/// userValue setter
+void CCNode::setUserValue(const DataValue& value)
 {
-	m_pUserData = var;
+	m_UserValue = value;
 }
 
 

@@ -213,8 +213,8 @@ class CC_DLL CCNode : public CCObject, public IEventSink
 	/** A tag used to identify the node easily */
 	CC_PROPERTY(int, m_nTag, Tag);
 
-	/** A custom user data pointer */
-	CC_PROPERTY(void *, m_pUserData, UserData);
+	/** A custom user value */
+	CC_PROPERTY_PASS_BY_REF(DataValue, m_UserValue, UserValue);
 
 protected:
 	String* m_Name;

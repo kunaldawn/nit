@@ -23,6 +23,9 @@
 #include "nit2d_pch.h"
 
 #include "nit2d/NitLibCocos.h"
+
+#include "nit/script/NitLibData.h"
+
 #include "CCGrid.h"
 #include "CCGrabber.h"
 #include "CCRibbon.h"
@@ -425,7 +428,7 @@ public:
 			PROP_ENTRY	(parent),
 			PROP_ENTRY	(relativeAnchorPoint),
 			PROP_ENTRY	(tag),
-			PROP_ENTRY	(userData),
+			PROP_ENTRY	(userValue),
 			PROP_ENTRY_R(numRunningActions),
 			PROP_ENTRY_R(children),
 			PROP_ENTRY	(clipActive),
@@ -507,7 +510,7 @@ public:
 	NB_PROP_GET(parent)					{ return push(v, self(v)->getParent()); }
 	NB_PROP_GET(relativeAnchorPoint)	{ return push(v, self(v)->getIsRelativeAnchorPoint()); }
 	NB_PROP_GET(tag)					{ return push(v, self(v)->getTag()); }
-	NB_PROP_GET(userData)				{ sq_pushuserpointer(v, self(v)->getUserData()); return 1; }
+	NB_PROP_GET(userValue)				{ return ScriptDataValue::push(v, self(v)->getUserValue()); }
 	NB_PROP_GET(numRunningActions)		{ return push(v, self(v)->numberOfRunningActions()); }
 	NB_PROP_GET(clipActive)				{ return push(v, self(v)->GetIsActiveClipArea()); }
 	NB_PROP_GET(scene)					{ return push(v, self(v)->getScene()); }
@@ -549,9 +552,16 @@ public:
 	NB_PROP_SET(parent)					{ self(v)->setParent(opt<CCNode>(v, 2, NULL)); return 0; }
 	NB_PROP_SET(relativeAnchorPoint)	{ self(v)->setIsRelativeAnchorPoint(getBool(v, 2)); return 0; }
 	NB_PROP_SET(tag)					{ self(v)->setTag(getInt(v, 2)); return 0; }
-	NB_PROP_SET(userData)				{ SQUserPointer p = sqx_getuserpointer(v, 1); self(v)->setUserData(p); return 0; }
 	NB_PROP_SET(clipActive)				{ self(v)->SetActiveClipArea(getBool(v, 2)); return 0; }
 	NB_PROP_SET(name)					{ self(v)->setName(getString(v, 2)); return 0; }
+	NB_PROP_SET(userValue)				
+	{ 
+		DataValue value; 
+		SQRESULT sr = ScriptDataValue::toValue(v, 2, value); 
+		if (SQ_FAILED(sr)) return sr;
+		self(v)->setUserValue(value); 
+		return 0; 
+	}
 
 	NB_CONS()							{ setSelf(v, CCNode::node()); return 0; }
 
