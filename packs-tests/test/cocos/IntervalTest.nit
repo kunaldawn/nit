@@ -148,3 +148,6 @@ class IntervalLayer : cc.ScriptLayer
 	}
 	
 }
+
+
+return IntervalTestScene()

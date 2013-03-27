@@ -159,3 +159,5 @@ class SceneTestLayer3 : cc.ScriptLayer
 		cocos.director.popScene()
 	}
 }
+
+return CocosSceneTestScene()

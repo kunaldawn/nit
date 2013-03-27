@@ -58,3 +58,8 @@ class KeypadTest : cc.ScriptLayer
 		m_pLabel.String = "Menu clicked!"
 	}
 }
+
+
+
+
+return KeypadTestScene()

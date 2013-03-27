@@ -582,3 +582,6 @@ class RenderTextureZbuffer : RenderTextureTestDemo
 		return "Touch screen. It should be green";
 	}
 }
+
+
+return RenderTextureScene()

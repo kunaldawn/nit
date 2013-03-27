@@ -173,3 +173,7 @@ class PerformBasicLayer : cc.ScriptLayer
 		showCurrentTest()
 	}
 }
+
+
+
+return PerformanceTestScene()

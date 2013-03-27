@@ -194,7 +194,7 @@ class TestLayer1 : cc.ScriptLayer
 		var w = size.width;
 		var h = size.height;
 		
-		var bg1 = cc.Sprite(s_back1)
+		var bg1 = cc.Sprite(pack.locate("background1.png"))
 		bg1.position = cc.Point(w/2, h/2);
 		this.addChild(bg1, -1);
 		
@@ -209,9 +209,9 @@ class TestLayer1 : cc.ScriptLayer
 		label.position = cc.Point(w / 2, h/2)
 		this.addChild(label)
 		
-		var item1 = cc.MenuItemImage(s_pPathB1,s_pPathB2, this,backCallBack);
-		var item2 = cc.MenuItemImage(s_pPathR1, s_pPathR2, this,restartCallBack);		
-		var item3 = cc.MenuItemImage(s_pPathF1, s_pPathF2, this,nextCallBack);
+		var item1 = cc.MenuItemImage(pack.locate("b1.png"),pack.locate("b2.png"), this,backCallBack);
+		var item2 = cc.MenuItemImage(pack.locate("r1.png"), pack.locate("r2.png"), this,restartCallBack);		
+		var item3 = cc.MenuItemImage(pack.locate("f1.png"), pack.locate("f2.png"), this,nextCallBack);
 		
 		var menu = cc.Menu(item1, item2, item3);
 		menu.position= cc.Point(0,0);
@@ -306,7 +306,7 @@ class TestLayer2 : cc.ScriptLayer
 		var w = size.width;
 		var h = size.height;
 		
-		var bg1 = cc.Sprite(s_back2)
+		var bg1 = cc.Sprite(pack.locate("background2.png"))
 		bg1.position = cc.Point(w/2, h/2);
 		this.addChild(bg1, -1);
 		
@@ -320,9 +320,9 @@ class TestLayer2 : cc.ScriptLayer
 		label.position = cc.Point(w / 2, h/2)
 		this.addChild(label)
 		
-		var item1 = cc.MenuItemImage(s_pPathB1,s_pPathB2, this,backCallBack);
-		var item2 = cc.MenuItemImage(s_pPathR1, s_pPathR2, this,restartCallBack);		
-		var item3 = cc.MenuItemImage(s_pPathF1, s_pPathF2, this,nextCallBack);
+		var item1 = cc.MenuItemImage(pack.locate("b1.png"),pack.locate("b2.png"), this,backCallBack);
+		var item2 = cc.MenuItemImage(pack.locate("r1.png"), pack.locate("r2.png"), this,restartCallBack);		
+		var item3 = cc.MenuItemImage(pack.locate("f1.png"), pack.locate("f2.png"), this,nextCallBack);
 		
 		var menu = cc.Menu(item1, item2, item3);
 		menu.position= cc.Point(0,0);
@@ -406,3 +406,5 @@ class TestLayer2 : cc.ScriptLayer
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+return TransitionsTestScene()

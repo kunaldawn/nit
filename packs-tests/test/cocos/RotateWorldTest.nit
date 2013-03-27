@@ -127,3 +127,5 @@ class RotateWorldMainLayer : cc.ScriptLayer
 		white.runAction( rot3);
 	}
 }
+
+return CocosRotateWorldTestScene()

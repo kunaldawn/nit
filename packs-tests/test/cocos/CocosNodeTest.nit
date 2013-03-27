@@ -724,3 +724,6 @@ class ConvertToNode : TestCocosNodeDemo
 	function subtitle()		{ return "testing convertToNodeSPace / AR. Touch and see console"}
 }
 
+
+
+return CocosNodeTestScene()

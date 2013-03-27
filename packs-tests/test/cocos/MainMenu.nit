@@ -1,13 +1,71 @@
-﻿var pack = script.locator
+﻿require "TestScene"
 
-testlist := [ ]
+var pack = script.locator
 
-function addTest(nitFile, testname, testclass)
-{
-	testlist.append({nitFile= nitFile, name = testname, tclass = testclass})
-}
+s_pPathGrossini       := pack.locate("grossini.png", "*Images*")
+s_pPathSister1        := pack.locate("grossinis_sister1.png")
+s_pPathSister2        := pack.locate("grossinis_sister2.png")
+s_pPathB1             := pack.locate("b1.png")
+s_pPathB2             := pack.locate("b2.png")
+s_pPathR1             := pack.locate("r1.png")
+s_pPathR2             := pack.locate("r2.png")
+s_pPathF1             := pack.locate("f1.png")
+s_pPathF2             := pack.locate("f2.png")
+s_pPathBlock          := pack.locate("blocks.png")
+s_back                := pack.locate("background.png")
+s_back1               := pack.locate("background1.png")
+s_back2               := pack.locate("background2.png")
+s_back3               := pack.locate("background3.png")
+s_stars1              := pack.locate("stars.png")
+s_stars2              := pack.locate("stars2.png")
+s_fire                := pack.locate("fire.png")
+s_snow                := pack.locate("snow.png")
+s_streak              := pack.locate("streak.png")
+s_PlayNormal          := pack.locate("btn-play-normal.png")
+s_PlaySelect          := pack.locate("btn-play-selected.png")
+s_AboutNormal         := pack.locate("btn-about-normal.png")
+s_AboutSelect         := pack.locate("btn-about-selected.png")
+s_HighNormal          := pack.locate("btn-highscores-normal.png")
+s_HighSelect          := pack.locate("btn-highscores-selected.png")
+s_Ball                := pack.locate("ball.png")
+s_Paddle              := pack.locate("paddle.png")
+s_pPathClose          := pack.locate("close.png")
+s_MenuItem            := pack.locate("menuitemsprite.png")
+s_SendScore           := pack.locate("SendScoreButton.png")
+s_PressSendScore      := pack.locate("SendScoreButtonPressed.png")
+s_Power               := pack.locate("powered.png")
+s_AtlasTest           := pack.locate("atlastest.png")
 
-require "testlist"
+testlist := 
+[ 
+	"ActionsTest",
+	"TransitionsTest",
+	"ProgressActionsTest",
+	"EffectsTest",
+	"ClickAndMoveTest",
+	"RotateWorldTest",
+	"ParticleTest",
+	"EaseActionsTest",
+	"MotionStreakTest",
+	"CocosNodeTest",
+	"TouchesTest",
+	"MenuTest",
+	"LayerTest",
+	"SceneTest",
+	"IntervalTest",
+	"LabelTest",
+	"TextInputTest",
+	"SpriteTest",
+	"RenderTextureTest",
+	"Texture2dTest",
+	"EffectAdvancedTest",
+	"AccelerometerTest",
+	"KeyPadTest",
+	"PerformanceTest",
+	"ZwoptexTest",
+	"DirectorTest",
+	"FontTest",
+]
 
 class TestMainMenu : cc.ScriptLayer
 {
@@ -33,10 +91,11 @@ class TestMainMenu : cc.ScriptLayer
 		
 		_itemMenu = cc.Menu()
 		
-		foreach (index, data in testlist)
+		foreach (index, test in testlist)
 		{
-			var label = cc.LabelTTF(data.name, "산돌고딕Neo1 Bold", 34)
+			var label = cc.LabelTTF(test, "산돌고딕Neo1 Bold", 34)
 			var item = cc.MenuItemLabel(label, this, onSelectMenu)
+			item.userValue = test
 				
 			_itemMenu.addChild(item, index + 10000)
 			item.position = cc.Point(winSize.width / 2, (winSize.height - (index + 1) * 40))
@@ -62,15 +121,11 @@ class TestMainMenu : cc.ScriptLayer
 	
 	function onSelectMenu(evt: cc.MenuItemEvent)
 	{
-		var info = testlist[evt.item.zOrder - 10000]
-		print("select : " + info.name)
+		var test = evt.item.userValue
+		print("select : " + test)
 		
-		require(info.nitFile)
-		
-		if (info.tclass == null)
-			return
-			
-		var inst = getroottable()[info.tclass]()
+		var inst = dofile(test)
+
 		inst.runThisTest()
 	}
 

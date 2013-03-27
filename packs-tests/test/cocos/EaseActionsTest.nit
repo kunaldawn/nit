@@ -732,3 +732,6 @@ class SchedulerTest : EaseSpriteDemo
 	
 }
 
+
+
+return CocosEaseActionTestScene()

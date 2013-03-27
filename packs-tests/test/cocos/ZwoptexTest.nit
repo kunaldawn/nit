@@ -243,3 +243,5 @@ class ZwoptexGenericTest : ZwoptexTest
 		return "Coordinate Formats, Rotation, Trimming, flipX/Y";
 	}
 }
+
+return ZwoptexTestScene()

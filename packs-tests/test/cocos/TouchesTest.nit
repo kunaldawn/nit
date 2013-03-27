@@ -226,3 +226,5 @@ class PongLayer : cc.ScriptLayer
 			resetAndScoreBallForPlayer( 0 )
 	}
 }
+
+return PongScene()

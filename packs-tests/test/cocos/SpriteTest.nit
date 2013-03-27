@@ -3937,3 +3937,6 @@ class SpriteBatchNodeOffsetAnchorFlip : SpriteTestDemo
 	}
 }
 
+
+
+return SpriteTestScene()

@@ -449,3 +449,5 @@ class MenuLayer4 : cc.ScriptLayer
 	{
 	}
 }
+
+return MenuTestScene()

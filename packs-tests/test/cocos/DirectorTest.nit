@@ -217,3 +217,6 @@ class Director1 : DirectorTest
 		return "Tap screen and see the debug console"
 	}
 }
+
+
+return DirectorTestScene()

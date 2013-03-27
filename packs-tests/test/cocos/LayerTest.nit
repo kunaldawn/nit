@@ -343,3 +343,6 @@ class LayerGradient : LayerTest
 		return "Touch the screen and move your finger"
 	}
 }
+
+
+return LayerTestScene()

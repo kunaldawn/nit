@@ -219,3 +219,5 @@ class MotionStreakTest2 : MotionStreakTest
 		return "MotionStreak test 2";
 	}
 }
+
+return MotionStreakTestScene()

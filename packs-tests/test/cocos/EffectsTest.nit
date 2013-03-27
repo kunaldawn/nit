@@ -384,3 +384,4 @@ function pageTurn3DDemo(t)
 }
 
 
+return EffectTestScene()

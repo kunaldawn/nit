@@ -98,16 +98,16 @@ class SpriteDemo : cc.ScriptLayer
 		}
 		
 		var item1 = cc.MenuItemImage(
-			s_pPathB1,
-			s_pPathB2,
+			pack.locate("b1.png"),
+			pack.locate("b2.png"),
 			this, onBackMenu)
 		var item2 = cc.MenuItemImage(
-			s_pPathR1,
-			s_pPathR2,
+			pack.locate("r1.png"),
+			pack.locate("r2.png"),
 			this, onRestartMenu)
 		var item3 = cc.MenuItemImage(
-			s_pPathF1,
-			s_pPathF2,
+			pack.locate("f1.png"),
+			pack.locate("f2.png"),
 			this, onNextMenu)
 			
 		var menu = cc.Menu(item1, item2, item3)
@@ -265,3 +265,5 @@ class SpriteProgressToVertical : SpriteDemo
 	}
 }
 ////////////////////////////////////////////////////////////////////////////////
+
+return ProgressActionsTestScene()

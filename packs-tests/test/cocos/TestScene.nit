@@ -5,10 +5,10 @@ class TestScene : cc.ScriptScene
 	constructor(portrait = false)
 	{
 		base.constructor()
-		this.portrait = portrait
+		portrait = portrait
 		
 		if (portrait)
-			cocos.director.deviceOrientation = cocos.director.ORIENT_LANDSCAPE_RIGHT
+			cocos.director with deviceOrientation = ORIENT_LANDSCAPE_RIGHT
 	}
 	
 	function onEnter()
@@ -21,7 +21,7 @@ class TestScene : cc.ScriptScene
 		menu.position = cc.Point(0, 0)
 		item.position = cc.Point(winSize.width - 50, 25)
 		
-		this.addChild(menu)
+		addChild(menu)
 	}
 	
 	function onReturnToMain()

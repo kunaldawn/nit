@@ -74,3 +74,5 @@ class MainLayer : cc.ScriptLayer
 	}
 	
 }
+
+return CocosClickAndMoveTestScene()

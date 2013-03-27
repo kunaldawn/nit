@@ -1,5 +1,68 @@
 var pack = script.locator
 
+////////////////////////////////////////////////////////////////////////////////
+
+class ActionsTest
+{
+	_layerIndex = 0
+	
+	var _layers =
+	[
+		ActionManual,
+		ActionMove,
+		ActionScale,
+		ActionRotate,
+		ActionSkew,
+		ActionSkewRotateScale,
+		ActionJump,
+		ActionBezier,
+		ActionBlink,
+		ActionFade,
+		ActionTint,
+		ActionAnimate,
+		ActionSequence,
+		ActionSequence2,
+		ActionSpawn,
+		ActionReverse,
+		ActionDelayTime,
+		ActionRepeat,
+		ActionRepeatForever,
+		ActionRotateToRepeat,
+		ActionRotateJerk,
+		ActionCallFunc,
+		ActionCallFuncND,
+		ActionReverseSequence,
+		ActionReverseSequence2,
+		ActionOrbit,
+		ActionFollow,
+	]
+	
+	function next()
+	{
+		_layerIndex = (_layerIndex + 1) % _layers.len()
+		
+		return _layers[_layerIndex] ()
+	}
+	
+	function back()
+	{
+		_layerIndex--
+		if (_layerIndex < 0)
+			_layerIndex = _layers.len() - 1
+			
+		return _layers[_layerIndex] ()
+	}
+	
+	function restart()
+	{
+		return _layers[_layerIndex] ()
+	}
+}
+
+var theTest
+
+////////////////////////////////////////////////////////////////////////////////
+
 class ActionTestScene : TestScene
 {
 	constructor()
@@ -9,137 +72,12 @@ class ActionTestScene : TestScene
 	
 	function runThisTest()
 	{
-		var as = ActionManual()
-		this.addChild(as)
+		addChild(theTest.restart())
 		cocos.director.replaceScene(this)
 	}
 }
 
-class ActionTest
-{
-	sceneindex = 0
-	scenemaxcnt = 27
-	
-	constructor()
-	{
-	}
-	
-	function _createLayer(index)
-	{
-		var layer = null
-		
-		switch (index)
-		{
-		case 0:
-			layer = ActionManual()
-			break
-		case 1:
-			layer = ActionMove()
-			break
-		case 2:
-			layer = ActionScale()
-			break
-		case 3:
-			layer = ActionRotate()
-			break
-		case 4:
-			layer = ActionSkew()
-			break
-		case 5:
-			layer = ActionSkewRotateScale()
-			break
-		case 6:
-			layer = ActionJump()
-			break
-		case 7:
-			layer = ActionBezier()
-			break
-		case 8:
-			layer = ActionBlink()
-			break
-		case 9:
-			layer = ActionFade()
-			break
-		case 10:
-			layer = ActionTint()
-			break	
-		case 11:
-			layer = ActionAnimate()
-			break
-		case 12:
-			layer = ActionSequence()
-			break
-		case 13:
-			layer = ActionSequence2()
-			break
-		case 14:
-			layer = ActionSpawn()
-			break
-		case 15:
-			layer = ActionReverse()
-			break
-		case 16:
-			layer = ActionDelayTime()
-			break
-		case 17:
-			layer = ActionRepeat()
-			break
-		case 18:
-			layer = ActionRepeatForever()
-			break
-		case 19:
-			layer = ActionRotateToRepeat()
-			break
-		case 20:
-			layer = ActionRotateJerk()
-			break
-		case 21:
-			layer = ActionCallFunc()
-			break
-		case 22:
-			layer = ActionCallFuncND()
-			break
-		case 23:
-			layer = ActionReverseSequence()
-			break
-		case 24:
-			layer = ActionReverseSequence2()
-			break
-		case 25:
-			layer = ActionOrbit()
-			break
-		case 26:
-			layer = ActionFollow()
-			break
-		}
-		
-		return layer
-	}
-	
-	function nextAction()
-	{
-		print("NextAction")
-		sceneindex++
-		sceneindex = sceneindex % scenemaxcnt
-		
-		return _createLayer(sceneindex)
-	}
-	function backAction()
-	{
-		print("BackAction")
-		sceneindex--
-		if (sceneindex < 0)
-			sceneindex = scenemaxcnt -1
-			
-		return _createLayer(sceneindex)
-	}
-	function restartAction()
-	{
-		return _createLayer(sceneindex)
-	}
-}
-
-actiontest := ActionTest()
+////////////////////////////////////////////////////////////////////////////////
 
 class ActionsDemo : cc.ScriptLayer
 {
@@ -152,15 +90,17 @@ class ActionsDemo : cc.ScriptLayer
 	{
 		base.constructor()
 		
+		printf("ActionsTest - (%s)", subtitle())
+		
 		_grossini = cc.Sprite(pack.locate("grossini.png", "*Images*"))
 		
 		_tamara = cc.Sprite(pack.locate("grossinis_sister1.png"))
 		
 		_kathia = cc.Sprite(pack.locate("grossinis_sister2.png"))
 
-		this.addChild(_grossini, 1)
-		this.addChild(_tamara, 2)
-		this.addChild(_kathia, 3)
+		addChild(_grossini, 1)
+		addChild(_tamara, 2)
+		addChild(_kathia, 3)
 
 		 var s = cocos.director.winSize;
 
@@ -168,48 +108,48 @@ class ActionsDemo : cc.ScriptLayer
 		_tamara.position = cc.Point(s.width/2, 2*s.height/3)
 		_kathia.position = cc.Point(s.width/2, s.height/2)
 
-		var label  = cc.LabelTTF(this.title(), "Arial", 18)
-		this.addChild(label, 1)
+		var label  = cc.LabelTTF(title(), "Arial", 18)
+		addChild(label, 1)
 		label.position = cc.Point(s.width/2, s.height - 30)
 
-		if( this.subtitle() != "" ) 
+		if (subtitle() != "") 
 		{
-			var l = cc.LabelTTF(subtitle(), "Thonburi", 22)
-			this.addChild(l, 1)
+			var l = cc.LabelTTF(subtitle(), "Arial", 22)
+			addChild(l, 1)
 			l.position = cc.Point(s.width/2, s.height - 60)
 		}	
 
-		var item1 = cc.MenuItemImage(pack.locate("b1.png"), pack.locate("b2.png"), this, backCallback )
-		var item2 = cc.MenuItemImage(pack.locate("r1.png"), pack.locate("r2.png"), this, restartCallback )
-		var item3 = cc.MenuItemImage(pack.locate("f1.png"), pack.locate("f2.png"), this, nextCallback )
+		var item1 = cc.MenuItemImage(pack.locate("b1.png"), pack.locate("b2.png"), this, onBack)
+		var item2 = cc.MenuItemImage(pack.locate("r1.png"), pack.locate("r2.png"), this, onRestart)
+		var item3 = cc.MenuItemImage(pack.locate("f1.png"), pack.locate("f2.png"), this, onNext)
 
 		var menu = cc.Menu(item1, item2, item3)
 
 		menu.position = cc.Point.ZERO
-		item1.position = cc.Point( s.width/2 - 100,30)
-		item2.position = cc.Point( s.width/2, 30)
-		item3.position = cc.Point( s.width/2 + 100,30)
+		item1.position = cc.Point(s.width/2 - 100,30)
+		item2.position = cc.Point(s.width/2, 30)
+		item3.position = cc.Point(s.width/2 + 100,30)
 
-		this.addChild(menu, 1)
+		addChild(menu, 1)
 	}
 
     function centerSprites(numberOfSprites)
 	{
 		var s = cocos.director.winSize;
 
-		if( numberOfSprites == 1 ) 
+		if (numberOfSprites == 1) 
 		{
 			_tamara.visible = false
 			_kathia.visible = false
 			_grossini.position = cc.Point(s.width/2, s.height/2)
 		}
-		else if( numberOfSprites == 2 ) 
+		else if (numberOfSprites == 2) 
 		{		
 			_kathia.position = cc.Point(s.width/3, s.height/2)
 			_tamara.position = cc.Point(2*s.width/3, s.height/2)
 			_grossini.visible = false
 		} 
-		else if( numberOfSprites == 3 ) 
+		else if (numberOfSprites == 3) 
 		{
 			_grossini.position = cc.Point(s.width/2, s.height/2)
 			_tamara.position = cc.Point(s.width/4, s.height/2)
@@ -221,21 +161,21 @@ class ActionsDemo : cc.ScriptLayer
 	{
 		 var s = cocos.director.winSize;
 
-		if( numberOfSprites == 1 ) 
+		if (numberOfSprites == 1) 
 		{
 			_tamara.visible = false
 			_kathia.visible = false
 			_grossini.position = cc.Point(60, s.height/2)
 		} 
-		else if( numberOfSprites == 2 ) 
+		else if (numberOfSprites == 2) 
 		{		
 			_kathia.position = cc.Point(60, s.height/3)
 			_tamara.position = cc.Point(60, 2*s.height/3)
 			_grossini.visible = false 
 		} 
-		else if( numberOfSprites == 3 ) 
+		else if (numberOfSprites == 3) 
 		{
-			_grossini.position =  cc.Point(60, s.height/2)
+			_grossini.position = cc.Point(60, s.height/2)
 			_tamara.position = cc.Point(60, 2*s.height/3)
 			_kathia.position = cc.Point(60, s.height/3)
 		}
@@ -251,27 +191,29 @@ class ActionsDemo : cc.ScriptLayer
 		return ""
 	}
 
-    function restartCallback(evt: cc.MenuItemEvent)
+    function onRestart(evt: cc.MenuItemEvent)
 	{
-		var s =  ActionTestScene()
-		s.addChild(actiontest.restartAction())
+		var s = ActionTestScene()
+		s.addChild(theTest.restart())
 		cocos.director.replaceScene(s)
 	}
 	
-    function nextCallback(evt: cc.MenuItemEvent)
+    function onNext(evt: cc.MenuItemEvent)
 	{
-		var s =  ActionTestScene()
-		s.addChild(actiontest.nextAction())
+		var s = ActionTestScene()
+		s.addChild(theTest.next())
 		cocos.director.replaceScene(s)
 	}
 	
-    function backCallback(evt: cc.MenuItemEvent)
+    function onBack(evt: cc.MenuItemEvent)
 	{
-		var s =  ActionTestScene()
-		s.addChild(actiontest.backAction())
+		var s = ActionTestScene()
+		s.addChild(theTest.back())
 		cocos.director.replaceScene(s)
 	}
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 class ActionMove : ActionsDemo
 {
@@ -283,12 +225,12 @@ class ActionMove : ActionsDemo
 
 		var s = cocos.director.winSize
 
-		 var  actionTo = cc.action.MoveTo(2, cc.Point(s.width-40, s.height-40))
-		 var  actionBy = cc.action.MoveBy(2, cc.Point(80,80))
-		 var  actionByBack = actionBy.reverse()
+		 var actionTo = cc.action.MoveTo(2, cc.Point(s.width-40, s.height-40))
+		 var actionBy = cc.action.MoveBy(2, cc.Point(80,80))
+		 var actionByBack = actionBy.reverse()
 
-		_tamara.runAction( actionTo )
-		_grossini.runAction( cc.action.Sequence(actionBy, actionByBack))
+		_tamara.runAction(actionTo)
+		_grossini.runAction(cc.action.Sequence(actionBy, actionByBack))
 		_kathia.runAction(cc.action.MoveTo(1, cc.Point(40,40)))
 	}
 	
@@ -297,6 +239,8 @@ class ActionMove : ActionsDemo
 		return "MoveTo / MoveBy"
 	}
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 class ActionManual : ActionsDemo
 {
@@ -325,6 +269,8 @@ class ActionManual : ActionsDemo
 	}
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 class ActionScale : ActionsDemo
 {
 	constructor()
@@ -333,14 +279,14 @@ class ActionScale : ActionsDemo
 		
 		centerSprites(3);
 
-		var actionTo = cc.action.ScaleTo( 2, 0.5)
+		var actionTo = cc.action.ScaleTo(2, 0.5)
 		var actionBy = cc.action.ScaleBy(2 ,  2)
 		var actionBy2 = cc.action.ScaleBy(2, 0.25, 4.5)
 		var actionByBack = actionBy.reverse()
 
-		_tamara.runAction( actionTo);
-		_grossini.runAction( cc.action.Sequence(actionBy, actionByBack))
-		_kathia.runAction( cc.action.Sequence(actionBy2, actionBy2.reverse() ))
+		_tamara.runAction(actionTo);
+		_grossini.runAction(cc.action.Sequence(actionBy, actionByBack))
+		_kathia.runAction(cc.action.Sequence(actionBy2, actionBy2.reverse()))
 	}
 	
 	function subtitle()
@@ -348,6 +294,8 @@ class ActionScale : ActionsDemo
 		return "ScaleTo / ScaleBy"
 	}
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 class ActionRotate : ActionsDemo
 {
@@ -357,18 +305,18 @@ class ActionRotate : ActionsDemo
 		
 		centerSprites(3)
 
-		var  actionTo = cc.action.RotateTo( 2, 45)
-		var  actionTo2 = cc.action.RotateTo( 2, -45)
+		var actionTo = cc.action.RotateTo(2, 45)
+		var actionTo2 = cc.action.RotateTo(2, -45)
 		
-		var  actionTo0 = cc.action.RotateTo(2 , 0)
-		var  actionTo1 = cc.action.RotateTo(2 , 0)
-		_tamara.runAction( cc.action.Sequence(actionTo, actionTo0))
+		var actionTo0 = cc.action.RotateTo(2 , 0)
+		var actionTo1 = cc.action.RotateTo(2 , 0)
+		_tamara.runAction(cc.action.Sequence(actionTo, actionTo0))
 
-		var  actionBy = cc.action.RotateBy(2 ,  360);
-		var  actionByBack = actionBy.reverse()
-		_grossini.runAction( cc.action.Sequence(actionBy, actionByBack))
+		var actionBy = cc.action.RotateBy(2 ,  360);
+		var actionByBack = actionBy.reverse()
+		_grossini.runAction(cc.action.Sequence(actionBy, actionByBack))
 
-		_kathia.runAction( cc.action.Sequence(actionTo2, actionTo1))
+		_kathia.runAction(cc.action.Sequence(actionTo2, actionTo1))
 	}
 	
 	function subtitle()
@@ -376,6 +324,8 @@ class ActionRotate : ActionsDemo
 		return "RotateTo / RotateBy"
 	}
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 class ActionSkew : ActionsDemo
 {
@@ -401,6 +351,8 @@ class ActionSkew : ActionsDemo
 		return "SkewTo / SkewBy"
 	}
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 class ActionSkewRotateScale : ActionsDemo
 {
@@ -431,7 +383,7 @@ class ActionSkewRotateScale : ActionsDemo
 		uR.contentSize = cc.Size(markrside, markrside)
 		uR.position = cc.Point(boxSize.width - markrside, boxSize.height - markrside)
 		uR.anchorPoint = cc.Point(0, 0)
-		this.addChild(box)
+		addChild(box)
 
 		var actionTo = cc.action.SkewTo(2, 0, 2)
 		var rotateTo = cc.action.RotateTo(2, 61)
@@ -452,6 +404,8 @@ class ActionSkewRotateScale : ActionsDemo
 	}
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 class ActionJump : ActionsDemo
 {
 	constructor()
@@ -460,14 +414,14 @@ class ActionJump : ActionsDemo
 		
 		centerSprites(3)
 		
-		var  actionTo = cc.action.JumpTo(2, cc.Point(300,300), 50, 4)
-		var  actionBy = cc.action.JumpBy(2, cc.Point(300,0), 50, 4)
-		var  actionUp = cc.action.JumpBy(2, cc.Point(0,0), 80, 4)
-		var  actionByBack = actionBy.reverse()
+		var actionTo = cc.action.JumpTo(2, cc.Point(300,300), 50, 4)
+		var actionBy = cc.action.JumpBy(2, cc.Point(300,0), 50, 4)
+		var actionUp = cc.action.JumpBy(2, cc.Point(0,0), 80, 4)
+		var actionByBack = actionBy.reverse()
 
-		_tamara.runAction( actionTo)
-		_grossini.runAction( cc.action.Sequence(actionBy, actionByBack))
-		_kathia.runAction( cc.action.RepeatForever(actionUp))
+		_tamara.runAction(actionTo)
+		_grossini.runAction(cc.action.Sequence(actionBy, actionByBack))
+		_kathia.runAction(cc.action.RepeatForever(actionUp))
 	}
 
 	function subtitle()
@@ -475,6 +429,8 @@ class ActionJump : ActionsDemo
 		return "JumpTo / JumpBy"
 	}
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 class ActionBezier : ActionsDemo
 {
@@ -490,10 +446,9 @@ class ActionBezier : ActionsDemo
 		var controlPoint_2 = cc.Point(300, -s.height/2)
 		var endPosition = cc.Point(300,100)
 
-		var  bezierForward = cc.action.BezierBy(3, endPosition, controlPoint_1, controlPoint_2)
-		var  bezierBack = bezierForward.reverse()	
-		var  rep = cc.action.RepeatForever(cc.action.Sequence( bezierForward, bezierBack))
-
+		var bezierForward = cc.action.BezierBy(3, endPosition, controlPoint_1, controlPoint_2)
+		var bezierBack = bezierForward.reverse()	
+		var rep = cc.action.RepeatForever(cc.action.Sequence(bezierForward, bezierBack))
 
 		//sprite 2
 		_tamara.position = cc.Point(80,160)
@@ -501,13 +456,13 @@ class ActionBezier : ActionsDemo
 		var controlPoint_1_2 = cc.Point(200, -s.height/2)
 		var endPosition_1 = cc.Point(240,160)
 
-		var  bezierTo1 = cc.action.BezierTo(2, endPosition_1, controlPoint_1_1, controlPoint_1_2)
+		var bezierTo1 = cc.action.BezierTo(2, endPosition_1, controlPoint_1_1, controlPoint_1_2)
 
 		//sprite 3
 		_kathia.position = cc.Point(400,160)
 		var bezierTo2 = cc.action.BezierTo(2, endPosition_1, controlPoint_1_1, controlPoint_1_2);
 
-		_grossini.runAction( rep)
+		_grossini.runAction(rep)
 		_tamara.runAction(bezierTo1)
 		_kathia.runAction(bezierTo2)
 	}
@@ -517,6 +472,8 @@ class ActionBezier : ActionsDemo
 		return "BezierBy / BezierTo"
 	}
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 class ActionBlink : ActionsDemo
 {
@@ -529,7 +486,7 @@ class ActionBlink : ActionsDemo
 		var action1 = cc.action.Blink(2, 10)
 		var action2 = cc.action.Blink(2, 5)
 
-		_tamara.runAction( action1)
+		_tamara.runAction(action1)
 		_kathia.runAction(action2)
 	}
 	
@@ -539,6 +496,8 @@ class ActionBlink : ActionsDemo
 	}
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 class ActionFade : ActionsDemo
 {
 	constructor()
@@ -547,15 +506,15 @@ class ActionFade : ActionsDemo
 		
 		centerSprites(2)
 		
-		_tamara.opacity =  0 
+		_tamara.opacity = 0 
 		var action1 = cc.action.FadeIn(1.0)
 		var action1Back = action1.reverse()
 
 		var action2 = cc.action.FadeOut(1.0)
 		var action2Back = action2.reverse()
 
-		_tamara.runAction( cc.action.Sequence( action1, action1Back))
-		_kathia.runAction( cc.action.Sequence( action2, action2Back))
+		_tamara.runAction(cc.action.Sequence(action1, action1Back))
+		_kathia.runAction(cc.action.Sequence(action2, action2Back))
 	}
 	
 	function subtitle()
@@ -563,6 +522,8 @@ class ActionFade : ActionsDemo
 		return "FadeIn / FadeOut"
 	}
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 class ActionTint : ActionsDemo
 {
@@ -572,12 +533,12 @@ class ActionTint : ActionsDemo
 		
 		centerSprites(2)
 		
-		var  action1 = cc.action.TintTo(2, 255, 0, 255)
-		var  action2 = cc.action.TintBy(2, -127, -255, -127)
-		var  action2Back = action2.reverse();
+		var action1 = cc.action.TintTo(2, 255, 0, 255)
+		var action2 = cc.action.TintBy(2, -127, -255, -127)
+		var action2Back = action2.reverse();
 
-		_tamara.runAction( action1)
-		_kathia.runAction( cc.action.Sequence( action2, action2Back))
+		_tamara.runAction(action1)
+		_kathia.runAction(cc.action.Sequence(action2, action2Back))
 	}
 	
 	function subtitle()
@@ -585,6 +546,8 @@ class ActionTint : ActionsDemo
 		return "TintTo / TintBy"
 	}
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 class ActionAnimate : ActionsDemo
 {
@@ -596,7 +559,7 @@ class ActionAnimate : ActionsDemo
 
 		var animation = cc.Animation()
 		var frameName = array(100, 0)
-		for (var i=1; i<=14; i++)
+		for (var i=1; i <= 14; i++)
 		{
 			var framename = format("grossini_dance_%02d.png", i)
 			
@@ -615,6 +578,8 @@ class ActionAnimate : ActionsDemo
 	}
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 class ActionSequence : ActionsDemo
 {
 	constructor()
@@ -623,9 +588,9 @@ class ActionSequence : ActionsDemo
 		
 		alignSpritesLeft(1)
 
-		var action = cc.action.Sequence( 
-			cc.action.MoveBy( 2, cc.Point(240,0)),
-			cc.action.RotateBy( 2,  540) 
+		var action = cc.action.Sequence(
+			cc.action.MoveBy(2, cc.Point(240,0)),
+			cc.action.RotateBy(2,  540) 
 		)
 
 		_grossini.runAction(action)
@@ -636,6 +601,8 @@ class ActionSequence : ActionsDemo
 		return "Sequence: Move + Rotate"
 	}
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 class ActionSequence2 : ActionsDemo
 {
@@ -665,18 +632,18 @@ class ActionSequence2 : ActionsDemo
 	{
 		var s = cocos.director.winSize
 		var label = cc.LabelTTF("callback 1 called", "Marker Felt", 16);
-		label.position = cc.Point( s.width/4*1,s.height/2)
+		label.position = cc.Point(s.width/4*1,s.height/2)
 
-		this.addChild(label)
+		addChild(label)
 	}
 
 	function callback2()
 	{
 		var s = cocos.director.winSize
 		var label = cc.LabelTTF("callback 2 called", "Marker Felt", 16);
-		label.position = cc.Point( s.width/4*2,s.height/2)
+		label.position = cc.Point(s.width/4*2,s.height/2)
 
-		this.addChild(label)
+		addChild(label)
 	}
 
 	function callback3(data)
@@ -684,9 +651,9 @@ class ActionSequence2 : ActionsDemo
 		print(data)
 		var s = cocos.director.winSize
 		var label = cc.LabelTTF("callback 3 called", "Marker Felt", 16)
-		label.position = cc.Point( s.width/4*3,s.height/2)
+		label.position = cc.Point(s.width/4*3,s.height/2)
 
-		this.addChild(label)
+		addChild(label)
 	}
 	
 	function subtitle()
@@ -694,6 +661,8 @@ class ActionSequence2 : ActionsDemo
 		return "Sequence of InstantActions"
 	}
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 class ActionSpawn : ActionsDemo
 {
@@ -705,7 +674,7 @@ class ActionSpawn : ActionsDemo
 		
 		var action = cc.action.Spawn(
 			cc.action.JumpBy(2, cc.Point(300,0), 50, 4),
-			cc.action.RotateBy( 2,  720)
+			cc.action.RotateBy(2,  720)
 		)
 
 		_grossini.runAction(action)
@@ -717,6 +686,8 @@ class ActionSpawn : ActionsDemo
 	}
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 class ActionReverse : ActionsDemo
 {
 	constructor()
@@ -725,8 +696,8 @@ class ActionReverse : ActionsDemo
 		
 		alignSpritesLeft(1)
 		
-		var  jump = cc.action.JumpBy(2, cc.Point(300,0), 50, 4)
-		var action = cc.action.Sequence( jump, jump.reverse() )
+		var jump = cc.action.JumpBy(2, cc.Point(300,0), 50, 4)
+		var action = cc.action.Sequence(jump, jump.reverse())
 
 		_grossini.runAction(action)
 	}
@@ -737,6 +708,8 @@ class ActionReverse : ActionsDemo
 	}
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 class ActionDelayTime : ActionsDemo
 {
 	constructor()
@@ -746,7 +719,7 @@ class ActionDelayTime : ActionsDemo
 		alignSpritesLeft(1)
 		
 		var move = cc.action.MoveBy(1, cc.Point(150,0))
-		var action = cc.action.Sequence( move, cc.action.DelayTime(2), move)
+		var action = cc.action.Sequence(move, cc.action.DelayTime(2), move)
 
 		_grossini.runAction(action)
 	}
@@ -756,6 +729,8 @@ class ActionDelayTime : ActionsDemo
 		return "DelayTime: m + delay + m"
 	}
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 class ActionRepeat : ActionsDemo
 {
@@ -768,8 +743,8 @@ class ActionRepeat : ActionsDemo
 		var a1 = cc.action.MoveBy(1, cc.Point(150,0))
 		var a2 = cc.action.MoveBy(1, cc.Point(150,0))
 		
-		var action1 = cc.action.Repeat( cc.action.Sequence( cc.action.Place(cc.Point(60,60)), a1) ,  3) 
-		var action2 = cc.action.RepeatForever( cc.action.Sequence( a2,   a2.reverse() ) )
+		var action1 = cc.action.Repeat(cc.action.Sequence(cc.action.Place(cc.Point(60,60)), a1) ,  3) 
+		var action2 = cc.action.RepeatForever(cc.action.Sequence(a2,   a2.reverse()))
 
 		_kathia.runAction(action1)
 		_tamara.runAction(action2)
@@ -781,6 +756,8 @@ class ActionRepeat : ActionsDemo
 	}
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 class ActionRepeatForever : ActionsDemo
 {
 	constructor()
@@ -789,17 +766,17 @@ class ActionRepeatForever : ActionsDemo
 		
 		centerSprites(1)
 		
-		var action = cc.action.Sequence( cc.action.DelayTime(1),
-        cc.action.EventCall( null, this, repeatForever ))
+		var action = cc.action.Sequence(cc.action.DelayTime(1),
+        cc.action.EventCall(null, this, repeatForever))
 
 		_grossini.runAction(action)
 	}
 	
 	function repeatForever()
 	{
-		var repeat = cc.action.RepeatForever( cc.action.RotateBy(1, 360) )
+		var repeat = cc.action.RepeatForever(cc.action.RotateBy(1, 360))
 
-		this._grossini.runAction(repeat)
+		_grossini.runAction(repeat)
 	}
 	
 	function subtitle()
@@ -808,6 +785,8 @@ class ActionRepeatForever : ActionsDemo
 	}
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 class ActionRotateToRepeat : ActionsDemo
 {
 	constructor()
@@ -815,16 +794,16 @@ class ActionRotateToRepeat : ActionsDemo
 		base.constructor()
 		
 		centerSprites(2)
-		var  act1 = cc.action.RotateTo(1, 90)
-		var  act2 = cc.action.RotateTo(1, 0)
+		var act1 = cc.action.RotateTo(1, 90)
+		var act2 = cc.action.RotateTo(1, 0)
 		
-		var  act1_1 = cc.action.RotateTo(1, 90)
-		var  act1_2 = cc.action.RotateTo(1, 0)
+		var act1_1 = cc.action.RotateTo(1, 90)
+		var act1_2 = cc.action.RotateTo(1, 0)
 		
-		var  seq =  cc.action.Sequence(act1, act2)
-		var  seq2 =  cc.action.Sequence(act1_1, act1_2)
-		var  rep1 = cc.action.RepeatForever(seq)
-		var  rep2 = cc.action.Repeat(seq2, 10);
+		var seq = cc.action.Sequence(act1, act2)
+		var seq2 = cc.action.Sequence(act1_1, act1_2)
+		var rep1 = cc.action.RepeatForever(seq)
+		var rep2 = cc.action.Repeat(seq2, 10);
 
 		_tamara.runAction(rep1)
 		_kathia.runAction(rep2)
@@ -836,6 +815,8 @@ class ActionRotateToRepeat : ActionsDemo
 	}
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 class ActionRotateJerk : ActionsDemo
 {
 	constructor()
@@ -844,11 +825,11 @@ class ActionRotateJerk : ActionsDemo
 		
 		centerSprites(2)
 		
-		var seq = cc.action.Sequence( cc.action.RotateTo(0.5, -20), cc.action.RotateTo(0.5, 20))
-		var seq2 = cc.action.Sequence( cc.action.RotateTo(0.5, -20), cc.action.RotateTo(0.5, 20))
+		var seq = cc.action.Sequence(cc.action.RotateTo(0.5, -20), cc.action.RotateTo(0.5, 20))
+		var seq2 = cc.action.Sequence(cc.action.RotateTo(0.5, -20), cc.action.RotateTo(0.5, 20))
 
 		var rep1 = cc.action.Repeat(seq, 10)
-		var rep2 = cc.action.RepeatForever( seq2 )
+		var rep2 = cc.action.RepeatForever(seq2)
 
 		_tamara.runAction(rep1)
 		_kathia.runAction(rep2)
@@ -860,6 +841,8 @@ class ActionRotateJerk : ActionsDemo
 	}
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 class ActionCallFunc : ActionsDemo
 {
 	constructor()
@@ -868,18 +851,18 @@ class ActionCallFunc : ActionsDemo
 		
 		centerSprites(3)
 
-		var  action = cc.action.Sequence(
+		var action = cc.action.Sequence(
         cc.action.MoveBy(2, cc.Point(200,0)),
-        cc.action.EventCall( null, this, callback1) )
+        cc.action.EventCall(null, this, callback1))
 
-		var  action2 = cc.action.Sequence(
+		var action2 = cc.action.Sequence(
         cc.action.ScaleBy(2 ,  2),
         cc.action.FadeOut(2),
-        cc.action.EventCall(null, this, callback2) )
+        cc.action.EventCall(null, this, callback2))
 
 		var data = 0xbebabeba
 		
-		var  action3 = cc.action.Sequence(
+		var action3 = cc.action.Sequence(
 			cc.action.RotateBy(3 , 360),
 			cc.action.FadeOut(2),
 			cc.action.EventCall(null, this, @callback3(data))
@@ -894,26 +877,26 @@ class ActionCallFunc : ActionsDemo
 	{
 		var s = cocos.director.winSize
 		var label = cc.LabelTTF("callback 1 called", "Marker Felt", 16)
-		label.position = cc.Point( s.width/4*1,s.height/2)
+		label.position = cc.Point(s.width/4*1,s.height/2)
 
-		this.addChild(label)
+		addChild(label)
 	}
 
 	function callback2()
 	{
 		var s = cocos.director.winSize
 		var label = cc.LabelTTF("callback 2 called", "Marker Felt", 16)
-		label.position = cc.Point( s.width/4*2,s.height/2)
+		label.position = cc.Point(s.width/4*2,s.height/2)
 
-		this.addChild(label)
+		addChild(label)
 	}
 
 	function callback3(data)
 	{
 		var s = cocos.director.winSize
 		var label = cc.LabelTTF("callback 3 called", "Marker Felt", 16);
-		label.position = cc.Point( s.width/4*3,s.height/2)
-		this.addChild(label)
+		label.position = cc.Point(s.width/4*3,s.height/2)
+		addChild(label)
 	}
 	
 	function subtitle()
@@ -921,6 +904,8 @@ class ActionCallFunc : ActionsDemo
 		return "Callbacks: CallFunc and friends"
 	}
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 class ActionCallFuncND : ActionsDemo
 {
@@ -930,13 +915,13 @@ class ActionCallFuncND : ActionsDemo
 		
 		centerSprites(1)
 		
-		var action = cc.action.Sequence( cc.action.MoveBy(2, cc.Point(200,0) ),  cc.action.EventCall(null, this, @callback1(false))  )
+		var action = cc.action.Sequence(cc.action.MoveBy(2, cc.Point(200,0)),  cc.action.EventCall(null, this, @callback1(false)) )
 		_grossini.runAction(action)
 	}
 	
 	function callback1(data)
 	{
-		this._grossini.removeFromParent(true)
+		_grossini.removeFromParent(true)
 	}
 	
 	function title()
@@ -950,6 +935,8 @@ class ActionCallFuncND : ActionsDemo
 	}
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 class ActionReverseSequence : ActionsDemo
 {
 	constructor()
@@ -959,9 +946,9 @@ class ActionReverseSequence : ActionsDemo
 		alignSpritesLeft(1)
 		
 		var move1 = cc.action.MoveBy(1, cc.Point(250,0))
-		var  move2 = cc.action.MoveBy(1, cc.Point(0,50));
-		var  seq = cc.action.Sequence( move1, move2, move1.reverse())
-		var  action = cc.action.Sequence( seq, seq.reverse())
+		var move2 = cc.action.MoveBy(1, cc.Point(0,50));
+		var seq = cc.action.Sequence(move1, move2, move1.reverse())
+		var action = cc.action.Sequence(seq, seq.reverse())
 
 		_grossini.runAction(action)
 	}
@@ -972,6 +959,8 @@ class ActionReverseSequence : ActionsDemo
 	}
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 class ActionReverseSequence2 : ActionsDemo
 {
 	constructor()
@@ -980,22 +969,22 @@ class ActionReverseSequence2 : ActionsDemo
 		
 		alignSpritesLeft(2)
 		
-		var  move1 = cc.action.MoveBy(1, cc.Point(250,0))
-		var  move2 = cc.action.MoveBy(1, cc.Point(0,50))
-		var  tog1 = cc.action.ToggleVisibility();
-		var  tog2 = cc.action.ToggleVisibility();
+		var move1 = cc.action.MoveBy(1, cc.Point(250,0))
+		var move2 = cc.action.MoveBy(1, cc.Point(0,50))
+		var tog1 = cc.action.ToggleVisibility();
+		var tog2 = cc.action.ToggleVisibility();
 		
-		var  seq = cc.action.Sequence( move1, tog1, move2, tog2, move1.reverse())
-		var  action = cc.action.Repeat(cc.action.Sequence( seq, seq.reverse()), 3)
+		var seq = cc.action.Sequence(move1, tog1, move2, tog2, move1.reverse())
+		var action = cc.action.Repeat(cc.action.Sequence(seq, seq.reverse()), 3)
 
 		 _kathia.runAction(action);
 
-		var  move_tamara = cc.action.MoveBy(1, cc.Point(100,0))
-		var  move_tamara2 = cc.action.MoveBy(1, cc.Point(50,0))
-		var  hide = cc.action.Hide();
-		var seq_tamara = cc.action.Sequence( move_tamara, hide, move_tamara2)
-		var  seq_back = seq_tamara.reverse()
-		_tamara.runAction( cc.action.Sequence( seq_tamara, seq_back))
+		var move_tamara = cc.action.MoveBy(1, cc.Point(100,0))
+		var move_tamara2 = cc.action.MoveBy(1, cc.Point(50,0))
+		var hide = cc.action.Hide();
+		var seq_tamara = cc.action.Sequence(move_tamara, hide, move_tamara2)
+		var seq_back = seq_tamara.reverse()
+		_tamara.runAction(cc.action.Sequence(seq_tamara, seq_back))
 	}
 	
 	function subtitle()
@@ -1003,6 +992,8 @@ class ActionReverseSequence2 : ActionsDemo
 		return "Reverse sequence 2"
 	}
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 class ActionOrbit : ActionsDemo
 {
@@ -1013,13 +1004,13 @@ class ActionOrbit : ActionsDemo
 		 centerSprites(3);
 
 		var orbit1 = cc.action.OrbitCamera(2,1, 0, 0, 180, 0, 0)
-		var action1 = cc.action.Sequence(orbit1, orbit1.reverse() )
+		var action1 = cc.action.Sequence(orbit1, orbit1.reverse())
 
 		var orbit2 = cc.action.OrbitCamera(2,1, 0, 0, 180, -45, 0)
-		var action2 = cc.action.Sequence(orbit2, orbit2.reverse() )
+		var action2 = cc.action.Sequence(orbit2, orbit2.reverse())
 
 		var orbit3 = cc.action.OrbitCamera(2,1, 0, 0, 180, 90, 0)
-		var action3 = cc.action.Sequence(orbit3, orbit3.reverse() )
+		var action3 = cc.action.Sequence(orbit3, orbit3.reverse())
 
 		_kathia.runAction(cc.action.RepeatForever(action1))
 		_tamara.runAction(cc.action.RepeatForever(action2))
@@ -1052,6 +1043,8 @@ class ActionOrbit : ActionsDemo
 	}
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 class ActionFollow : ActionsDemo
 {
 	constructor()
@@ -1069,7 +1062,7 @@ class ActionFollow : ActionsDemo
 
 		_grossini.runAction(rep)
 
-		this.runAction(cc.action.Follow(_grossini, cc.Rect(0, 0, s.width * 2 - 100, s.height)))
+		runAction(cc.action.Follow(_grossini, cc.Rect(0, 0, s.width * 2 - 100, s.height)))
 	}
 	
 	function subtitle()
@@ -1078,3 +1071,8 @@ class ActionFollow : ActionsDemo
 	}
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+theTest = ActionsTest()
+
+return ActionTestScene()
