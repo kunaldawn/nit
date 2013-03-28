@@ -466,7 +466,7 @@ static SQInteger null_tostring(HSQUIRRELVM v)
 }
 
 SQRegFunction SQSharedState::_null_default_delegate_funcz[]={
-	{_SC("weakref"),null_weakref,1,NULL,		__FILE__, _SC("() // dummy")},
+	{_SC("weak"),null_weakref,1,NULL,			__FILE__, _SC("() // dummy")},
 	{_SC("tofloat"),null_tofloat,1,NULL,		__FILE__, _SC("() // 0.0")},
 	{_SC("tointeger"),null_tointeger,1,NULL,	__FILE__, _SC("() // 0")},
 	{_SC("tostring"),null_tostring,1,NULL,		__FILE__, _SC("() // \"(null)\"")},
@@ -561,7 +561,7 @@ SQRegFunction SQSharedState::_table_default_delegate_funcz[]={
 	{_SC("rawset"),table_rawset,3, _SC("t"),				__FILE__, _SC("(key, val)")},
 	{_SC("rawdelete"),table_rawdelete,2, _SC("t"),			__FILE__, _SC("(key): obj")},
 	{_SC("rawin"),container_rawexists,2, _SC("t"),			__FILE__, _SC("(key): bool")},
-	{_SC("weakref"),obj_delegate_weakref,1, NULL,			__FILE__, _SC("(): weakref") },
+	{_SC("weak"),obj_delegate_weakref,1, NULL,				__FILE__, _SC("(): weakref") },
 	{_SC("tostring"),default_delegate_tostring,1, _SC("."),	__FILE__, _SC("(): string")},
 	{_SC("clear"),obj_clear,1, _SC("."),					__FILE__, _SC("()")},
 	{_SC("setdelegate"),table_setdelegate,2, _SC(".t|o"),	__FILE__, _SC("(table)")},
@@ -866,7 +866,7 @@ SQRegFunction SQSharedState::_array_default_delegate_funcz[]={
 	{_SC("reverse"),array_reverse,1, _SC("a"),		__FILE__, _SC("(): this")},
 	{_SC("sort"),array_sort,-1, _SC("ac"),			__FILE__, _SC("([compare]): this // compare = @(a,b) => a <=> b")},
 	{_SC("slice"),array_slice,-2, _SC("ann"),		__FILE__, _SC("(start,[end]): array")},
-	{_SC("weakref"),obj_delegate_weakref,1, NULL,	__FILE__, _SC("(): weakref") },
+	{_SC("weak"),obj_delegate_weakref,1, NULL,		__FILE__, _SC("(): weakref") },
 	{_SC("tostring"),default_delegate_tostring,1, _SC("."), __FILE__, _SC("(): string")},
 	{_SC("clear"),obj_clear,1, _SC("."),			__FILE__, _SC("()")},
 	{_SC("map"),array_map,2, _SC("ac"),				__FILE__, _SC("(func): array // func = @(a)") }, 
@@ -935,7 +935,7 @@ SQRegFunction SQSharedState::_string_default_delegate_funcz[]={
 	{_SC("find"),string_find,-2, _SC("s s n "),					__FILE__, _SC("(substr: string, [startidx]): index: int or null")},
 	{_SC("tolower"),string_tolower,1, _SC("s"),					__FILE__, _SC("(): string")},
 	{_SC("toupper"),string_toupper,1, _SC("s"),					__FILE__, _SC("(): string")},
-	{_SC("weakref"),obj_delegate_weakref,1, NULL,				__FILE__, _SC("(): weakref") },
+	{_SC("weak"),obj_delegate_weakref,1, NULL,					__FILE__, _SC("(): weakref") },
 	{0,0}
 };
 
@@ -945,7 +945,7 @@ SQRegFunction SQSharedState::_number_default_delegate_funcz[]={
 	{_SC("tofloat"),default_delegate_tofloat,1, _SC("n|b"),		__FILE__, _SC("(): float")},
 	{_SC("tostring"),default_delegate_tostring,1, _SC("."),		__FILE__, _SC("(): string")},
 	{_SC("tochar"),number_delegate_tochar,1, _SC("n|b"),		__FILE__, _SC("(): int")},
-	{_SC("weakref"),obj_delegate_weakref,1, NULL,				__FILE__, _SC("(): this // dummy") },
+	{_SC("weak"),obj_delegate_weakref,1, NULL,					__FILE__, _SC("(): this // dummy") },
 	{0,0}
 };
 
@@ -1073,7 +1073,7 @@ SQRegFunction SQSharedState::_closure_default_delegate_funcz[]={
 	{_SC("pcall"),closure_pcall,-1, _SC("c"),				__FILE__, _SC("(this, ...): return val")},
 	{_SC("acall"),closure_acall,3, _SC("c.a"),				__FILE__, _SC("(this, args: array): return val")},
 	{_SC("pacall"),closure_pacall,3, _SC("c.a"),			__FILE__, _SC("(this, args: array): return val")},
-	{_SC("weakref"),obj_delegate_weakref,1, NULL ,			__FILE__, _SC("(): weakref")},
+	{_SC("weak"),obj_delegate_weakref,1, NULL ,			__FILE__, _SC("(): weakref")},
 	{_SC("tostring"),default_delegate_tostring,1, _SC("."),	__FILE__, _SC("(): string")},
 	{_SC("bindenv"),closure_bindenv,2, _SC("c x|y|t|r|R"),		__FILE__, _SC("(env)")},
 	{_SC("getenv"),closure_getenv,1, _SC("c"),				__FILE__, _SC("(): obj")},
@@ -1098,7 +1098,7 @@ static SQInteger generator_getstatus(HSQUIRRELVM v)
 
 SQRegFunction SQSharedState::_generator_default_delegate_funcz[]={
 	{_SC("getstatus"),generator_getstatus,1, _SC("g"),		__FILE__, _SC("(): string // running | dead | suspended")},
-	{_SC("weakref"),obj_delegate_weakref,1, NULL ,			__FILE__, _SC("(): weakref")},
+	{_SC("weak"),obj_delegate_weakref,1, NULL ,				__FILE__, _SC("(): weakref")},
 	{_SC("tostring"),default_delegate_tostring,1, _SC("."),	__FILE__, _SC("(): string")},
 	{0,0}
 };
@@ -1195,7 +1195,7 @@ SQRegFunction SQSharedState::_thread_default_delegate_funcz[] = {
 	{_SC("wakeup"), thread_wakeup, -1, _SC("v"),			__FILE__, _SC("([wakeupval])")},
 	{_SC("getstatus"), thread_getstatus, 1, _SC("v"),		__FILE__, _SC("(): string // idle | running | suspended")},
 	{_SC("getlocal"), thread_getlocal, 1, _SC("v"),			__FILE__, _SC("(): table")},
-	{_SC("weakref"),obj_delegate_weakref,1, NULL,			__FILE__, _SC("(): weakref")},
+	{_SC("weak"),obj_delegate_weakref,1, NULL,				__FILE__, _SC("(): weakref")},
 	{_SC("tostring"),default_delegate_tostring,1, _SC("."),	__FILE__, _SC("(): string")},
 	{0,0},
 };
@@ -1240,7 +1240,7 @@ SQRegFunction SQSharedState::_class_default_delegate_funcz[] = {
 	{_SC("getgetter"), class_getgetter, 2, _SC("y."),			__FILE__, _SC("(property: string): closure")},
 	{_SC("getsetter"), class_getsetter, 2, _SC("y."),			__FILE__, _SC("(property: string): closure")},
 	{_SC("rawin"),container_rawexists,2, _SC("y"),				__FILE__, _SC("(key: string): bool // same with 'in' but no delegation")},
-	{_SC("weakref"),obj_delegate_weakref,1, NULL,				__FILE__, _SC("(): weakref") },
+	{_SC("weak"),obj_delegate_weakref,1, NULL,					__FILE__, _SC("(): weakref") },
 	{_SC("tostring"),default_delegate_tostring,1, _SC("."),		__FILE__, _SC("(): string")},
 	{_SC("instance"),class_instance,1, _SC("y"),				__FILE__, _SC("(): instance // without call constructor")},
 	{_SC("getbase"),class_getbase,1, _SC("y"),					__FILE__, _SC("(): class")},
@@ -1265,7 +1265,7 @@ SQRegFunction SQSharedState::_instance_default_delegate_funcz[] = {
 	{_SC("getclass"), instance_getclass, 1, _SC("x"),		__FILE__, _SC("(): class")},
 //	{_SC("purge"), instance_purge, 1, _SC("x"),				__FILE__, _SC("()")},
 	{_SC("rawin"),container_rawexists,2, _SC("x"),			__FILE__, _SC("(key): bool")},
-	{_SC("weakref"),obj_delegate_weakref,1, NULL ,			__FILE__, _SC("(): weakref")},
+	{_SC("weak"),obj_delegate_weakref,1, NULL ,				__FILE__, _SC("(): weakref")},
 	{_SC("tostring"),default_delegate_tostring,1, _SC("."),	__FILE__, _SC("(): string")},
 	{0,0}
 };
@@ -1279,7 +1279,7 @@ static SQInteger weakref_ref(HSQUIRRELVM v)
 
 SQRegFunction SQSharedState::_weakref_default_delegate_funcz[] = {
 	{_SC("ref"),weakref_ref,1, _SC("r"),					__FILE__, _SC("(): obj")},
-	{_SC("weakref"),obj_delegate_weakref,1, NULL ,			__FILE__, _SC("(): weakref // != this")},
+	{_SC("weak"),obj_delegate_weakref,1, NULL ,				__FILE__, _SC("(): weakref // != this")},
 	{_SC("tostring"),default_delegate_tostring,1, _SC("."),	__FILE__, _SC("(): string")},
 	{0,0}
 };
@@ -1293,8 +1293,8 @@ static SQInteger nativeweakref_ref(HSQUIRRELVM v)
 
 SQRegFunction SQSharedState::_nativeweakref_default_delegate_funcz[] =
 {
-	{_SC("ref"),nativeweakref_ref,1, _SC("R"),					__FILE__, _SC("(): obj")},
-	{_SC("weakref"),obj_delegate_weakref,1, NULL ,			__FILE__, _SC("(): weakref // != this")},
+	{_SC("ref"),nativeweakref_ref,1, _SC("R"),				__FILE__, _SC("(): obj")},
+	{_SC("weak"),obj_delegate_weakref,1, NULL ,				__FILE__, _SC("(): weakref // != this")},
 	{_SC("tostring"),default_delegate_tostring,1, _SC("."),	__FILE__, _SC("(): string")},
 	{0,0}
 };
