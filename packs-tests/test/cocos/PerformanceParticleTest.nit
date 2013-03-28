@@ -109,7 +109,7 @@ class ParticleMainScene : cc.ScriptScene
 		addChild(infoLabel, 1, TAG.INFO_LAYER)
 		
 	    // particles on stage
-		var labelAtlas = cc.LabelAtlas("0000", pack.locate("fps_images.png"), 16, 24, char('.'))
+		var labelAtlas = cc.LabelAtlas("0000", pack.locate("fps_images.png"), 16, 24, $'.')
 		addChild(labelAtlas, 0, TAG.LABEL_ATLAS)
 		labelAtlas.position = cc.Point(s.width - 80, 50)
 		

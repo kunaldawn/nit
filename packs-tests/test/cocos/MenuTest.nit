@@ -53,7 +53,7 @@ class MenuLayer1 : cc.ScriptLayer
 		var item2 = cc.MenuItemImage(IMG.SEND_SCORE, IMG.SEND_SCORE_PRESS, this, onMenu2)
 		
 		// Label Item (LabelAtlas)
-		var labelAtlas = cc.LabelAtlas("0123456789", pack.locate("fps_images.png", "*fonts"), 16, 24, char('.'))
+		var labelAtlas = cc.LabelAtlas("0123456789", pack.locate("fps_images.png", "*fonts"), 16, 24, $'.')
 		var item3 = cc.MenuItemLabel(labelAtlas, this, onMenuDisabled)
 		item3.disabledColor = nit.Color(32 / 255, 32 / 255, 64 / 255, 1)
 		item3.color = nit.Color(200 / 255, 200 / 255, 1, 1)

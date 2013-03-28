@@ -76,7 +76,6 @@ struct SQVM;
 #define TK_DESTRUCTOR		336
 #define TK_VAR				337
 #define TK_WITH				338
-#define TK_CHAR				339
 #define TK_FINALLY			340
 #define TK_IMPORT			341
 #define TK_BY				342

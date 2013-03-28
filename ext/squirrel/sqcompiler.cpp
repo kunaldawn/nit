@@ -902,10 +902,9 @@ public:
 			Lex();
 			break;
 
-		case TK_CHAR:
+		case _SC('$'):
 			{
 				Lex();
-				Expect('(');
 				Expect(TK_STRING_LITERAL);
 				const char* utf8 = _lex._svalue;
 				int charValue = 0;
@@ -916,7 +915,6 @@ public:
 						Error("too long char literal");
 				}
 				EmitLoadConstInt(charValue);
-				Expect(')');
 			}
 			break;
 

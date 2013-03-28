@@ -187,12 +187,12 @@ class LabelAtlasTest : AtlasDemo
 	{
 		_time = 0
 		
-		var label1 = cc.LabelAtlas("123 Test", pack.locate("tuffy_bold_italic-charmap.png"), 48, 64, char(' '))
+		var label1 = cc.LabelAtlas("123 Test", pack.locate("tuffy_bold_italic-charmap.png"), 48, 64, $' ')
 		this.addChild(label1, 0, 0)
 		label1.position = cc.Point(10, 100)
 		label1.opacity = 200
 		
-		var label2 = cc.LabelAtlas("0123456789", pack.locate("tuffy_bold_italic-charmap.png"), 48, 64, char(' '))
+		var label2 = cc.LabelAtlas("0123456789", pack.locate("tuffy_bold_italic-charmap.png"), 48, 64, $' ')
 		this.addChild(label2, 0, 1)
 		label2.position = cc.Point(10, 200)
 		label2.opacity = 32
@@ -236,12 +236,12 @@ class LabelAtlasColorTest : AtlasDemo
 	{
 		_time = 0
 		
-		var label1 = cc.LabelAtlas("123 Test", pack.locate("tuffy_bold_italic-charmap.png"), 48, 64, char(' '))
+		var label1 = cc.LabelAtlas("123 Test", pack.locate("tuffy_bold_italic-charmap.png"), 48, 64, $' ')
 		this.addChild(label1, 0, 0)
 		label1.position = cc.Point(10, 100)
 		label1.opacity = 200
 		
-		var label2 = cc.LabelAtlas("0123456789", pack.locate("tuffy_bold_italic-charmap.png"), 48, 64, char(' '))
+		var label2 = cc.LabelAtlas("0123456789", pack.locate("tuffy_bold_italic-charmap.png"), 48, 64, $' ')
 		this.addChild(label2, 0, 1)
 		label2.position = cc.Point(10, 200)
 		label2.color = nit.Color.RED
@@ -668,7 +668,7 @@ class LabelsEmpty : AtlasDemo
 		addChild(label2, 0, 2)
 		label2.position = cc.Point(s.width / 2, s.height / 2)
 		
-		var label3 = cc.LabelAtlas("", pack.locate("tuffy_bold_italic-charmap.png"), 48, 64, char(' '))
+		var label3 = cc.LabelAtlas("", pack.locate("tuffy_bold_italic-charmap.png"), 48, 64, $' ')
 		addChild(label3, 0, 3)
 		label3.position = cc.Point(s.width / 2, 0 + 100)
 		
@@ -754,7 +754,7 @@ class LabelAtlasHD : AtlasDemo
 	{
 		var s = cocos.director.winSize
 		
-		var label1 = cc.LabelAtlas("TESTING RETINA DISPLAY", pack.locate("larabie-16.png"), 10, 20, char('A'))
+		var label1 = cc.LabelAtlas("TESTING RETINA DISPLAY", pack.locate("larabie-16.png"), 10, 20, $'A')
 		label1.anchorPoint = cc.Point(0.5, 0.5)
 		
 		this.addChild(label1)

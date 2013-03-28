@@ -106,7 +106,7 @@ class ParticleDemo : cc.ScriptLayer
 		_background.position = cc.Point(size.width / 2, size.height - 180)
 		addChild(_background, 5)
 		
-		var labelAtlas = cc.LabelAtlas("0000", pack.locate("fps_images.png", "*fonts"), 16, 24, char('.'))
+		var labelAtlas = cc.LabelAtlas("0000", pack.locate("fps_images.png", "*fonts"), 16, 24, $'.')
 		addChild(labelAtlas, 100, 1)
 		labelAtlas.position = cc.Point(size.width - 66, 50)
 		
