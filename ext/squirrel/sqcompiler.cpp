@@ -1068,6 +1068,8 @@ public:
 	{
 		SQInteger tpos = _fs->GetCurrentPos(), nkeys = 0;
 
+		SQInteger enumValue = 0;
+
 		while (_token != terminator)
 		{
 			switch (_token)
@@ -1101,11 +1103,13 @@ public:
 
 				if (_token == _SC('='))
 				{
-					Lex(); Expression();
+					Lex(); 
+					if (_token == TK_INTEGER) enumValue = _lex._nvalue + 1;
+					Expression();
 				}
 				else
 				{
-					_fs->AddInstruction(_OP_LOADBOOL, _fs->PushTarget(), 1);
+					_fs->AddInstruction(_OP_LOADINT, _fs->PushTarget(), enumValue++);
 				}
 			}
 
