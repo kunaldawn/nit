@@ -750,7 +750,8 @@ public:
 				return;
 				break;	
 
-			case _SC('('): 
+			case _SC('('):
+			case TK_BY:
 				switch(_es.etype) {
 					case OBJECT: {
 						SQInteger key     = _fs->PopTarget();  /* location of the key */
@@ -772,7 +773,8 @@ public:
 						_fs->AddInstruction(_OP_MOVE, _fs->PushTarget(), 0);
 				}
 				_es.etype = EXPR;
-				Lex();
+				if (_token != TK_BY)
+					Lex();
 				FunctionCallArgs();
 				break;
 
@@ -1014,29 +1016,54 @@ public:
 	bool NeedGet()
 	{
 		switch(_token) {
-		case _SC('='): case _SC('('): case TK_NEWSLOT: case TK_MODEQ: case TK_MULEQ:
+		case _SC('='): case _SC('('): case TK_BY: case TK_NEWSLOT: case TK_MODEQ: case TK_MULEQ:
 	    case TK_DIVEQ: case TK_MINUSEQ: case TK_PLUSEQ: case TK_PLUSPLUS: case TK_MINUSMINUS:
 			return false;
 		}
 		return (!_es.donot_get || ( _es.donot_get && (_token == _SC('.') || _token == _SC('['))));
 	}
+
 	void FunctionCallArgs()
 	{
 		SQInteger nargs = 1;//this
-		while (_token != _SC(')')) {
-			 Expression();
-			 MoveIfCurrentTargetIsLocal();
-			 nargs++;
-			 if (_token == _SC(')'))
-				 break;
-			 Expect(_SC(','));
-			 if(_token == ')') Error(_SC("expression expected, found ')'"));
-		 }
-		 Lex();
-		 for(SQInteger i = 0; i < (nargs - 1); i++) _fs->PopTarget();
-		 SQInteger stackbase = _fs->PopTarget();
-		 SQInteger closure = _fs->PopTarget();
-         _fs->AddInstruction(_OP_CALL, _fs->PushTarget(), closure, stackbase, nargs);
+
+		if (_token != TK_BY)
+		{
+			while (_token != _SC(')')) {
+				Expression();
+				MoveIfCurrentTargetIsLocal();
+				nargs++;
+				if (_token == _SC(')'))
+					break;
+				Expect(_SC(','));
+				if(_token == ')') Error(_SC("expression expected, found ')'"));
+			}
+			Lex();
+		}
+
+		if (_token == TK_BY)
+		{
+			ByFunctionExp();
+			MoveIfCurrentTargetIsLocal();
+			nargs++;
+		}
+
+		for(SQInteger i = 0; i < (nargs - 1); i++) _fs->PopTarget();
+		SQInteger stackbase = _fs->PopTarget();
+		SQInteger closure = _fs->PopTarget();
+		_fs->AddInstruction(_OP_CALL, _fs->PushTarget(), closure, stackbase, nargs);
+	}
+
+	void ByFunctionExp()
+	{
+		SQExpState es = _es;
+		_es.etype     = EXPR;
+		_es.epos      = -1;
+		_es.donot_get = false;
+
+		FunctionExp();
+
+		_es = es;
 	}
 
 	void ParseTable(SQInteger terminator = '}')
@@ -1966,7 +1993,7 @@ public:
 	}
 	void FunctionExp()
 	{
-		if (_token == _SC('@'))
+		if (_token == _SC('@') || _token == TK_BY)
 		{
 			Lex();
 			if (_token == _SC('('))
