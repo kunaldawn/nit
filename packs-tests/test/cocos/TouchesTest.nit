@@ -222,12 +222,12 @@ class PongScene : TestScene
 	constructor()
 	{
 		base.constructor()
-		cocos.director with deviceOrientation = ORIENT_PORTRAIT_UP;
+		cocos.director :> deviceOrientation = ORIENT_PORTRAIT_UP;
 	}
 	
 	function onReturnToMain()
 	{
-		cocos.director with deviceOrientation = ORIENT_LANDSCAPE_LEFT;
+		cocos.director :> deviceOrientation = ORIENT_LANDSCAPE_LEFT;
 		base.onReturnToMain();
 	}
 	

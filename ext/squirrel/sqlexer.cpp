@@ -229,6 +229,7 @@ SQInteger SQLexer::Lex()
 		case _SC(':'):
 			NEXT();
 			if (CUR_CHAR == _SC('=')){ NEXT(); RETURN_TOKEN(TK_NEWSLOT); }
+			if (CUR_CHAR == _SC('>')){ NEXT(); RETURN_TOKEN(TK_WITHREF); }
 			if (CUR_CHAR != _SC(':')){ RETURN_TOKEN(':') }
 			else { NEXT(); RETURN_TOKEN(TK_DOUBLE_COLON); }
 		case _SC('*'):

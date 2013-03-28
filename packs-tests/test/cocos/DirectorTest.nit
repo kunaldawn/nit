@@ -166,8 +166,8 @@ class Director1 : DirectorTest
 	{
 		foreach (touch in evt.touches)
 		{
-			var a = touch with locationInView(view)
-			var b = cocos.director with toUi(toGl(a))
+			var a = touch :> locationInView(view)
+			var b = cocos.director :> toUi(toGl(a))
 			print("("+a.x+", "+a.y+") == ("+b.x+", "+b.y+")")
 		}
 	}

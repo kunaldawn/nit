@@ -490,6 +490,26 @@ public:
 		_es = es;
 	}
 
+	void WithReExpression()
+	{
+		Lex();
+
+		MoveIfCurrentTargetIsLocal();
+
+		_fs->AddInstruction(_OP_SWAP, _fs->TopTarget(), 0);
+		++_fs->_within_count;
+
+		Expression();
+		_fs->AddInstruction(_OP_MOVE, 0, _fs->TopTarget()-1);
+		_fs->AddInstruction(_OP_MOVE, _fs->TopTarget()-1, _fs->TopTarget());
+		_fs->PopTarget();
+
+		--_fs->_within_count;
+
+		_es.etype = EXPR;
+		_es.epos = -1;
+	}
+
 	void WithExpression()
 	{
 		Lex();
@@ -499,18 +519,8 @@ public:
 		_fs->AddInstruction(_OP_SWAP, _fs->TopTarget(), 0);
 		++_fs->_within_count;
 
-		if (_token == '{')
-		{
-			Statement();
-			_fs->AddInstruction(_OP_SWAP, _fs->TopTarget(), 0);
-		}
-		else
-		{
-			Expression();
-			_fs->AddInstruction(_OP_MOVE, 0, _fs->TopTarget()-1);
-			_fs->AddInstruction(_OP_MOVE, _fs->TopTarget()-1, _fs->TopTarget());
-			_fs->PopTarget();
-		}
+		Statement();
+		_fs->AddInstruction(_OP_SWAP, _fs->TopTarget(), 0);
 
 		--_fs->_within_count;
 
@@ -765,7 +775,11 @@ public:
 				Lex();
 				FunctionCallArgs();
 				break;
+
+			case TK_WITHREF: WithReExpression(); break;
+
 			case TK_WITH: WithExpression(); break;
+
 			default: return;
 			}
 		}

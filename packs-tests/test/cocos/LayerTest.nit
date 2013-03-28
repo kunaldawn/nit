@@ -297,7 +297,7 @@ class LayerGradient : LayerTest
 	function toggleItem(sender)
 	{
 		var gradient = getChildByTag(TAG.LAYER)
-		gradient with compressedInterpolation = !compressedInterpolation
+		gradient :> compressedInterpolation = !compressedInterpolation
 	}
 	
 	function ccTouchesMoved(evt: cc.TouchEvent)

@@ -57,14 +57,14 @@ class HelloWorld : cc.ScriptLayer
 		label.position = cc.Point(size.width / 2, size.height - 50)
 		
 		// add the label as a child to this layer
-		this.addChild(label, 1)
+		addChild(label, 1)
 
 		// add "HelloWorld" splash screen
 		var spriteback = cc.Sprite(pack.locate("HelloWorld.png")) with
 		{
 			position = cc.Point(size.width / 2, size.height / 2)
 		}
-		this.addChild(spriteback, 0)
+		addChild(spriteback, 0)
 		
 		// add fire particle on screen
 		var particle = cc.particle.Fire()
@@ -89,7 +89,7 @@ class HelloWorld : cc.ScriptLayer
 			)
 		)
 		
-		this.addChild(touch, 9)
+		addChild(touch, 9)
 	}
 	
 	destructor()

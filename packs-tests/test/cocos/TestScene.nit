@@ -8,7 +8,7 @@ class TestScene : cc.ScriptScene
 		portrait = portrait
 		
 		if (portrait)
-			cocos.director with deviceOrientation = ORIENT_LANDSCAPE_RIGHT
+			cocos.director :> deviceOrientation = ORIENT_LANDSCAPE_RIGHT
 	}
 	
 	function onEnter()

@@ -2334,9 +2334,9 @@ class SpriteBatchNodeChildren2 : SpriteTestDemo
 		sprite21.addChild(sprite23, 2)
 		
 		// don't rotate with it's parent
-		sprite22.honorParentTransform = (sprite22.honorParentTransform & ~cc.Sprite with HONOR_ROTATE)
+		sprite22.honorParentTransform = (sprite22.honorParentTransform & ~(cc.Sprite :> HONOR_ROTATE))
 		// don't scale and rotate with it's parent
-		sprite23.honorParentTransform = (sprite23.honorParentTransform & ~cc.Sprite with HONOR_ROTATE | HONOR_SCALE)
+		sprite23.honorParentTransform = (sprite23.honorParentTransform & ~(cc.Sprite :> HONOR_ROTATE | HONOR_SCALE))
 		
 		sprite21.runAction(cc.action.RepeatForever(cc.action.RotateBy(1, 360)))
 		sprite21.runAction(cc.action.RepeatForever(cc.action.Sequence(

@@ -33,6 +33,7 @@ struct SQVM;
 #define TK_DIVEQ			285
 #define TK_MODEQ			286
 #define TK_LAMBDA			287
+#define TK_WITHREF			288
 
 #define TK_KEYWORD_START	300
 
