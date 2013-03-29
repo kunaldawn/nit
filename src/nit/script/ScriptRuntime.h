@@ -244,7 +244,7 @@ inline void TScriptState<TState>::callOnEvent(const Event* e)
 	if (v == NULL) return;
 
 	NitBind::push(v, const_cast<Event*>(e));
-	_peer->callMethod("onEnter", 1);
+	_peer->callMethod("onEvent", 1);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
