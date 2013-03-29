@@ -154,14 +154,14 @@ void CocosService::onInit()
 
 	// Director is now ready, bind events //////////////////////////////////////////////////////
 
-	g_App->channel()->bind(Events::OnAppLoop, this, &CocosService::onAppLoop);
+	g_App->channel()->bind(EVT::APP_LOOP, this, &CocosService::onAppLoop);
 
-	g_App->channel()->bind(Events::OnAppSuspend, this, &CocosService::onAppSuspend);
-	g_App->channel()->bind(Events::OnAppInactive, this, &CocosService::onAppInactive);
-	g_App->channel()->bind(Events::OnAppActive, this, &CocosService::onAppActive);
-	g_App->channel()->bind(Events::OnAppResume, this, &CocosService::onAppResume);
+	g_App->channel()->bind(EVT::APP_SUSPEND, this, &CocosService::onAppSuspend);
+	g_App->channel()->bind(EVT::APP_INACTIVE, this, &CocosService::onAppInactive);
+	g_App->channel()->bind(EVT::APP_ACTIVE, this, &CocosService::onAppActive);
+	g_App->channel()->bind(EVT::APP_RESUME, this, &CocosService::onAppResume);
 
-	g_App->channel()->bind(Events::OnAppLowMemory, this, &CocosService::onAppLowMemory);
+	g_App->channel()->bind(EVT::APP_LOW_MEMORY, this, &CocosService::onAppLowMemory);
 }
 
 void CocosService::onFinish()

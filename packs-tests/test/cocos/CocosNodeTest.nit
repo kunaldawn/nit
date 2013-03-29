@@ -708,7 +708,7 @@ class ConvertToNode : TestCocosNodeDemo
 		}
 		
 		touchEnabled = true
-		channel().bind(Events.OnCCTouchEnded, this, onTouchEnded)
+		channel().bind(EVT.CC_TOUCH_ENDED, this, onTouchEnded)
 	}
 
 	function onTouchEnded(evt: cc.TouchEvent)

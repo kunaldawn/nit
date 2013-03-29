@@ -186,22 +186,22 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-NIT_EVENT_DECLARE(NIT_API, OnAppNativeInit, Event);
-NIT_EVENT_DECLARE(NIT_API, OnAppNativeFinish, Event);
+NIT_EVENT_DECLARE(NIT_API, APP_NATIVE_INIT, Event);
+NIT_EVENT_DECLARE(NIT_API, APP_NATIVE_FINISH, Event);
 
-NIT_EVENT_DECLARE(NIT_API, OnAppBoot, Event);
-NIT_EVENT_DECLARE(NIT_API, OnAppLoop, Event);
-NIT_EVENT_DECLARE(NIT_API, OnAppStop, Event);
+NIT_EVENT_DECLARE(NIT_API, APP_BOOT, Event);
+NIT_EVENT_DECLARE(NIT_API, APP_LOOP, Event);
+NIT_EVENT_DECLARE(NIT_API, APP_STOP, Event);
 
-NIT_EVENT_DECLARE(NIT_API, OnAppActive, Event);
-NIT_EVENT_DECLARE(NIT_API, OnAppSuspend, Event);
-NIT_EVENT_DECLARE(NIT_API, OnAppResume, Event);
-NIT_EVENT_DECLARE(NIT_API, OnAppInactive, Event);
+NIT_EVENT_DECLARE(NIT_API, APP_ACTIVE, Event);
+NIT_EVENT_DECLARE(NIT_API, APP_SUSPEND, Event);
+NIT_EVENT_DECLARE(NIT_API, APP_RESUME, Event);
+NIT_EVENT_DECLARE(NIT_API, APP_INACTIVE, Event);
 
-NIT_EVENT_DECLARE(NIT_API, OnAppLowMemory, Event);
-NIT_EVENT_DECLARE(NIT_API, OnAppSaveNow, Event);
+NIT_EVENT_DECLARE(NIT_API, APP_LOW_MEMORY, Event);
+NIT_EVENT_DECLARE(NIT_API, APP_SAVE_NOW, Event);
 
-NIT_EVENT_DECLARE(NIT_API, OnAppConfigChange, Event);
+NIT_EVENT_DECLARE(NIT_API, APP_CONFIG_CHANGE, Event);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -217,7 +217,7 @@ public:
 	DataValue*							Annotation;
 };
 
-NIT_EVENT_DECLARE(NIT_API, OnAppHandleURL, AppURLEvent);
+NIT_EVENT_DECLARE(NIT_API, APP_HANDLE_URL, AppURLEvent);
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -45,7 +45,7 @@ class IntervalLayer : cc.ScriptLayer
 		_label3 = cc.LabelBMFont("0", pack.locate("bitmapFontTest4.fnt"))
 		_label4 = cc.LabelBMFont("0", pack.locate("bitmapFontTest4.fnt"))
 		
-		cocos.director.timer.channel().bind(Events.OnTick, this, step0)
+		cocos.director.timer.channel().bind(EVT.TICK, this, step0)
 		cocos.director.scheduler.repeat(this, step1, 0.01)
 		cocos.director.scheduler.repeat(this, step2, 0.01)
 		cocos.director.scheduler.repeat(this, step3, 1)

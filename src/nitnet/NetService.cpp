@@ -112,7 +112,7 @@ void NetService::onInit()
 
 	// register to app's timer channel
 	_time = g_App->getTimer()->getTime();
-	g_App->getTimer()->channel()->bind(Events::OnTick, this, &NetService::onTick);
+	g_App->getTimer()->channel()->bind(EVT::TICK, this, &NetService::onTick);
 }
 
 void NetService::onFinish()

@@ -104,8 +104,8 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-NIT_EVENT_DECLARE(NITNET_API, OnNetRequestDone, NetRequestEvent);
-NIT_EVENT_DECLARE(NITNET_API, OnNetRequestError, NetRequestEvent);
+NIT_EVENT_DECLARE(NITNET_API, NET_REQUEST_DONE, NetRequestEvent);
+NIT_EVENT_DECLARE(NITNET_API, NET_REQUEST_ERROR, NetRequestEvent);
 
 ////////////////////////////////////////////////////////////////////////////////
 

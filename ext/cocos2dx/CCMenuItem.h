@@ -42,7 +42,7 @@ public:
 	CCMenuItem* Item;
 };
 
-NIT_EVENT_DECLARE(CC_DLL, OnCCMenuItem, CCMenuItemEvent);
+NIT_EVENT_DECLARE(CC_DLL, CC_MENU_ITEM, CCMenuItemEvent);
 
 class CCLabelTTF;
 class CCLabelAtlas;

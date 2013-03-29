@@ -31,9 +31,9 @@ NS_NIT_BEGIN;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-NIT_EVENT_DEFINE(OnRuntimeEnvChanged,	Event);
-NIT_EVENT_DEFINE(OnRuntimeInit,			Event);
-NIT_EVENT_DEFINE(OnRuntimeFinish,		Event);
+NIT_EVENT_DEFINE(RUNTIME_ENV_CHANGED,	Event);
+NIT_EVENT_DEFINE(RUNTIME_INIT,			Event);
+NIT_EVENT_DEFINE(RUNTIME_FINISH,		Event);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -132,7 +132,7 @@ bool NitRuntimeBase::init()
 		
 		////////////////////////////
 
-		if (_channel) _channel->send(Events::OnRuntimeInit, new Event());
+		if (_channel) _channel->send(EVT::RUNTIME_INIT, new Event());
 
 		if (!onInit())
 			return false;
@@ -229,7 +229,7 @@ int NitRuntimeBase::finish()
 		
 		finishPlatform();
 
-		if (_channel) _channel->send(Events::OnRuntimeFinish, new Event());
+		if (_channel) _channel->send(EVT::RUNTIME_FINISH, new Event());
 
 		_config = NULL;
 

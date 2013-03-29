@@ -32,7 +32,7 @@ NS_NIT_BEGIN;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-NIT_EVENT_DEFINE(OnInputCommand, InputCommandEvent);
+NIT_EVENT_DEFINE(INPUT_COMMAND, InputCommandEvent);
 
 InputCommandEvent::InputCommandEvent(InputUser* user, InputCommand* cmd) 
 : _user(user), _command(cmd)

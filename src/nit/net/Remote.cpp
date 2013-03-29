@@ -33,29 +33,29 @@ NS_NIT_BEGIN;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-NIT_EVENT_DEFINE(OnRemoteConnect,		RemoteEvent);
-NIT_EVENT_DEFINE(OnRemoteDisconnect,	RemoteEvent);
-NIT_EVENT_DEFINE(OnRemoteError,			RemoteErrorEvent);
+NIT_EVENT_DEFINE(REMOTE_CONNECT,		RemoteEvent);
+NIT_EVENT_DEFINE(REMOTE_DISCONNECT,	RemoteEvent);
+NIT_EVENT_DEFINE(REMOTE_ERROR,			RemoteErrorEvent);
 
-NIT_EVENT_DEFINE(OnRemoteHello,			RemoteHelloEvent);
+NIT_EVENT_DEFINE(REMOTE_HELLO,			RemoteHelloEvent);
 
-NIT_EVENT_DEFINE(OnRemoteUserPacket,	RemoteUserPacketEvent);
+NIT_EVENT_DEFINE(REMOTE_USER_PACKET,	RemoteUserPacketEvent);
 
-NIT_EVENT_DEFINE(OnRemoteChannelClose,	RemoteChannelEvent);
+NIT_EVENT_DEFINE(REMOTE_CHANNEL_CLOSE,	RemoteChannelEvent);
 
-NIT_EVENT_DEFINE(OnRemoteNotify,		RemoteNotifyEvent);
+NIT_EVENT_DEFINE(REMOTE_NOTIFY,		RemoteNotifyEvent);
 
-NIT_EVENT_DEFINE(OnRemoteRequest,		RemoteRequestEvent);
-NIT_EVENT_DEFINE(OnRemoteRequestCancel,	RemoteRequestCancelEvent);
-NIT_EVENT_DEFINE(OnRemoteResponse,		RemoteResponseEvent);
+NIT_EVENT_DEFINE(REMOTE_REQUEST,		RemoteRequestEvent);
+NIT_EVENT_DEFINE(REMOTE_REQUEST_CANCEL,	RemoteRequestCancelEvent);
+NIT_EVENT_DEFINE(REMOTE_RESPONSE,		RemoteResponseEvent);
 
-NIT_EVENT_DEFINE(OnRemoteUploadStart,	RemoteUploadStartEvent);
-NIT_EVENT_DEFINE(OnRemoteUploadCancel,	RemoteUploadEvent);
-NIT_EVENT_DEFINE(OnRemoteUploadEnd,		RemoteUploadEvent);
+NIT_EVENT_DEFINE(REMOTE_UPLOAD_START,	RemoteUploadStartEvent);
+NIT_EVENT_DEFINE(REMOTE_UPLOAD_CANCEL,	RemoteUploadEvent);
+NIT_EVENT_DEFINE(REMOTE_UPLOAD_END,		RemoteUploadEvent);
 
-NIT_EVENT_DEFINE(OnRemoteDownloadStart,	RemoteUploadEvent);
-NIT_EVENT_DEFINE(OnRemoteDownloadCancel,RemoteUploadEvent);
-NIT_EVENT_DEFINE(OnRemoteDownloadEnd,	RemoteUploadEvent);
+NIT_EVENT_DEFINE(REMOTE_DOWNLOAD_START,	RemoteUploadEvent);
+NIT_EVENT_DEFINE(REMOTE_DOWNLOAD_CANCEL,RemoteUploadEvent);
+NIT_EVENT_DEFINE(REMOTE_DOWNLOAD_END,	RemoteUploadEvent);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -620,7 +620,7 @@ bool Remote::connect(const String& addr, uint16 port)
 	_hostPeer = new RemotePeer(this, socket, true);
 
 	// Notify the new connection to channel 0 - management purpose
-	_channel0->send(Events::OnRemoteConnect, new RemoteEvent(this, _hostPeer));
+	_channel0->send(EVT::REMOTE_CONNECT, new RemoteEvent(this, _hostPeer));
 
 	return true;
 }
@@ -680,7 +680,7 @@ bool Remote::onRecv(RemotePeer* peer, MemoryBuffer* recvBuf)
 			else
 			{
 				Ref<Event> evt = new RemoteUserPacketEvent(this, peer, hdr.msg, &packet);
-				_channel0->send(Events::OnRemoteUserPacket, evt);
+				_channel0->send(EVT::REMOTE_USER_PACKET, evt);
 			}
 		}
 
@@ -736,7 +736,7 @@ void Remote::onUdpRecv(UdpSocket* socket, const String& peerAddr, uint16 peerPor
 	}
 
 	Ref<Event> evt = new RemoteHelloEvent(this, hostinfo, peerAddr, packet->hostPort, (HelloMsg)packet->msg);
-	_channel0->send(Events::OnRemoteHello, evt);
+	_channel0->send(EVT::REMOTE_HELLO, evt);
 
 	if (evt->isConsumed()) return;
 
@@ -749,12 +749,12 @@ void Remote::onUdpRecv(UdpSocket* socket, const String& peerAddr, uint16 peerPor
 
 void Remote::onError(RemotePeer* peer, char* msg, int err)
 {
-	_channel0->send(Events::OnRemoteError, new RemoteErrorEvent(this, peer, err, msg));
+	_channel0->send(EVT::REMOTE_ERROR, new RemoteErrorEvent(this, peer, err, msg));
 }
 
 void Remote::onError(TcpSocketServer* server, char* msg, int err)
 {
-	_channel0->send(Events::OnRemoteError, new RemoteErrorEvent(this, NULL, err, msg));
+	_channel0->send(EVT::REMOTE_ERROR, new RemoteErrorEvent(this, NULL, err, msg));
 }
 
 void Remote::shutdown()
@@ -789,7 +789,7 @@ void Remote::doShutdown()
 		if (e.to && e.channel)
 		{
 			PacketIO dummyPacket(e.to, dummy, 0, 0);
-			e.channel->send(Events::OnRemoteResponse, new RemoteResponseEvent(this, e.to, e.channelId, e.command, e.requestId, RESPONSE_CANCELED, &dummyPacket));
+			e.channel->send(EVT::REMOTE_RESPONSE, new RemoteResponseEvent(this, e.to, e.channelId, e.command, e.requestId, RESPONSE_CANCELED, &dummyPacket));
 		}
 	}
 
@@ -803,7 +803,7 @@ void Remote::doShutdown()
 		ResponseEntry& e = itr->second;
 
 		if (e.from && e.channel)
-			e.channel->send(Events::OnRemoteRequestCancel, new RemoteRequestCancelEvent(this, e.from, e.channelId, e.command, e.responseId));
+			e.channel->send(EVT::REMOTE_REQUEST_CANCEL, new RemoteRequestCancelEvent(this, e.from, e.channelId, e.command, e.responseId));
 	}
 
 	// Cancel all remaining uploads
@@ -816,7 +816,7 @@ void Remote::doShutdown()
 		UploadEntry& e = itr->second;
 
 		if (e.to && e.channel)
-			e.channel->send(Events::OnRemoteDownloadCancel, new RemoteUploadEvent(this, e.to, e.uploadId, e.downloadId));
+			e.channel->send(EVT::REMOTE_DOWNLOAD_CANCEL, new RemoteUploadEvent(this, e.to, e.uploadId, e.downloadId));
 	}
 
 	// Cancel all remaining downloads
@@ -829,7 +829,7 @@ void Remote::doShutdown()
 		DownloadEntry& e = itr->second;
 
 		if (e.from && e.channel)
-			e.channel->send(Events::OnRemoteUploadCancel, new RemoteUploadEvent(this, e.from, e.uploadId, e.downloadId));
+			e.channel->send(EVT::REMOTE_UPLOAD_CANCEL, new RemoteUploadEvent(this, e.from, e.uploadId, e.downloadId));
 	}
 	_downloads.clear();
 
@@ -908,7 +908,7 @@ void Remote::cancelEntries(TPredicate pred)
 		{
 			if (dummyBuf == NULL) dummyBuf = new MemoryBuffer();
 			PacketIO dummy(e.to, dummyBuf, 0, 0);
-			e.channel->send(Events::OnRemoteResponse, new RemoteResponseEvent(this, e.to, e.channelId, e.command, e.requestId, RESPONSE_CANCELED, &dummy));
+			e.channel->send(EVT::REMOTE_RESPONSE, new RemoteResponseEvent(this, e.to, e.channelId, e.command, e.requestId, RESPONSE_CANCELED, &dummy));
 		}
 	}
 
@@ -932,7 +932,7 @@ void Remote::cancelEntries(TPredicate pred)
 		ResponseEntry& e = *itr;
 
 		if (e.from && e.channel)
-			e.channel->send(Events::OnRemoteRequestCancel, new RemoteRequestCancelEvent(this, e.from, e.channelId, e.command, e.responseId));
+			e.channel->send(EVT::REMOTE_REQUEST_CANCEL, new RemoteRequestCancelEvent(this, e.from, e.channelId, e.command, e.responseId));
 	}
 
 	// Notify cancelation of remaining uploads and delete them
@@ -955,7 +955,7 @@ void Remote::cancelEntries(TPredicate pred)
 		UploadEntry& e = *itr;
 
 		if (e.to && e.channel)
-			e.channel->send(Events::OnRemoteDownloadCancel, new RemoteUploadEvent(this, e.to, e.uploadId, e.downloadId));
+			e.channel->send(EVT::REMOTE_DOWNLOAD_CANCEL, new RemoteUploadEvent(this, e.to, e.uploadId, e.downloadId));
 	}
 
 	// Notify cancelation of remaining Downloads and delete them
@@ -978,7 +978,7 @@ void Remote::cancelEntries(TPredicate pred)
 		DownloadEntry& e = *itr;
 
 		if (e.from && e.channel)
-			e.channel->send(Events::OnRemoteUploadCancel, new RemoteUploadEvent(this, e.from, e.uploadId, e.downloadId));
+			e.channel->send(EVT::REMOTE_UPLOAD_CANCEL, new RemoteUploadEvent(this, e.from, e.uploadId, e.downloadId));
 	}
 }
 
@@ -1003,7 +1003,7 @@ void Remote::onDisconnect(RemotePeer* peer)
 	cancelEntries(Predicates::OnDisconnect(peer));
 
 	// Notify disconnection only to channel 0 - management purpose
-	_channel0->send(Events::OnRemoteDisconnect, new RemoteEvent(this, peer));
+	_channel0->send(EVT::REMOTE_DISCONNECT, new RemoteEvent(this, peer));
 }
 
 void Remote::recvWelcome(RemotePeer* from, PacketIO* packet)
@@ -1040,7 +1040,7 @@ void Remote::recvChannelClose(RemotePeer* from, PacketIO* packet)
 	cancelEntries(Predicates::RecvChannelClose(channelId, from));
 
 	Ref<Event> evt = new RemoteChannelEvent(this, from, channelId);
-	channel->send(Events::OnRemoteChannelClose, evt);
+	channel->send(EVT::REMOTE_CHANNEL_CLOSE, evt);
 }
 
 void Remote::recvNotify(RemotePeer* from, PacketIO* packet)
@@ -1052,7 +1052,7 @@ void Remote::recvNotify(RemotePeer* from, PacketIO* packet)
 	{
 		uint16 command = packet->read<uint16>();
 		Ref<RemoteNotifyEvent> evt = new RemoteNotifyEvent(this, from, channelId, command, packet);
-		channel->send(Events::OnRemoteNotify, evt);
+		channel->send(EVT::REMOTE_NOTIFY, evt);
 	}
 }
 
@@ -1068,7 +1068,7 @@ void Remote::recvRequest(RemotePeer* from, PacketIO* packet)
 
 	Ref<RemoteRequestEvent> evt = new RemoteRequestEvent(this, from, channelId, command, requestId, packet);
 
-	channel->send(Events::OnRemoteRequest, evt);
+	channel->send(EVT::REMOTE_REQUEST, evt);
 	if (evt->_delayed)
 	{
 		// A delayed request needs an entry
@@ -1111,7 +1111,7 @@ void Remote::recvRequestCancel(RemotePeer* from, PacketIO* packet)
 		{
 			Ref<RemoteRequestCancelEvent> evt = new RemoteRequestCancelEvent(this, from, channelId, command, e.responseId);
 			_responses.erase(itr); // Delete first, then notify
-			channel->send(Events::OnRemoteRequestCancel, evt);
+			channel->send(EVT::REMOTE_REQUEST_CANCEL, evt);
 			return;
 		}
 	}
@@ -1139,7 +1139,7 @@ void Remote::recvResponse(RemotePeer* from, PacketIO* packet)
 	_requests.erase(itr); // Delete first, then notify
 
 	Ref<RemoteResponseEvent> evt = new RemoteResponseEvent(this, from, channelId, command, requestId, code, packet);
-	channel->send(Events::OnRemoteResponse, evt);
+	channel->send(EVT::REMOTE_RESPONSE, evt);
 }
 
 void Remote::recvUploadStart(RemotePeer* from, PacketIO* packet)
@@ -1162,7 +1162,7 @@ void Remote::recvUploadStart(RemotePeer* from, PacketIO* packet)
 
 	Ref<RemoteUploadStartEvent> evt = new RemoteUploadStartEvent(this, from, channelId, command, requestId, uploadId, streamSize, packet);
 
-	channel->send(Events::OnRemoteUploadStart, evt);
+	channel->send(EVT::REMOTE_UPLOAD_START, evt);
 
 	// If no writer assigned during event dispatch, notify that we can't download
 	if (evt->_writerResponse == NULL)
@@ -1258,7 +1258,7 @@ void Remote::recvUploadPacket(RemotePeer* from, PacketIO* packet)
 
 	_downloads.erase(itr); // Delete first, then notify
 
-	if (channel) channel->send(Events::OnRemoteDownloadEnd, new RemoteUploadEvent(this, from, uploadId, downloadId));
+	if (channel) channel->send(EVT::REMOTE_DOWNLOAD_END, new RemoteUploadEvent(this, from, uploadId, downloadId));
 }
 
 void Remote::recvUploadCancel(RemotePeer* from, PacketIO* packet)
@@ -1291,7 +1291,7 @@ void Remote::recvUploadCancel(RemotePeer* from, PacketIO* packet)
 
 	_downloads.erase(itr); // Delete first, then notify
 
-	if (channel) channel->send(Events::OnRemoteUploadCancel, new RemoteUploadEvent(this, from, uploadId, downloadId));
+	if (channel) channel->send(EVT::REMOTE_UPLOAD_CANCEL, new RemoteUploadEvent(this, from, uploadId, downloadId));
 }
 
 void Remote::recvDownloadStart(RemotePeer* from, PacketIO* packet)
@@ -1339,7 +1339,7 @@ void Remote::recvDownloadStart(RemotePeer* from, PacketIO* packet)
 	
 	EventChannel* channel = e.channel;
 	if (channel)
-		channel->send(Events::OnRemoteDownloadStart, new RemoteUploadEvent(this, e.to, e.uploadId, e.downloadId));
+		channel->send(EVT::REMOTE_DOWNLOAD_START, new RemoteUploadEvent(this, e.to, e.uploadId, e.downloadId));
 
 	// Actual upload will start at next ProcessUploads() loop
 }
@@ -1365,7 +1365,7 @@ void Remote::recvDownloadEnd(RemotePeer* from, PacketIO* packet)
 
 	_uploads.erase(itr); // delete first, then notify
 
-	if (channel) channel->send(Events::OnRemoteDownloadEnd, new RemoteUploadEvent(this, from, uploadId, downloadId));
+	if (channel) channel->send(EVT::REMOTE_DOWNLOAD_END, new RemoteUploadEvent(this, from, uploadId, downloadId));
 }
 
 void Remote::sendUserPacket(RemotePeer* to, uint16 hdrMsg, DataToSend* data)
@@ -1753,7 +1753,7 @@ void Remote::cancelUpload(UploadId id)
 
 	_uploads.erase(itr); // delete first, then notify
 
-	if (channel) channel->send(Events::OnRemoteDownloadCancel, new RemoteUploadEvent(this, to, uploadId, downloadId));
+	if (channel) channel->send(EVT::REMOTE_DOWNLOAD_CANCEL, new RemoteUploadEvent(this, to, uploadId, downloadId));
 }
 
 void Remote::cancelDownload(DownloadId id)
@@ -1778,7 +1778,7 @@ void Remote::cancelDownload(DownloadId id)
 
 	_downloads.erase(itr); // delete first, then notify
 
-	if (channel) channel->send(Events::OnRemoteUploadCancel, new RemoteUploadEvent(this, from, uploadId, downloadId));
+	if (channel) channel->send(EVT::REMOTE_UPLOAD_CANCEL, new RemoteUploadEvent(this, from, uploadId, downloadId));
 }
 
 bool Remote::getRequestStatus(RequestId id, Timestamp* outStartTime)
@@ -1937,7 +1937,7 @@ void Remote::updateTimeout()
 			to->sendPacket(HDR_REQUEST_CANCEL, &hdr, sizeof(hdr), NULL, 0);
 		}
 
-		if (evt) channel->send(Events::OnRemoteResponse, evt);
+		if (evt) channel->send(EVT::REMOTE_RESPONSE, evt);
 	}
 
 	// Check upload timeout
@@ -1971,7 +1971,7 @@ void Remote::updateTimeout()
 			to->sendPacket(HDR_UPLOAD_CANCEL, &hdr, sizeof(hdr), NULL, 0);
 		}
 
-		if (evt) channel->send(Events::OnRemoteDownloadCancel, evt);
+		if (evt) channel->send(EVT::REMOTE_DOWNLOAD_CANCEL, evt);
 	}
 
 	// Check download timeout
@@ -1999,7 +1999,7 @@ void Remote::updateTimeout()
 			from->sendPacket(HDR_DOWNLOAD_CANCEL, &e.downloadId, sizeof(e.downloadId), NULL, 0);
 		}
 
-		if (evt) channel->send(Events::OnRemoteUploadCancel, evt);
+		if (evt) channel->send(EVT::REMOTE_UPLOAD_CANCEL, evt);
 	}
 }
 

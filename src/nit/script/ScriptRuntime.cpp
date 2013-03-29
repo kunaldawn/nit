@@ -1735,7 +1735,7 @@ void ScriptRuntime::startup()
 	}
 
 	initEventBindings();
-	sq_dostring(v, "nit.Events := ::Events");
+	sq_dostring(v, "nit.EVT := ::EVT");
 
 	if (!ok) return;
 
@@ -2177,7 +2177,7 @@ void ScriptRuntime::initEventBindings()
 
 	sq_pushroottable(v);
 
-	NitBind::push(v, "Events");
+	NitBind::push(v, "EVT");
 	sq_newtable(v);
 
 	sq_resetobject(&_eventsTable);

@@ -135,9 +135,9 @@ class LayerTest1 : LayerTest
 		addChild(layer, 1, TAG.LAYER)
 		
 		touchEnabled = true
-		channel().bind(Events.OnCCTouchBegin, this, ccTouchesBegin)
-		channel().bind(Events.OnCCTouchMoved, this, ccTouchesMoved)
-		channel().bind(Events.OnCCTouchEnded, this, ccTouchesEnded)
+		channel().bind(EVT.CC_TOUCH_BEGIN, this, ccTouchesBegin)
+		channel().bind(EVT.CC_TOUCH_MOVED, this, ccTouchesMoved)
+		channel().bind(EVT.CC_TOUCH_ENDED, this, ccTouchesEnded)
 	}
 	
 	function updateSize(touch)
@@ -291,7 +291,7 @@ class LayerGradient : LayerTest
 		menu.position = cc.Point(size.width/2, 100)
 		
 		touchEnabled = true
-		channel().bind(Events.OnCCTouchMoved, this, ccTouchesMoved)
+		channel().bind(EVT.OnCCTouchMoved, this, ccTouchesMoved)
 	}
 	
 	function toggleItem(sender)

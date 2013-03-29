@@ -321,7 +321,7 @@ bool CCParticleSystem::initWithTotalParticles(unsigned int numberOfParticles)
 
 	// udpate after action in run!
 	CCDirector::sharedDirector()->getTimer()->channel()->priority(1)->
-		bind(nit::Events::OnTick, this, &CCParticleSystem::OnTick);
+		bind(nit::EVT::TICK, this, &CCParticleSystem::OnTick);
 
 	return true;
 }
@@ -621,7 +621,7 @@ void CCParticleSystem::updateParticle(ccTime dt)
 void CCParticleSystem::cleanup()
 {
 	CCDirector::sharedDirector()->getTimer()->channel()->priority(1)->
-		unbind(nit::Events::OnTick, this);
+		unbind(nit::EVT::TICK, this);
 	CCNode::cleanup();
 }
 

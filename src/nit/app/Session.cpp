@@ -40,12 +40,12 @@ NS_NIT_BEGIN;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-NIT_EVENT_DEFINE(OnSessionStart,		SessionEvent);
-NIT_EVENT_DEFINE(OnSessionReady,		SessionEvent);
-NIT_EVENT_DEFINE(OnSessionStop,			SessionEvent);
-NIT_EVENT_DEFINE(OnSessionChange,		SessionEvent);
+NIT_EVENT_DEFINE(SESSION_START,		SessionEvent);
+NIT_EVENT_DEFINE(SESSION_READY,		SessionEvent);
+NIT_EVENT_DEFINE(SESSION_STOP,			SessionEvent);
+NIT_EVENT_DEFINE(SESSION_CHANGE,		SessionEvent);
 
-NIT_EVENT_DEFINE(OnConsoleInput,		ConsoleInputEvent);
+NIT_EVENT_DEFINE(CONSOLE_INPUT,		ConsoleInputEvent);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -84,7 +84,7 @@ void Session::onClock(const TimeEvent* evt)
 		_localFeatures.init();
 
 		onReady();
-		_channel->send(Events::OnSessionReady, new SessionEvent(this));
+		_channel->send(EVT::SESSION_READY, new SessionEvent(this));
 	}
 
 	if (!_ready)
@@ -122,8 +122,8 @@ void Session::start()
 		_scheduler = new TimeScheduler();
 
 		// event path : kernel.clock -> session.OnClock -> ticktimer.OnSourceTime -> scheduler.OnSourceTime
-		g_App->getClock()->channel()->bind(Events::OnClock, this, &Session::onClock);
-		_timer->channel()->bind(Events::OnTick, _scheduler->sourceTimeHandler());
+		g_App->getClock()->channel()->bind(EVT::CLOCK, this, &Session::onClock);
+		_timer->channel()->bind(EVT::TICK, _scheduler->sourceTimeHandler());
 	}
 
 	g_MemManager->dump();
@@ -131,12 +131,12 @@ void Session::start()
 	_script = createRuntime();
 	_script->setDefaultLocator(_package);
 
-	_timer->channel()->bind(Events::OnTick, _script->tickHandler());
-	g_App->getClock()->channel()->bind(Events::OnClock, _script->clockHandler());
+	_timer->channel()->bind(EVT::TICK, _script->tickHandler());
+	g_App->getClock()->channel()->bind(EVT::CLOCK, _script->clockHandler());
 	g_App->getScheduler()->repeat(_script->gcLoopHandler(), 0.1f);
 	_script->startup();
 
-	g_App->channel()->bind(Events::OnConsoleInput, this, &Session::onConsoleInput);
+	g_App->channel()->bind(EVT::CONSOLE_INPUT, this, &Session::onConsoleInput);
 	
 	HSQUIRRELVM v = _script->getWorker();
 	sq_pushroottable(v);
@@ -148,7 +148,7 @@ void Session::start()
 	openPackage();
 
 	onStart();
-	_channel->send(Events::OnSessionStart, new SessionEvent(this));
+	_channel->send(EVT::SESSION_START, new SessionEvent(this));
 
 	// NOTE: if our script needs SessionStat, Ready, Stop event then Bind() its handler to the channel
 }
@@ -183,7 +183,7 @@ void Session::stop()
 
 	// Broadcast session stop
 	onStop();
-	_channel->send(Events::OnSessionStop, new SessionEvent(this));
+	_channel->send(EVT::SESSION_STOP, new SessionEvent(this));
 
 	// Shutup Debugger
 // 	_script->GetDebugger()->Disable();

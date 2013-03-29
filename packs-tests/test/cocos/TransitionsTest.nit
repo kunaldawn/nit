@@ -336,7 +336,7 @@ class TestLayer2 : cc.ScriptLayer
 		
 		m_emitter.runAction(cc.action.RepeatForever(seq))
 		this.addChild(m_emitter, 10);
-		//cocos.Director.Timer.Channel().Bind(Events.OnTick, this, Tick);
+		//cocos.Director.Timer.Channel().Bind(EVT.TICK, this, Tick);
 	}
 	
 	function onEnter()

@@ -133,7 +133,7 @@ class Director1 : DirectorTest
 		addChild(menu)
 		
 		touchEnabled = true
-		channel().bind(Events.OnCCTouchEnded, this, ccTouchesEnded)
+		channel().bind(EVT.CC_TOUCH_ENDED, this, ccTouchesEnded)
 	}
 	
 	function newOrientation()

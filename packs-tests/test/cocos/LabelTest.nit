@@ -197,7 +197,7 @@ class LabelAtlasTest : AtlasDemo
 		label2.position = cc.Point(10, 200)
 		label2.opacity = 32
 		
-		cocos.director.timer.channel().bind(Events.OnTick, this, step)
+		cocos.director.timer.channel().bind(EVT.TICK, this, step)
 	}
 	
 	function step(evt: TimeEvent)
@@ -252,7 +252,7 @@ class LabelAtlasColorTest : AtlasDemo
 		var repeat = cc.action.RepeatForever(seq)
 		label2.runAction(repeat)
 		
-		cocos.director.timer.channel().bind(Events.OnTick, this, step)
+		cocos.director.timer.channel().bind(EVT.TICK, this, step)
 	}
 	
 	function step(evt: TimeEvent)
@@ -330,7 +330,7 @@ class Atlas3 : AtlasDemo
 		label2.position = cc.Point(s.width / 2, s.height / 2)
 		label3.position = cc.Point(s.width, s.height)
 		
-		cocos.director.timer.channel().bind(Events.OnTick, this, step)
+		cocos.director.timer.channel().bind(EVT.TICK, this, step)
 	}
 	
 	function step(evt: TimeEvent)
@@ -414,7 +414,7 @@ class Atlas4 : AtlasDemo
 		var rot_4ever2 = cc.action.RepeatForever(rotate2)
 		lastChar.runAction(rot_4ever2)
 		
-		cocos.director.timer.channel().bind(Events.OnTick, this, step)
+		cocos.director.timer.channel().bind(EVT.TICK, this, step)
 	}
 
 	function step(evt: TimeEvent)

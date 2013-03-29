@@ -19,9 +19,9 @@ class Paddle	: cc.ScriptNode
 		touchEnabled = true;
 		touchTargeted = true;
 		
-		channel().bind(Events.OnCCTargetedTouchBegin, this, onTouchBegin)
-		channel().bind(Events.OnCCTargetedTouchMoved, this, onTouchMove)
-		channel().bind(Events.OnCCTargetedTouchEnded, this, onTouchEnded)
+		channel().bind(EVT.CC_TARGETED_TOUCH_BEGIN, this, onTouchBegin)
+		channel().bind(EVT.CC_TARGETED_TOUCH_MOVED, this, onTouchMove)
+		channel().bind(EVT.CC_TARGETED_TOUCH_ENDED, this, onTouchEnded)
 		
 		_sprite = cc.Sprite( cocos.textureCache.addImage(IMG.PADDLE))
 		addChild(_sprite)
@@ -189,7 +189,7 @@ class PongLayer : cc.ScriptLayer
 			addChild(v);
 		}
 		
-		cocos.director.timer.channel().bind(Events.OnTick, this, doStep);
+		cocos.director.timer.channel().bind(EVT.TICK, this, doStep);
 	}
 	
 	function resetAndScoreBallForPlayer(player)

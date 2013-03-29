@@ -94,8 +94,8 @@ protected:
 	Ref<InputSource>					_source;
 };
 
-NIT_EVENT_DECLARE(NIT_API, OnInputLocked,	InputSourceEvent);
-NIT_EVENT_DECLARE(NIT_API, OnInputUnlocked,	InputSourceEvent);
+NIT_EVENT_DECLARE(NIT_API, INPUT_LOCKED,	InputSourceEvent);
+NIT_EVENT_DECLARE(NIT_API, INPUT_UNLOCKED,	InputSourceEvent);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -115,10 +115,10 @@ protected:
 	bool								_repeatable;
 };
 
-NIT_EVENT_DECLARE(NIT_API, OnTriggerDown,	InputSourceEvent);
-NIT_EVENT_DECLARE(NIT_API, OnTriggerUp,		InputSourceEvent);
-NIT_EVENT_DECLARE(NIT_API, OnTriggerCancel,	InputSourceEvent);
-NIT_EVENT_DECLARE(NIT_API, OnTriggerRepeat,	InputSourceEvent);
+NIT_EVENT_DECLARE(NIT_API, TRIGGER_DOWN,	InputSourceEvent);
+NIT_EVENT_DECLARE(NIT_API, TRIGGER_UP,		InputSourceEvent);
+NIT_EVENT_DECLARE(NIT_API, TRIGGER_CANCEL,	InputSourceEvent);
+NIT_EVENT_DECLARE(NIT_API, TRIGGER_REPEAT,	InputSourceEvent);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -127,10 +127,10 @@ class NIT_API InputKeypad : public InputSource
 	// TODO: IMPL THIS
 };
 
-NIT_EVENT_DECLARE(NIT_API, OnKeypadDown,	InputSourceEvent);
-NIT_EVENT_DECLARE(NIT_API, OnKeypadUp,		InputSourceEvent);
-NIT_EVENT_DECLARE(NIT_API, OnKeypadCancel,	InputSourceEvent);
-NIT_EVENT_DECLARE(NIT_API, OnKeypadRepeat,	InputSourceEvent);
+NIT_EVENT_DECLARE(NIT_API, KEYPAD_DOWN,	InputSourceEvent);
+NIT_EVENT_DECLARE(NIT_API, KEYPAD_UP,		InputSourceEvent);
+NIT_EVENT_DECLARE(NIT_API, KEYPAD_CANCEL,	InputSourceEvent);
+NIT_EVENT_DECLARE(NIT_API, KEYPAD_REPEAT,	InputSourceEvent);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -152,8 +152,8 @@ protected:
 	float								_sleepMax;
 };
 
-NIT_EVENT_DECLARE(NIT_API, OnSliderMove,		InputSourceEvent);
-NIT_EVENT_DECLARE(NIT_API, OnSliderSleep,		InputSourceEvent);
+NIT_EVENT_DECLARE(NIT_API, SLIDER_MOVE,		InputSourceEvent);
+NIT_EVENT_DECLARE(NIT_API, SLIDER_SLEEP,		InputSourceEvent);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -183,8 +183,8 @@ protected:
 	float								_sleepThreshold;
 };
 
-NIT_EVENT_DECLARE(NIT_API, OnStickMove,		InputSourceEvent);
-NIT_EVENT_DECLARE(NIT_API, OnStickSleep,	InputSourceEvent);
+NIT_EVENT_DECLARE(NIT_API, STICK_MOVE,		InputSourceEvent);
+NIT_EVENT_DECLARE(NIT_API, STICK_SLEEP,	InputSourceEvent);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -221,11 +221,11 @@ protected:
 	Vector3								_pos;
 };
 
-NIT_EVENT_DECLARE(NIT_API, OnPointerMove,	InputPointerEvent);
-NIT_EVENT_DECLARE(NIT_API, OnPointerOn,		InputPointerEvent);
-NIT_EVENT_DECLARE(NIT_API, OnPointerDrag,	InputPointerEvent);
-NIT_EVENT_DECLARE(NIT_API, OnPointerOff,	InputPointerEvent);
-NIT_EVENT_DECLARE(NIT_API, OnPointerCancel,	InputPointerEvent);
+NIT_EVENT_DECLARE(NIT_API, POINTER_MOVE,	InputPointerEvent);
+NIT_EVENT_DECLARE(NIT_API, POINTER_ON,		InputPointerEvent);
+NIT_EVENT_DECLARE(NIT_API, POINTER_DRAG,	InputPointerEvent);
+NIT_EVENT_DECLARE(NIT_API, POINTER_OFF,	InputPointerEvent);
+NIT_EVENT_DECLARE(NIT_API, POINTER_CANCEL,	InputPointerEvent);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -234,7 +234,7 @@ class NIT_API InputAccel : public InputSource
 	// TODO: IMPL THIS
 };
 
-NIT_EVENT_DECLARE(NIT_API, OnAccelMove,		InputSourceEvent);
+NIT_EVENT_DECLARE(NIT_API, ACCEL_MOVE,		InputSourceEvent);
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -112,7 +112,7 @@ public:
 	bool		Modal;
 };
 
-NIT_EVENT_DECLARE(CC_DLL, OnCCTouchModal, 		CCTouchModalEvent);
+NIT_EVENT_DECLARE(CC_DLL, CC_TOUCH_MODAL, 		CCTouchModalEvent);
 
 ////////////////////////////////////////////////////////////////////////////////
 

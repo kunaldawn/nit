@@ -46,7 +46,7 @@ static bool less(const cocos2d::CCTouchHandler *p1, const cocos2d::CCTouchHandle
 
 NS_CC_BEGIN;
 
-NIT_EVENT_DEFINE(OnCCTouchModal,		CCTouchModalEvent);
+NIT_EVENT_DEFINE(CC_TOUCH_MODAL,		CCTouchModalEvent);
 
 bool CCTouchDispatcher::isDispatchEvents(void)
 {
@@ -543,10 +543,10 @@ void CCTouchDispatcher::SetInputUser(InputUser* user)
 
 	if (user)
 	{
-		user->channel()->bind(nit::Events::OnPointerOn,		this, &CCTouchDispatcher::OnPointerOn);
-		user->channel()->bind(nit::Events::OnPointerDrag,		this, &CCTouchDispatcher::OnPointerDrag);
-		user->channel()->bind(nit::Events::OnPointerOff,		this, &CCTouchDispatcher::OnPointerOff);
-		user->channel()->bind(nit::Events::OnPointerCancel,	this, &CCTouchDispatcher::OnPointerCancel);
+		user->channel()->bind(nit::EVT::POINTER_ON,			this, &CCTouchDispatcher::OnPointerOn);
+		user->channel()->bind(nit::EVT::POINTER_DRAG,		this, &CCTouchDispatcher::OnPointerDrag);
+		user->channel()->bind(nit::EVT::POINTER_OFF,		this, &CCTouchDispatcher::OnPointerOff);
+		user->channel()->bind(nit::EVT::POINTER_CANCEL,		this, &CCTouchDispatcher::OnPointerCancel);
 	}
 
 	RenderView* view = CCDirector::sharedDirector()->GetRenderView();

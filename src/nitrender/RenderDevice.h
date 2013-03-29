@@ -112,8 +112,8 @@ protected:
 	Weak<RenderDevice>					_device;
 };
 
-NIT_EVENT_DECLARE(NITRENDER_API, OnRenderDeviceReset, RenderDeviceEvent);
-NIT_EVENT_DECLARE(NITRENDER_API, OnRenderDeviceLost, RenderDeviceEvent);
+NIT_EVENT_DECLARE(NITRENDER_API, RENDER_DEVICE_RESET, RenderDeviceEvent);
+NIT_EVENT_DECLARE(NITRENDER_API, RENDER_DEVICE_LOST, RenderDeviceEvent);
 
 ////////////////////////////////////////////////////////////////////////////////
 

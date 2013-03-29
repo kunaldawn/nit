@@ -134,9 +134,9 @@ class ParticleDemo : cc.ScriptLayer
 		
 		touchEnabled = true
 		
-		cocos.director.timer.channel().bind(Events.OnTick, this, onTick)
-		channel().bind(Events.OnCCTouchMoved, this, onTouchMove)
-		channel().bind(Events.OnCCTouchEnded, this, onTouchEnded)
+		cocos.director.timer.channel().bind(EVT.TICK, this, onTick)
+		channel().bind(EVT.CC_TOUCH_MOVED, this, onTouchMove)
+		channel().bind(EVT.CC_TOUCH_ENDED, this, onTouchEnded)
 		
 	}
 	

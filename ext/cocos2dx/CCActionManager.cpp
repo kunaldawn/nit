@@ -78,7 +78,7 @@ CCActionManager::~CCActionManager(void)
 bool CCActionManager::init(void)
 {
 	CCDirector::sharedDirector()->getTimer()->channel()->priority(0)->
-		bind(nit::Events::OnTick, this, &CCActionManager::OnTick);
+		bind(nit::EVT::TICK, this, &CCActionManager::OnTick);
 
 	m_pTargets = NULL;
 

@@ -65,7 +65,7 @@ bool CCMotionStreak::initWithFade(float fade, float seg, StreamSource* source, f
 
 	/// using 9999 for very low priority
 	CCDirector::sharedDirector()->getTimer()->channel()->priority(99999)-> 
-		bind(nit::Events::OnTick, this, &CCMotionStreak::OnTick);
+		bind(nit::EVT::TICK, this, &CCMotionStreak::OnTick);
 
 	// original code: this->schedule(schedule_selector(CCMotionStreak::update), 0);
 	return true;
@@ -74,7 +74,7 @@ bool CCMotionStreak::initWithFade(float fade, float seg, StreamSource* source, f
 void CCMotionStreak::cleanup()
 {
 	CCDirector::sharedDirector()->getTimer()->channel()->
-		unbind(nit::Events::OnTick, this);
+		unbind(nit::EVT::TICK, this);
 
 	CCNode::cleanup();
 }

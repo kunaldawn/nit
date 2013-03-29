@@ -281,7 +281,7 @@ ScriptFeature::ScriptFeature(const String& name, Package* package, HSQUIRRELVM v
 		package->setStayForCurrent(true);
 
 	if (g_Session)
-		g_Session->channel()->bind(Events::OnSessionStop, this, &ScriptFeature::onSessionStop);
+		g_Session->channel()->bind(EVT::SESSION_STOP, this, &ScriptFeature::onSessionStop);
 }
 
 void ScriptFeature::onRegister()

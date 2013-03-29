@@ -155,9 +155,9 @@ private:
 	static NitRuntimeBase*				s_Singleton;
 };
 
-NIT_EVENT_DECLARE(NIT_API, OnRuntimeEnvChanged, Event);
-NIT_EVENT_DECLARE(NIT_API, OnRuntimeInit, Event);
-NIT_EVENT_DECLARE(NIT_API, OnRuntimeFinish, Event);
+NIT_EVENT_DECLARE(NIT_API, RUNTIME_ENV_CHANGED, Event);
+NIT_EVENT_DECLARE(NIT_API, RUNTIME_INIT, Event);
+NIT_EVENT_DECLARE(NIT_API, RUNTIME_FINISH, Event);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -226,9 +226,9 @@ protected:
 
 		if (rt)
 		{
-			rt->channel()->bind(Events::OnRuntimeInit, this, &TClass::onRuntimeInit);
-			rt->channel()->bind(Events::OnRuntimeEnvChanged, this, &TClass::onRuntimeEnvChanged);
-			rt->channel()->bind(Events::OnRuntimeFinish, this, &TClass::onRuntimeFinish);
+			rt->channel()->bind(EVT::RUNTIME_INIT, this, &TClass::onRuntimeInit);
+			rt->channel()->bind(EVT::RUNTIME_ENV_CHANGED, this, &TClass::onRuntimeEnvChanged);
+			rt->channel()->bind(EVT::RUNTIME_FINISH, this, &TClass::onRuntimeFinish);
 		}
 	}
 

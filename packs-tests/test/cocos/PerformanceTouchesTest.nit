@@ -104,10 +104,10 @@ class TouchesPerformTest1 : TouchesMainScene
 	{
 		base.constructor(bControlMenuVisible, nMaxCases, nCurCase)
 		
-		channel().bind(Events.OnCCTouchBegin, this, ccTouchesBegin)
-		channel().bind(Events.OnCCTouchMoved, this, ccTouchesMoved)
-		channel().bind(Events.OnCCTouchEnded, this, ccTouchesEnded)
-		channel().bind(Events.OnCCTouchCancelled, this, ccTouchesCanceled)
+		channel().bind(EVT.CC_TOUCH_BEGIN, this, ccTouchesBegin)
+		channel().bind(EVT.CC_TOUCH_MOVED, this, ccTouchesMoved)
+		channel().bind(EVT.CC_TOUCH_ENDED, this, ccTouchesEnded)
+		channel().bind(EVT.CC_TOUCH_CANCELLED, this, ccTouchesCanceled)
 	}
 	
 	function onEnter()
@@ -151,10 +151,10 @@ class TouchesPerformTest2 : TouchesMainScene
 	{
 		base.constructor(bControlMenuVisible, nMaxCases, nCurCase)
 		
-		channel().bind(Events.OnCCTouchBegin, this, ccTouchesBegin)
-		channel().bind(Events.OnCCTouchMoved, this, ccTouchesMoved)
-		channel().bind(Events.OnCCTouchEnded, this, ccTouchesEnded)
-		channel().bind(Events.OnCCTouchCancelled, this, ccTouchesCanceled)
+		channel().bind(EVT.CC_TOUCH_BEGIN, this, ccTouchesBegin)
+		channel().bind(EVT.CC_TOUCH_MOVE, this, ccTouchesMoved)
+		channel().bind(EVT.CC_TOUCH_ENDED, this, ccTouchesEnded)
+		channel().bind(EVT.CC_TOUCH_CANCELLED, this, ccTouchesCanceled)
 	}
 	
 	function onEnter()

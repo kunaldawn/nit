@@ -227,10 +227,10 @@ public:
 	Ref<nit::Package> Package;
 };
 
-NIT_EVENT_DECLARE(NIT_API, OnPackageLinked, PackageEvent);
-NIT_EVENT_DECLARE(NIT_API, OnPackageLoaded, PackageEvent);
-NIT_EVENT_DECLARE(NIT_API, OnPackageUnloaded, PackageEvent);
-NIT_EVENT_DECLARE(NIT_API, OnPackageUnlinked, PackageEvent);
+NIT_EVENT_DECLARE(NIT_API, PACKAGE_LINKED, PackageEvent);
+NIT_EVENT_DECLARE(NIT_API, PACKAGE_LOADED, PackageEvent);
+NIT_EVENT_DECLARE(NIT_API, PACKAE_UNLOADED, PackageEvent);
+NIT_EVENT_DECLARE(NIT_API, PACKAGE_UNLINKED, PackageEvent);
 
 ////////////////////////////////////////////////////////////////////////////////
 

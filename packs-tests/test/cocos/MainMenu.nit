@@ -118,8 +118,8 @@ class TestMainMenu : cc.ScriptLayer
 		
 		this.touchEnabled = true
 		
-		channel().bind(Events.OnCCTouchBegin, this, onTouchBegin)
-		channel().bind(Events.OnCCTouchMoved, this, onTouchMove)
+		channel().bind(EVT.CC_TOUCH_BEGIN, this, onTouchBegin)
+		channel().bind(EVT.CC_TOUCH_MOVED, this, onTouchMove)
 	}
 	
 	function onCloseMenu(evt: cc.MenuItemEvent)

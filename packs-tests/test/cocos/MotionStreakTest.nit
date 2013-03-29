@@ -196,7 +196,7 @@ class MotionStreakTest2 : MotionStreakTest
 		_streak.position = cc.Point(s.width/2, s.height/2)
 		
 		this.touchEnabled = true;
-		this.channel().bind(Events.OnCCTouchMoved, this, ccTouchesMoved)
+		this.channel().bind(EVT.CC_TOUCH_MOVED, this, ccTouchesMoved)
 	}
 	
 	function ccTouchesMoved(evt: cc.TouchEvent)

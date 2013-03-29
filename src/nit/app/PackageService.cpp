@@ -266,10 +266,10 @@ void PackageService::onInit()
 	if (useAsyncLoading)
 		_asyncLoader = new AsyncLoader(this);
 
-	g_App->getClock()->channel()->bind(Events::OnClock, this, &PackageService::onClock);
-	g_App->channel()->bind(Events::OnSessionStart, this, &PackageService::onSessionStart);
-	g_App->channel()->bind(Events::OnSessionStop, this, &PackageService::onSessionStop);
-	g_App->channel()->bind(Events::OnSessionChange, this, &PackageService::onSessionChange);
+	g_App->getClock()->channel()->bind(EVT::CLOCK, this, &PackageService::onClock);
+	g_App->channel()->bind(EVT::SESSION_START, this, &PackageService::onSessionStart);
+	g_App->channel()->bind(EVT::SESSION_STOP, this, &PackageService::onSessionStop);
+	g_App->channel()->bind(EVT::SESSION_CHANGE, this, &PackageService::onSessionChange);
 
 	InitSqliteVFS();
 }
@@ -367,7 +367,7 @@ Package* PackageService::link(const char* givenName, bool optional)
 		LOG(0, "++ delayed link : package '%s'\n", name.c_str());
 		if (pack->link(NULL))
 		{
-			if (_channel) _channel->send(Events::OnPackageLinked, new PackageEvent(pack));
+			if (_channel) _channel->send(EVT::PACKAGE_LINKED, new PackageEvent(pack));
 			return pack;
 		}
 
@@ -408,7 +408,7 @@ Package* PackageService::link(const char* givenName, bool optional)
 
 	if (pack->link(cfg))
 	{
-		if (_channel) _channel->send(Events::OnPackageLinked, new PackageEvent(pack));
+		if (_channel) _channel->send(EVT::PACKAGE_LINKED, new PackageEvent(pack));
 		return pack;
 	}
 

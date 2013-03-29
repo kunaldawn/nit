@@ -71,7 +71,7 @@ protected:
 	Ref<InputCommand>					_command;
 };
 
-NIT_EVENT_DECLARE(NIT_API, OnInputCommand, InputCommandEvent);
+NIT_EVENT_DECLARE(NIT_API, INPUT_COMMAND, InputCommandEvent);
 
 ////////////////////////////////////////////////////////////////////////////////
 

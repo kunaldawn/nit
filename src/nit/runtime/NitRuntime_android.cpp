@@ -604,7 +604,7 @@ bool NitRuntime::onSystemLoop()
 
 				// Send the final value
 				if (_channel)
-					_channel->send(Events::OnAndroidSensor, new AndroidSensorEvent(&sensorEvent));
+					_channel->send(EVT::ANDROID_SENSOR, new AndroidSensorEvent(&sensorEvent));
 			}
 		}
 
@@ -772,7 +772,7 @@ void NitRuntime::onAppCmd(android_app* app, int32_t cmd)
 
 	// Send to channel
 	if (_channel)
-		_channel->send(Events::OnAndroidAppCmd, new AndroidAppCmdEvent(app, cmd));
+		_channel->send(EVT::ANDROID_APP_CMD, new AndroidAppCmdEvent(app, cmd));
 }
 
 int32_t NitRuntime::onInputEvent(android_app* app, AInputEvent* input)
@@ -780,7 +780,7 @@ int32_t NitRuntime::onInputEvent(android_app* app, AInputEvent* input)
 	if (_channel)
 	{
 		Ref<AndroidInputEvent> evt = new AndroidInputEvent(app, input);
-		_channel->send(Events::OnAndroidInput, evt);
+		_channel->send(EVT::ANDROID_INPUT, evt);
 
 		// treat as handled if consumed
 		return evt->isConsumed();

@@ -37,7 +37,7 @@ THE SOFTWARE.
 
 NS_CC_BEGIN;
 
-NIT_EVENT_DEFINE(OnCCMenuItem, CCMenuItemEvent);
+NIT_EVENT_DEFINE(CC_MENU_ITEM, CCMenuItemEvent);
 
 static unsigned int _fontSize = kCCItemSize;
 static std::string _fontName = "Marker Felt";
@@ -61,7 +61,7 @@ bool CCMenuItem::initWithTarget(EventHandler* handler)
 	setAnchorPoint(ccp(0.5f, 0.5f));
 	if (handler)
 	{
-		Channel()->bind(Events::OnCCMenuItem, handler);
+		Channel()->bind(EVT::CC_MENU_ITEM, handler);
 	}
 	m_bIsEnabled = true;
 	m_bIsSelected = false;
@@ -83,7 +83,7 @@ void CCMenuItem::activate()
 	if (m_bIsEnabled)
 	{
 		if (m_Channel)
-			m_Channel->send(Events::OnCCMenuItem, new CCMenuItemEvent(this));
+			m_Channel->send(EVT::CC_MENU_ITEM, new CCMenuItemEvent(this));
 	}
 }
 

@@ -97,13 +97,13 @@ public:
 		_channelID = 0xdeb6;
 
 		EventChannel* ch = _remote.getChannel(0);
-		ch->bind(Events::OnRemoteConnect, this, &ConsoleApp::onRemoteConnect);
-		ch->bind(Events::OnRemoteDisconnect, this, &ConsoleApp::onRemoteDisconnect);
+		ch->bind(EVT::REMOTE_CONNECT, this, &ConsoleApp::onRemoteConnect);
+		ch->bind(EVT::REMOTE_DISCONNECT, this, &ConsoleApp::onRemoteDisconnect);
 
 		ch = _remote.openChannel(_channelID, "nit.RemoteDebugClient");
 
-		ch->bind(Events::OnRemoteNotify, this, &ConsoleApp::onRemoteNotify);
-		ch->bind(Events::OnRemoteResponse, this, &ConsoleApp::onRemoteResponse);
+		ch->bind(EVT::REMOTE_NOTIFY, this, &ConsoleApp::onRemoteNotify);
+		ch->bind(EVT::REMOTE_RESPONSE, this, &ConsoleApp::onRemoteResponse);
 	}
 
 	~ConsoleApp()						{ }

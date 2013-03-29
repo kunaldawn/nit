@@ -35,18 +35,18 @@ THE SOFTWARE.
 
 NS_CC_BEGIN;
 
-NIT_EVENT_DEFINE(OnCCTouchBegin, 				CCTouchEvent);
-NIT_EVENT_DEFINE(OnCCTouchMoved, 				CCTouchEvent);
-NIT_EVENT_DEFINE(OnCCTouchEnded, 				CCTouchEvent);
-NIT_EVENT_DEFINE(OnCCTouchCancelled,			CCTouchEvent);
+NIT_EVENT_DEFINE(CC_TOUCH_BEGIN, 				CCTouchEvent);
+NIT_EVENT_DEFINE(CC_TOUCH_MOVED, 				CCTouchEvent);
+NIT_EVENT_DEFINE(CC_TOUCH_ENDED, 				CCTouchEvent);
+NIT_EVENT_DEFINE(CC_TOUCH_CANCELLED,			CCTouchEvent);
 
-NIT_EVENT_DEFINE(OnCCTargetedTouchBegin, 		CCTargetedTouchEvent);
-NIT_EVENT_DEFINE(OnCCTargetedTouchMoved, 		CCTargetedTouchEvent);
-NIT_EVENT_DEFINE(OnCCTargetedTouchEnded, 		CCTargetedTouchEvent);
-NIT_EVENT_DEFINE(OnCCTargetedTouchCancelled,	CCTargetedTouchEvent);
+NIT_EVENT_DEFINE(CC_TARGETED_TOUCH_BEGIN, 		CCTargetedTouchEvent);
+NIT_EVENT_DEFINE(CC_TARGETED_TOUCH_MOVED, 		CCTargetedTouchEvent);
+NIT_EVENT_DEFINE(CC_TARGETED_TOUCH_ENDED, 		CCTargetedTouchEvent);
+NIT_EVENT_DEFINE(CC_TARGETED_TOUCH_CANCELLED,	CCTargetedTouchEvent);
 
-NIT_EVENT_DEFINE(OnCCKeypadBackClick, 			CCKeypadEvent);
-NIT_EVENT_DEFINE(OnCCKeypadMenuClick, 			CCKeypadEvent);
+NIT_EVENT_DEFINE(CC_KEYPAD_BACK_CLICK, 			CCKeypadEvent);
+NIT_EVENT_DEFINE(CC_KEYPAD_MENU_CLICK, 			CCKeypadEvent);
 
 // CCLayer
 CCLayer::CCLayer()
@@ -222,32 +222,32 @@ bool CCLayer::ccTouchBegan(CCTouch *pTouch)
 void CCLayer::ccTouchesBegan(CCSet *pTouches)
 {
 	if (_channel)
-		_channel->send(Events::OnCCTouchBegin, new CCTouchEvent(this, pTouches));
+		_channel->send(EVT::CC_TOUCH_BEGIN, new CCTouchEvent(this, pTouches));
 }
 
 void CCLayer::ccTouchesEnded(CCSet *pTouches)
 {
 	if (_channel)
-		_channel->send(Events::OnCCTouchEnded, new CCTouchEvent(this, pTouches));
+		_channel->send(EVT::CC_TOUCH_ENDED, new CCTouchEvent(this, pTouches));
 }
 
 void CCLayer::ccTouchesMoved(CCSet *pTouches)
 {
 	if (_channel)
-		_channel->send(Events::OnCCTouchMoved, new CCTouchEvent(this, pTouches));
+		_channel->send(EVT::CC_TOUCH_MOVED, new CCTouchEvent(this, pTouches));
 }
 
 void CCLayer::ccTouchesCancelled(CCSet *pTouches)
 {
 	if (_channel)
-		_channel->send(Events::OnCCTouchCancelled, new CCTouchEvent(this, pTouches));
+		_channel->send(EVT::CC_TOUCH_CANCELLED, new CCTouchEvent(this, pTouches));
 }
 
 void CCLayer::setModal(bool flag, bool recursive /*= true*/)
 {
 	CCTouchDispatcher* td = CCTouchDispatcher::sharedDispatcher();
 
-	td->Channel()->send(Events::OnCCTouchModal, new CCTouchModalEvent(this, flag));
+	td->Channel()->send(EVT::CC_TOUCH_MODAL, new CCTouchModalEvent(this, flag));
 
 	if (flag)
 		td->AddModal(this);
@@ -283,13 +283,13 @@ void CCLayer::setModal(bool flag, bool recursive /*= true*/)
 void CCLayer::keyBackClicked()
 {
 	if (_channel)
-		_channel->send(Events::OnCCKeypadBackClick, new CCKeypadEvent(this));
+		_channel->send(EVT::CC_KEYPAD_BACK_CLICK, new CCKeypadEvent(this));
 }
 
 void CCLayer::keyMenuClicked()
 {
 	if (_channel)
-		_channel->send(Events::OnCCKeypadBackClick, new CCKeypadEvent(this));
+		_channel->send(EVT::CC_KEYPAD_BACK_CLICK, new CCKeypadEvent(this));
 }
 
 /// ColorLayer

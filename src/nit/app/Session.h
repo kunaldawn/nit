@@ -53,7 +53,7 @@ public:
 	String								line;
 };
 
-NIT_EVENT_DECLARE(NIT_API, OnConsoleInput, ConsoleInputEvent);
+NIT_EVENT_DECLARE(NIT_API, CONSOLE_INPUT, ConsoleInputEvent);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -154,10 +154,10 @@ public:
 	Ref<Session>						session;
 };
 
-NIT_EVENT_DECLARE(NIT_API, OnSessionStart,	SessionEvent);
-NIT_EVENT_DECLARE(NIT_API, OnSessionReady,	SessionEvent);
-NIT_EVENT_DECLARE(NIT_API, OnSessionStop,	SessionEvent);
-NIT_EVENT_DECLARE(NIT_API, OnSessionChange,	SessionEvent);
+NIT_EVENT_DECLARE(NIT_API, SESSION_START,	SessionEvent);
+NIT_EVENT_DECLARE(NIT_API, SESSION_READY,	SessionEvent);
+NIT_EVENT_DECLARE(NIT_API, SESSION_STOP,	SessionEvent);
+NIT_EVENT_DECLARE(NIT_API, SESSION_CHANGE,	SessionEvent);
 
 ////////////////////////////////////////////////////////////////////////////////
 

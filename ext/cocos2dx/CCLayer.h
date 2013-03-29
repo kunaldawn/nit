@@ -58,10 +58,10 @@ public:
 	CCSet* Touches;
 };
 
-NIT_EVENT_DECLARE(CC_DLL, OnCCTouchBegin, 		CCTouchEvent);
-NIT_EVENT_DECLARE(CC_DLL, OnCCTouchMoved, 		CCTouchEvent);
-NIT_EVENT_DECLARE(CC_DLL, OnCCTouchEnded, 		CCTouchEvent);
-NIT_EVENT_DECLARE(CC_DLL, OnCCTouchCancelled,	CCTouchEvent);
+NIT_EVENT_DECLARE(CC_DLL, CC_TOUCH_BEGIN, 		CCTouchEvent);
+NIT_EVENT_DECLARE(CC_DLL, CC_TOUCH_MOVED, 		CCTouchEvent);
+NIT_EVENT_DECLARE(CC_DLL, CC_TOUCH_ENDED, 		CCTouchEvent);
+NIT_EVENT_DECLARE(CC_DLL, CC_TOUCH_CANCELLED,	CCTouchEvent);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -76,10 +76,10 @@ public:
 	CCTouch* Touch;
 };
 
-NIT_EVENT_DECLARE(CC_DLL, OnCCTargetedTouchBegin, 		CCTargetedTouchEvent);
-NIT_EVENT_DECLARE(CC_DLL, OnCCTargetedTouchMoved, 		CCTargetedTouchEvent);
-NIT_EVENT_DECLARE(CC_DLL, OnCCTargetedTouchEnded, 		CCTargetedTouchEvent);
-NIT_EVENT_DECLARE(CC_DLL, OnCCTargetedTouchCancelled,	CCTargetedTouchEvent);
+NIT_EVENT_DECLARE(CC_DLL, CC_TARGETED_TOUCH_BEGIN, 		CCTargetedTouchEvent);
+NIT_EVENT_DECLARE(CC_DLL, CC_TARGETED_TOUCH_MOVED, 		CCTargetedTouchEvent);
+NIT_EVENT_DECLARE(CC_DLL, CC_TARGETED_TOUCH_ENDED, 		CCTargetedTouchEvent);
+NIT_EVENT_DECLARE(CC_DLL, CC_TARGETED_TOUCH_CANCELLED,	CCTargetedTouchEvent);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -94,8 +94,8 @@ public:
 	CCObject* Sender;
 };
 
-NIT_EVENT_DECLARE(CC_DLL, OnCCKeypadBackClick, CCKeypadEvent);
-NIT_EVENT_DECLARE(CC_DLL, OnCCKeypadMenuClick, CCKeypadEvent);
+NIT_EVENT_DECLARE(CC_DLL, CC_KEYPAD_BACK_CLICK, CCKeypadEvent);
+NIT_EVENT_DECLARE(CC_DLL, CC_KEYPAD_MENU_CLICK, CCKeypadEvent);
 
 ////////////////////////////////////////////////////////////////////////////////
 

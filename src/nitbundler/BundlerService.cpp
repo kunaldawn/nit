@@ -97,12 +97,12 @@ void BundlerService::onInit()
 	_jobManager = new AsyncJobManager("bdlr", Thread::getMaxConcurrency() - 1);
 	_jobManager->resume();
 
-	g_App->channel()->bind(Events::OnAppLoop, this, &BundlerService::onAppLoop);
+	g_App->channel()->bind(EVT::APP_LOOP, this, &BundlerService::onAppLoop);
 }
 
 void BundlerService::onFinish()
 {
-	g_App->channel()->unbind(Events::OnAppLoop, this);
+	g_App->channel()->unbind(EVT::APP_LOOP, this);
 
 	_jobManager->stop();
 	_jobManager = NULL;

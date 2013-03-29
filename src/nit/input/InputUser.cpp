@@ -46,7 +46,7 @@ void InputUser::setIdentity(DataObject* identity)
 	_identity = identity;
 
 	if (_channel)
-		_channel->send(Events::OnInputUserIdentityChanged, new InputUserEvent(this, NULL));
+		_channel->send(EVT::INPUT_USER_IDENTITY_CHANGED, new InputUserEvent(this, NULL));
 }
 
 void InputUser::update(int frame)
@@ -100,7 +100,7 @@ void InputUser::acquire(InputDevice* device)
 	device->_user = this;
 	_devices.insert(device);
 
-	svc_Input->post(Events::OnInputUserAcquire, new InputUserEvent(this, device));
+	svc_Input->post(EVT::INPUT_USER_ACQUIRE, new InputUserEvent(this, device));
 	device->lock(_lockCount, true);
 }
 
@@ -112,7 +112,7 @@ void InputUser::release(InputDevice* device)
 	device->_user = NULL;
 	_devices.erase(device);
 
-	svc_Input->post(Events::OnInputUserRelease, new InputUserEvent(this, device));
+	svc_Input->post(EVT::INPUT_USER_RELEASE, new InputUserEvent(this, device));
 	device->unlock(_lockCount);
 }
 
@@ -128,9 +128,9 @@ void InputUser::find(const String& pattern, vector<InputDevice*>::type& outResul
 
 ////////////////////////////////////////////////////////////////////////////////
 
-NIT_EVENT_DEFINE(OnInputUserIdentityChanged, InputUserEvent);
-NIT_EVENT_DEFINE(OnInputUserAcquire,	InputUserEvent);
-NIT_EVENT_DEFINE(OnInputUserRelease,	InputUserEvent);
+NIT_EVENT_DEFINE(INPUT_USER_IDENTITY_CHANGED, InputUserEvent);
+NIT_EVENT_DEFINE(INPUT_USER_ACQUIRE,	InputUserEvent);
+NIT_EVENT_DEFINE(INPUT_USER_RELEASE,	InputUserEvent);
 
 ////////////////////////////////////////////////////////////////////////////////
 

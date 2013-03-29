@@ -92,11 +92,11 @@ void InputSource::reset()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-NIT_EVENT_DEFINE(OnPointerMove,			InputPointerEvent);
-NIT_EVENT_DEFINE(OnPointerOn,			InputPointerEvent);
-NIT_EVENT_DEFINE(OnPointerDrag,			InputPointerEvent);
-NIT_EVENT_DEFINE(OnPointerOff,			InputPointerEvent);
-NIT_EVENT_DEFINE(OnPointerCancel,		InputPointerEvent);
+NIT_EVENT_DEFINE(POINTER_MOVE,			InputPointerEvent);
+NIT_EVENT_DEFINE(POINTER_ON,			InputPointerEvent);
+NIT_EVENT_DEFINE(POINTER_DRAG,			InputPointerEvent);
+NIT_EVENT_DEFINE(POINTER_OFF,			InputPointerEvent);
+NIT_EVENT_DEFINE(POINTER_CANCEL,		InputPointerEvent);
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -258,23 +258,23 @@ public:
 
 		bind(v, props, funcs);
 
-		addStaticTable(v, "Events");
-		newSlot(v, -1, "Connect",			Events::OnRemoteConnect);
-		newSlot(v, -1, "Disconnect",		Events::OnRemoteDisconnect);
-		newSlot(v, -1, "Hello",				Events::OnRemoteHello);
-		newSlot(v, -1, "Error",				Events::OnRemoteError);
-		newSlot(v, -1, "UserPacket",		Events::OnRemoteUserPacket);
-		newSlot(v, -1, "ChannelClose",		Events::OnRemoteChannelClose);
-		newSlot(v, -1, "Notify",			Events::OnRemoteNotify);
-		newSlot(v, -1, "Request",			Events::OnRemoteRequest);
-		newSlot(v, -1, "RequestCancel",		Events::OnRemoteRequestCancel);
-		newSlot(v, -1, "Response",			Events::OnRemoteResponse);
-		newSlot(v, -1, "UploadStart",		Events::OnRemoteUploadStart);
-		newSlot(v, -1, "UploadCancel",		Events::OnRemoteUploadCancel);
-		newSlot(v, -1, "UploadEnd",			Events::OnRemoteUploadEnd);
-		newSlot(v, -1, "DownloadStart",		Events::OnRemoteDownloadStart);
-		newSlot(v, -1, "DownloadCancel",	Events::OnRemoteDownloadCancel);
-		newSlot(v, -1, "DownloadEnd",		Events::OnRemoteDownloadEnd);
+		addStaticTable(v, "EVT");
+		newSlot(v, -1, "CONNECT",			EVT::REMOTE_CONNECT);
+		newSlot(v, -1, "DISCONNECT",		EVT::REMOTE_DISCONNECT);
+		newSlot(v, -1, "HELLO",				EVT::REMOTE_HELLO);
+		newSlot(v, -1, "ERROR",				EVT::REMOTE_ERROR);
+		newSlot(v, -1, "USER_PACKET",		EVT::REMOTE_USER_PACKET);
+		newSlot(v, -1, "CHANNEL_CLOSE",		EVT::REMOTE_CHANNEL_CLOSE);
+		newSlot(v, -1, "NOTIFY",			EVT::REMOTE_NOTIFY);
+		newSlot(v, -1, "REQUEST",			EVT::REMOTE_REQUEST);
+		newSlot(v, -1, "REQUEST_CANCEL",	EVT::REMOTE_REQUEST_CANCEL);
+		newSlot(v, -1, "RESPONSE",			EVT::REMOTE_RESPONSE);
+		newSlot(v, -1, "UPLOAD_START",		EVT::REMOTE_UPLOAD_START);
+		newSlot(v, -1, "UPLOAD_CANCEL",		EVT::REMOTE_UPLOAD_CANCEL);
+		newSlot(v, -1, "UPLOAD_END",		EVT::REMOTE_UPLOAD_END);
+		newSlot(v, -1, "DOWNLOAD_START",	EVT::REMOTE_DOWNLOAD_START);
+		newSlot(v, -1, "DOWNLOAD_CANCEL",	EVT::REMOTE_DOWNLOAD_CANCEL);
+		newSlot(v, -1, "DOWNLOAD_END",		EVT::REMOTE_DOWNLOAD_END);
 		sq_poptop(v);
 
 		addStaticTable(v, "RESPONSE");

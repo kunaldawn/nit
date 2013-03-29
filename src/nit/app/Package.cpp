@@ -42,10 +42,10 @@ NS_NIT_BEGIN;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-NIT_EVENT_DEFINE(OnPackageLinked, PackageEvent);
-NIT_EVENT_DEFINE(OnPackageLoaded, PackageEvent);
-NIT_EVENT_DEFINE(OnPackageUnloaded, PackageEvent);
-NIT_EVENT_DEFINE(OnPackageUnlinked, PackageEvent);
+NIT_EVENT_DEFINE(PACKAGE_LINKED, PackageEvent);
+NIT_EVENT_DEFINE(PACKAGE_LOADED, PackageEvent);
+NIT_EVENT_DEFINE(PACKAE_UNLOADED, PackageEvent);
+NIT_EVENT_DEFINE(PACKAGE_UNLINKED, PackageEvent);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -743,10 +743,10 @@ void Package::unload()
 	LOG(0, "-- package '%s': Unloaded\n", _name.c_str());
 
 	if (_channel) 
-		_channel->send(Events::OnPackageUnloaded, new PackageEvent(this));
+		_channel->send(EVT::PACKAE_UNLOADED, new PackageEvent(this));
 
 	if (_service->_channel)
-		_service->_channel->send(Events::OnPackageUnloaded, new PackageEvent(this));
+		_service->_channel->send(EVT::PACKAE_UNLOADED, new PackageEvent(this));
 }
 
 void Package::unlink()
@@ -774,10 +774,10 @@ void Package::unlink()
 	LOG(0, ".. package '%s': Unlinked\n", _name.c_str());
 
 	if (_channel) 
-		_channel->send(Events::OnPackageUnlinked, new PackageEvent(this));
+		_channel->send(EVT::PACKAGE_UNLINKED, new PackageEvent(this));
 
 	if (_service->_channel)
-		_service->_channel->send(Events::OnPackageUnlinked, new PackageEvent(this));
+		_service->_channel->send(EVT::PACKAGE_UNLINKED, new PackageEvent(this));
 
 	// try to unlink all required packages
 	for (uint i=0; i<_required.size(); ++i)
@@ -915,10 +915,10 @@ void Package::afterPrepared()
 	LOG(0, "-- package '%s' loaded\n", _name.c_str());
 
 	if (_channel) 
-		_channel->send(Events::OnPackageLoaded, new PackageEvent(this));
+		_channel->send(EVT::PACKAGE_LOADED, new PackageEvent(this));
 
 	if (_service->_channel)
-		_service->_channel->send(Events::OnPackageLoaded, new PackageEvent(this));
+		_service->_channel->send(EVT::PACKAGE_LOADED, new PackageEvent(this));
 }
 
 StreamSource* Package::locate(const String& streamName, bool throwEx)

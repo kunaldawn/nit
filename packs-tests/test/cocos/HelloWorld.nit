@@ -102,14 +102,14 @@ class HelloWorld : cc.ScriptLayer
 		print(this + ": onEnter")
 
 		// detect session closing
-		session.channel().bind(Events.OnSessionStop, this, @{ print("pop"); cocos.director.PopScene() })
+		session.channel().bind(EVT.SESSION_STOP, this) by { print("pop"); cocos.director.PopScene() }
 	}
 	
 	function OnExit()
 	{
 		print(this + ": onExit")
 		
-		session.channel().unbind(Events.OnSessionStop, this)
+		session.channel().unbind(EVT.SESSION_STOP, this)
 	}
 		
 	function onActionEvent(evt)

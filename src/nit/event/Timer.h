@@ -68,11 +68,11 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-NIT_EVENT_DECLARE(NIT_API, OnClock,			TimeEvent);
-NIT_EVENT_DECLARE(NIT_API, OnTick,			TimeEvent);
-NIT_EVENT_DECLARE(NIT_API, OnTimeSchedule,	TimeEvent);
-NIT_EVENT_DECLARE(NIT_API, OnTickPause,		TimeEvent);
-NIT_EVENT_DECLARE(NIT_API, OnTickResume,	TimeEvent);
+NIT_EVENT_DECLARE(NIT_API, CLOCK,			TimeEvent);
+NIT_EVENT_DECLARE(NIT_API, TICK,			TimeEvent);
+NIT_EVENT_DECLARE(NIT_API, TIME_SCHEDULE,	TimeEvent);
+NIT_EVENT_DECLARE(NIT_API, TICK_PAUSE,		TimeEvent);
+NIT_EVENT_DECLARE(NIT_API, TICK_RESUME,		TimeEvent);
 
 ////////////////////////////////////////////////////////////////////////////////
 

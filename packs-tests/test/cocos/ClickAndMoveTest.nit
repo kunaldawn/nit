@@ -25,7 +25,7 @@ class MainLayer : cc.ScriptLayer
 		
 		touchEnabled = true
 
-		channel().bind(Events.OnCCTouchEnded, this, onTouchEnded)
+		channel().bind(EVT.CC_TOUCH_ENDED, this, onTouchEnded)
 		
 	}
 	

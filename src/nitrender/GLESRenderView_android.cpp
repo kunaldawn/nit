@@ -104,20 +104,20 @@ public:
 			_value = newPos;
 
 			if (nowOn)
-				svc->post(Events::OnPointerOn, evt);
+				svc->post(EVT::POINTER_ON, evt);
 
 			if (moved)
 			{
 				if (on)
-					svc->post(Events::OnPointerDrag, evt);
+					svc->post(EVT::POINTER_DRAG, evt);
 
 				else
-					svc->post(Events::OnPointerMove, evt);
+					svc->post(EVT::POINTER_MOVE, evt);
 			}
 
 			if (nowOff)
 			{
-				svc->post(Events::OnPointerOff, evt);
+				svc->post(EVT::POINTER_OFF, evt);
 			}
 		}
 
@@ -125,7 +125,7 @@ public:
 		virtual void onReset() 
 		{ 
 			if (_on)
-				svc_Input->post(Events::OnPointerCancel, new InputPointerEvent(this, _value, _value));
+				svc_Input->post(EVT::POINTER_CANCEL, new InputPointerEvent(this, _value, _value));
 
 			_on = false;
 		}
@@ -167,8 +167,8 @@ public:
 
 		NitRuntime* rt = NitRuntime::getSingleton();
 
-		rt->channel()->bind(Events::OnAndroidInput, this, &AndroidWindowInput::onAndroidInput);
-		rt->channel()->bind(Events::OnAndroidSensor, this, &AndroidWindowInput::onAndroidSensor);
+		rt->channel()->bind(EVT::ANDROID_INPUT, this, &AndroidWindowInput::onAndroidInput);
+		rt->channel()->bind(EVT::ANDROID_SENSOR, this, &AndroidWindowInput::onAndroidSensor);
 	}
 
 	virtual bool isEventActive()		{ return true; }
@@ -307,7 +307,7 @@ GLESRenderView_android::GLESRenderView_android(AppBase* nitApp)
 
 	NitRuntime* rt = NitRuntime::getSingleton();
 
-	rt->channel()->bind(Events::OnAndroidAppCmd, this, &GLESRenderView_android::onAndroidAppCmd);
+	rt->channel()->bind(EVT::ANDROID_APP_CMD, this, &GLESRenderView_android::onAndroidAppCmd);
 
 	android_app* app = NitRuntime::getSingleton()->getAndroidApp();
 

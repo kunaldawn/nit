@@ -65,9 +65,9 @@ void InputService::onInit()
 	float timerPriority = DataValue(g_App->getConfig("input_priority", "-100"));
 
 	_timer = new TickTimer();
-	g_App->getClock()->channel()->priority(timerPriority)->bind(Events::OnClock, _timer->sourceTimeHandler());
+	g_App->getClock()->channel()->priority(timerPriority)->bind(EVT::CLOCK, _timer->sourceTimeHandler());
 
-	_timer->channel()->bind(Events::OnTick, this, &InputService::onTick);
+	_timer->channel()->bind(EVT::TICK, this, &InputService::onTick);
 
 	_systemUser = new InputUser("$system", 0);
 	_defaultUser = new InputUser("$default", 1);
@@ -108,7 +108,7 @@ void InputService::post(EventId id, InputEvent* evt, EventChannel* channel)
 
 void InputService::post(InputCommandEvent* command)
 {
-	post(Events::OnInputCommand, command, _commandChannel);
+	post(EVT::INPUT_COMMAND, command, _commandChannel);
 }
 
 void InputService::onTick(const TimeEvent* evt)

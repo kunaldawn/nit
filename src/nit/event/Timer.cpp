@@ -28,11 +28,11 @@ NS_NIT_BEGIN;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-NIT_EVENT_DEFINE(OnClock,				TimeEvent);
-NIT_EVENT_DEFINE(OnTick,				TimeEvent);
-NIT_EVENT_DEFINE(OnTimeSchedule,		TimeEvent);
-NIT_EVENT_DEFINE(OnTickPause,			TimeEvent);
-NIT_EVENT_DEFINE(OnTickResume,			TimeEvent);
+NIT_EVENT_DEFINE(CLOCK,				TimeEvent);
+NIT_EVENT_DEFINE(TICK,				TimeEvent);
+NIT_EVENT_DEFINE(TIME_SCHEDULE,		TimeEvent);
+NIT_EVENT_DEFINE(TICK_PAUSE,			TimeEvent);
+NIT_EVENT_DEFINE(TICK_RESUME,			TimeEvent);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -91,7 +91,7 @@ void Clock::update()
 
 	float dt = float(dc * _resolution);
 
-	if (_channel) _channel->send(Events::OnClock, new TimeEvent(this, dt));
+	if (_channel) _channel->send(EVT::CLOCK, new TimeEvent(this, dt));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -131,7 +131,7 @@ uint TickTimer::advance(float dt)
 		_timeStep = dt * _speed * _fadeSpeed;
 		_time += _timeStep;
 		++_tick;
-		if (_channel) _channel->send(Events::OnTick, new TimeEvent(this, _timeStep));
+		if (_channel) _channel->send(EVT::TICK, new TimeEvent(this, _timeStep));
 		return 1;
 	}
 
@@ -152,7 +152,7 @@ uint TickTimer::advance(float dt)
 		++numTicks;
 		++_tick;
 
-		if (_channel) _channel->send(Events::OnTick, new TimeEvent(this, _timeStep));
+		if (_channel) _channel->send(EVT::TICK, new TimeEvent(this, _timeStep));
 	}
 
 	return numTicks;
@@ -227,7 +227,7 @@ bool TickTimer::pause()
 {
 	if (++_pauseCount == 1)
 	{
-		_channel->send(Events::OnTickPause, new TimeEvent(this, 0.0f));
+		_channel->send(EVT::TICK_PAUSE, new TimeEvent(this, 0.0f));
 	}
 
 	return _pauseCount > 0;
@@ -237,7 +237,7 @@ bool TickTimer::resume()
 {
 	if (--_pauseCount == 0)
 	{
-		_channel->send(Events::OnTickResume, new TimeEvent(this, 0.0f));
+		_channel->send(EVT::TICK_RESUME, new TimeEvent(this, 0.0f));
 	}
 
 	return _pauseCount > 0;
@@ -279,8 +279,8 @@ EventHandler* TimeScheduler::once(EventHandler* handler, float after)
 {
 	Ref<EventHandler> autoRel = handler;
 
-	if (handler == NULL || !handler->canHandle(Events::OnTimeSchedule))
-		EventInfo::throwInvalidHandler(Events::OnTimeSchedule);
+	if (handler == NULL || !handler->canHandle(EVT::TIME_SCHEDULE))
+		EventInfo::throwInvalidHandler(EVT::TIME_SCHEDULE);
 
 	UpdateEntry* e = new UpdateEntry();
 
@@ -299,8 +299,8 @@ EventHandler* TimeScheduler::repeat(EventHandler* handler, float interval, float
 {
 	Ref<EventHandler> autoRel = handler;
 
-	if (handler == NULL || !handler->canHandle(Events::OnTimeSchedule))
-		EventInfo::throwInvalidHandler(Events::OnTimeSchedule);
+	if (handler == NULL || !handler->canHandle(EVT::TIME_SCHEDULE))
+		EventInfo::throwInvalidHandler(EVT::TIME_SCHEDULE);
 
 	UpdateEntry* e = new UpdateEntry();
 
@@ -390,7 +390,7 @@ void TimeScheduler::update()
 
 		// Send event - Should after heap rearrangement
 		Ref<TimeEvent> evt = new TimeEvent(this, dt);
-		evt->setId(Events::OnTimeSchedule);
+		evt->setId(EVT::TIME_SCHEDULE);
 		handler->call(evt);
 
 		// Check update quota

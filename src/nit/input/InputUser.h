@@ -91,9 +91,9 @@ protected:
 	Weak<InputDevice>					_device;
 };
 
-NIT_EVENT_DECLARE(NIT_API, OnInputUserIdentityChanged, InputUserEvent);
-NIT_EVENT_DECLARE(NIT_API, OnInputUserAcquire, InputUserEvent);
-NIT_EVENT_DECLARE(NIT_API, OnInputUserRelease, InputUserEvent);
+NIT_EVENT_DECLARE(NIT_API, INPUT_USER_IDENTITY_CHANGED, InputUserEvent);
+NIT_EVENT_DECLARE(NIT_API, INPUT_USER_ACQUIRE, InputUserEvent);
+NIT_EVENT_DECLARE(NIT_API, INPUT_USER_RELEASE, InputUserEvent);
 
 ////////////////////////////////////////////////////////////////////////////////
 

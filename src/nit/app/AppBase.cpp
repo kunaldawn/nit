@@ -50,24 +50,24 @@ NS_NIT_BEGIN;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-NIT_EVENT_DEFINE(OnAppNativeInit, Event);
-NIT_EVENT_DEFINE(OnAppNativeFinish, Event);
+NIT_EVENT_DEFINE(APP_NATIVE_INIT, Event);
+NIT_EVENT_DEFINE(APP_NATIVE_FINISH, Event);
 
-NIT_EVENT_DEFINE(OnAppBoot, Event);
-NIT_EVENT_DEFINE(OnAppLoop, Event);
-NIT_EVENT_DEFINE(OnAppStop, Event);
+NIT_EVENT_DEFINE(APP_BOOT, Event);
+NIT_EVENT_DEFINE(APP_LOOP, Event);
+NIT_EVENT_DEFINE(APP_STOP, Event);
 
-NIT_EVENT_DEFINE(OnAppActive, Event);
-NIT_EVENT_DEFINE(OnAppResume, Event);
-NIT_EVENT_DEFINE(OnAppSuspend, Event);
-NIT_EVENT_DEFINE(OnAppInactive, Event);
+NIT_EVENT_DEFINE(APP_ACTIVE, Event);
+NIT_EVENT_DEFINE(APP_RESUME, Event);
+NIT_EVENT_DEFINE(APP_SUSPEND, Event);
+NIT_EVENT_DEFINE(APP_INACTIVE, Event);
 
-NIT_EVENT_DEFINE(OnAppLowMemory, Event);
-NIT_EVENT_DEFINE(OnAppSaveNow, Event);
+NIT_EVENT_DEFINE(APP_LOW_MEMORY, Event);
+NIT_EVENT_DEFINE(APP_SAVE_NOW, Event);
 
-NIT_EVENT_DEFINE(OnAppConfigChange, Event);
+NIT_EVENT_DEFINE(APP_CONFIG_CHANGE, Event);
 
-NIT_EVENT_DEFINE(OnAppHandleURL, AppURLEvent);
+NIT_EVENT_DEFINE(APP_HANDLE_URL, AppURLEvent);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -252,11 +252,11 @@ void AppBase::init(AppConfig* config)
 	
 	LOG_TIMESCOPE(0, "++ App '%s' Initialize", _config->getName().c_str());
 
-	_channel->bind(Events::OnAppLoop, _clock->loopHandler());
+	_channel->bind(EVT::APP_LOOP, _clock->loopHandler());
 
-	_clock->channel()->bind(Events::OnClock, _timer->sourceTimeHandler());
-	_clock->channel()->bind(Events::OnClock, _scheduler->sourceTimeHandler());
-	_clock->channel()->bind(Events::OnClock, this, &AppBase::onClock);
+	_clock->channel()->bind(EVT::CLOCK, _timer->sourceTimeHandler());
+	_clock->channel()->bind(EVT::CLOCK, _scheduler->sourceTimeHandler());
+	_clock->channel()->bind(EVT::CLOCK, this, &AppBase::onClock);
 	
 	// Cause PackBundle could override an app.cfg,
 	// Prior to use _config, onInit() should be called first
@@ -359,7 +359,7 @@ void AppBase::onInit()
 
 	{
 		LOG_TIMESCOPE(0, "++ OnAppNativeInit");
-		_channel->send(Events::OnAppNativeInit, new Event());
+		_channel->send(EVT::APP_NATIVE_INIT, new Event());
 	}
 
 	// NOTE: static plugins can't receive OnAppNativeInit (to be consistent with Dll Behavior)
@@ -460,7 +460,7 @@ void AppBase::onFinish()
 
 	{
 		LOG_TIMESCOPE(0, "++ OnAppNativeFinish");
-		_channel->send(Events::OnAppNativeFinish, new Event());
+		_channel->send(EVT::APP_NATIVE_FINISH, new Event());
 	}
 
 	// Static plugin can receive onFinish() also (To be consistent with Dll behavior)
@@ -516,7 +516,7 @@ bool AppBase::loop()
 	if (_booting)
 	{
 		LOG_TIMESCOPE(0, "++ OnAppBoot");
-		_channel->send(Events::OnAppBoot, new Event());
+		_channel->send(EVT::APP_BOOT, new Event());
 		_booting = false;
 	}
 
@@ -530,7 +530,7 @@ void AppBase::onLoop()
 	// Change active session if 'Next' session set.
 	g_SessionService->changeIfNeeded();
 
-	_channel->send(Events::OnAppLoop, new Event());
+	_channel->send(EVT::APP_LOOP, new Event());
 
 	// Yield to another thread and loosen CPU burden
 	Thread::sleep(0);
@@ -609,7 +609,7 @@ void AppBase::stop(int exitCode)
 	_config->setExitCode(exitCode);
 
 	LOG_TIMESCOPE(0, "++ OnAppStop");
-	_channel->send(Events::OnAppStop, new Event());
+	_channel->send(EVT::APP_STOP, new Event());
 }
 
 void AppBase::restart()
@@ -626,7 +626,7 @@ void AppBase::restart()
 	_setActive(false);
 
 	LOG_TIMESCOPE(0, "++ OnAppStop");
-	_channel->send(Events::OnAppStop, new Event());
+	_channel->send(EVT::APP_STOP, new Event());
 }
 
 void AppBase::Register(Module* module)
@@ -673,7 +673,7 @@ void AppBase::Unregister(Module* module)
 void AppBase::saveNow()
 {
 	LOG_TIMESCOPE(0, "++ OnAppSaveNow");
-	_channel->send(Events::OnAppSaveNow, new Event());
+	_channel->send(EVT::APP_SAVE_NOW, new Event());
 }
 
 void AppBase::_setActive(bool flag)
@@ -686,12 +686,12 @@ void AppBase::_setActive(bool flag)
 	if (flag)
 	{
 		LOG_TIMESCOPE(0, "++ OnAppActive");
-		_channel->send(Events::OnAppActive, new Event());
+		_channel->send(EVT::APP_ACTIVE, new Event());
 	}
 	else
 	{
 		LOG_TIMESCOPE(0, "++ OnAppInactive");
-		_channel->send(Events::OnAppInactive, new Event());
+		_channel->send(EVT::APP_INACTIVE, new Event());
 	}
 }
 
@@ -705,25 +705,25 @@ void AppBase::_setSuspended(bool flag)
 	if (flag)
 	{
 		LOG_TIMESCOPE(0, "++ OnAppSuspend"); 
-		_channel->send(Events::OnAppSuspend, new Event());
+		_channel->send(EVT::APP_SUSPEND, new Event());
 	}
 	else
 	{
 		LOG_TIMESCOPE(0, "++ OnAppResume"); 
-		_channel->send(Events::OnAppResume, new Event());
+		_channel->send(EVT::APP_RESUME, new Event());
 	}
 }
 
 void AppBase::_notifyLowMemory()
 {
 	LOG_TIMESCOPE(0, "++ OnAppLowMemory");
-	_channel->send(Events::OnAppLowMemory, new Event());
+	_channel->send(EVT::APP_LOW_MEMORY, new Event());
 }
 
 void AppBase::_notifyConfigChange()
 {
 	LOG_TIMESCOPE(0, "++ OnAppConfigChange");
-	_channel->send(Events::OnAppConfigChange, new Event());
+	_channel->send(EVT::APP_CONFIG_CHANGE, new Event());
 }
 
 void AppBase::_notifyHandleURL(const String& url, const String& source, DataValue* annotation)
@@ -734,7 +734,7 @@ void AppBase::_notifyHandleURL(const String& url, const String& source, DataValu
 	// TODO: dump annotation
 
 	Ref<AppURLEvent> evt = new AppURLEvent(url, source, annotation);
-	_channel->send(Events::OnAppHandleURL, evt);
+	_channel->send(EVT::APP_HANDLE_URL, evt);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -32,9 +32,9 @@ NS_NIT_BEGIN;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-NIT_EVENT_DEFINE(OnAndroidAppCmd,		AndroidAppCmdEvent);
-NIT_EVENT_DEFINE(OnAndroidInput,		AndroidInputEvent);
-NIT_EVENT_DEFINE(OnAndroidSensor,		AndroidSensorEvent);
+NIT_EVENT_DEFINE(ANDROID_APP_CMD,		AndroidAppCmdEvent);
+NIT_EVENT_DEFINE(ANDROID_INPUT,		AndroidInputEvent);
+NIT_EVENT_DEFINE(ANDROID_SENSOR,		AndroidSensorEvent);
 
 ////////////////////////////////////////////////////////////////////////////////
 

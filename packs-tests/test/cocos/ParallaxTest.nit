@@ -175,7 +175,7 @@ class Parallax2 : ParallaxDemo
 		base.constructor()
 	
 		touchEnabled = true
-		channel().bind(Events.OnCCTouchMoved, this, onTouchMoved)
+		channel().bind(EVT.CC_TOUCH_MOVED, this, onTouchMoved)
 	
 		var cocosImage = cc.Sprite(pack.locate("powered.png"))
 		cocosImage.scale(2.5)

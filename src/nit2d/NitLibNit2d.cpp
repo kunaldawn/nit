@@ -236,7 +236,7 @@ bool CCScriptNode::ccTouchBegan(cocos2d::CCTouch *pTouch)
 	if (_channel)
 	{
 		Ref<cocos2d::CCTargetedTouchEvent> evt = new cocos2d::CCTargetedTouchEvent(this, pTouch);
-		_channel->send(cocos2d::Events::OnCCTargetedTouchBegin, evt);
+		_channel->send(cocos2d::EVT::CC_TARGETED_TOUCH_BEGIN, evt);
 		return evt->isConsumed();
 	}
 
@@ -246,19 +246,19 @@ bool CCScriptNode::ccTouchBegan(cocos2d::CCTouch *pTouch)
 void CCScriptNode::ccTouchMoved(cocos2d::CCTouch *pTouch)
 {
 	if (_channel)
-		_channel->send(cocos2d::Events::OnCCTargetedTouchMoved, new cocos2d::CCTargetedTouchEvent(this, pTouch));
+		_channel->send(cocos2d::EVT::CC_TARGETED_TOUCH_MOVED, new cocos2d::CCTargetedTouchEvent(this, pTouch));
 }
 
 void CCScriptNode::ccTouchEnded(cocos2d::CCTouch *pTouch)
 {
 	if (_channel)
-		_channel->send(cocos2d::Events::OnCCTargetedTouchEnded, new cocos2d::CCTargetedTouchEvent(this, pTouch));
+		_channel->send(cocos2d::EVT::CC_TARGETED_TOUCH_ENDED, new cocos2d::CCTargetedTouchEvent(this, pTouch));
 }
 
 void CCScriptNode::ccTouchCancelled(cocos2d::CCTouch *pTouch)
 {
 	if (_channel)
-		_channel->send(cocos2d::Events::OnCCTargetedTouchCancelled, new cocos2d::CCTargetedTouchEvent(this, pTouch));
+		_channel->send(cocos2d::EVT::CC_TARGETED_TOUCH_CANCELLED, new cocos2d::CCTargetedTouchEvent(this, pTouch));
 }
 
 void CCScriptNode::ccTouchesBegan(cocos2d::CCSet *pTouches)
@@ -267,25 +267,25 @@ void CCScriptNode::ccTouchesBegan(cocos2d::CCSet *pTouches)
 		return;
 
 	if (_channel)
-		_channel->send(cocos2d::Events::OnCCTouchBegin, new cocos2d::CCTouchEvent(this, pTouches));
+		_channel->send(cocos2d::EVT::CC_TOUCH_BEGIN, new cocos2d::CCTouchEvent(this, pTouches));
 }
 
 void CCScriptNode::ccTouchesMoved(cocos2d::CCSet *pTouches)
 {
 	if (_channel)
-		_channel->send(cocos2d::Events::OnCCTouchMoved, new cocos2d::CCTouchEvent(this, pTouches));
+		_channel->send(cocos2d::EVT::CC_TOUCH_MOVED, new cocos2d::CCTouchEvent(this, pTouches));
 }
 
 void CCScriptNode::ccTouchesEnded(cocos2d::CCSet *pTouches)
 {
 	if (_channel)
-		_channel->send(cocos2d::Events::OnCCTouchEnded, new cocos2d::CCTouchEvent(this, pTouches));
+		_channel->send(cocos2d::EVT::CC_TOUCH_ENDED, new cocos2d::CCTouchEvent(this, pTouches));
 }
 
 void CCScriptNode::ccTouchesCancelled(cocos2d::CCSet *pTouches)
 {
 	if (_channel)
-		_channel->send(cocos2d::Events::OnCCTouchCancelled, new cocos2d::CCTouchEvent(this, pTouches));
+		_channel->send(cocos2d::EVT::CC_TOUCH_CANCELLED, new cocos2d::CCTouchEvent(this, pTouches));
 }
 
 void CCScriptNode::setTouchEnabled(bool flag)
@@ -490,7 +490,7 @@ bool CCScriptLayer::initWithPeer(ScriptPeer* peer)
 
 	_peer = peer;
 
-	g_Session->channel()->priority(1)->bind(Events::OnSessionStop, this, &CCScriptLayer::onSessionStop);
+	g_Session->channel()->priority(1)->bind(EVT::SESSION_STOP, this, &CCScriptLayer::onSessionStop);
 
 	return true;
 }
@@ -640,7 +640,7 @@ bool CCScriptScene::initWithPeer(ScriptPeer* peer)
 
 	_peer = peer;
 
-	g_Session->channel()->priority(1)->bind(Events::OnSessionStop, this, &CCScriptScene::onSessionStop);
+	g_Session->channel()->priority(1)->bind(EVT::SESSION_STOP, this, &CCScriptScene::onSessionStop);
 
 	return true;
 }

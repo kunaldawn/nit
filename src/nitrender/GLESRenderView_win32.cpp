@@ -195,20 +195,20 @@ public:
 			_value = newPos;
 
 			if (nowOn)
-				svc->post(Events::OnPointerOn, evt);
+				svc->post(EVT::POINTER_ON, evt);
 
 			if (moved)
 			{
 				if (on)
-					svc->post(Events::OnPointerDrag, evt);
+					svc->post(EVT::POINTER_DRAG, evt);
 
 				else
-					svc->post(Events::OnPointerMove, evt);
+					svc->post(EVT::POINTER_MOVE, evt);
 			}
 
 			if (nowOff)
 			{
-				svc->post(Events::OnPointerOff, evt);
+				svc->post(EVT::POINTER_OFF, evt);
 			}
 		}
 
@@ -216,7 +216,7 @@ public:
 		virtual void onReset() 
 		{ 
 			if (_on)
-				svc_Input->post(Events::OnPointerCancel, new InputPointerEvent(this, _value, _value));
+				svc_Input->post(EVT::POINTER_CANCEL, new InputPointerEvent(this, _value, _value));
 
 			_on = false;
 		}

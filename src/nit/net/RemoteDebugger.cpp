@@ -214,7 +214,7 @@ DebugServer::DebugServer(Remote::ChannelId channelID /*= 0xdeb6*/)
 
 	EventChannel* ch = _remote->getChannel(0);
 
-	ch->bind(Events::OnRemoteDisconnect, this, &ThisClass::onRemoteDisconnect);
+	ch->bind(EVT::REMOTE_DISCONNECT, this, &ThisClass::onRemoteDisconnect);
 
 	_logger = new RemoteDebugLogger(this);
 	_logger->setLogLevel(LOG_LEVEL_VERBOSE);
@@ -222,10 +222,10 @@ DebugServer::DebugServer(Remote::ChannelId channelID /*= 0xdeb6*/)
 
 	ch = _remote->openChannel(channelID, "nit.RemoteDebug");
 
-	ch->bind(Events::OnRemoteRequest, this, &ThisClass::onRemoteRequest);
-	ch->bind(Events::OnRemoteNotify, this, &ThisClass::onRemoteNotify);
-	ch->bind(Events::OnRemoteDownloadCancel, this, &ThisClass::onRemoteDownloadCancel);
-	ch->bind(Events::OnRemoteDownloadEnd, this, &ThisClass::onRemoteDownloadEnd);
+	ch->bind(EVT::REMOTE_REQUEST, this, &ThisClass::onRemoteRequest);
+	ch->bind(EVT::REMOTE_NOTIFY, this, &ThisClass::onRemoteNotify);
+	ch->bind(EVT::REMOTE_DOWNLOAD_CANCEL, this, &ThisClass::onRemoteDownloadCancel);
+	ch->bind(EVT::REMOTE_DOWNLOAD_END, this, &ThisClass::onRemoteDownloadEnd);
 
 	NitRuntime* rt = NitRuntime::getSingleton();
 

@@ -40,16 +40,16 @@ class EventHandler;
 ////////////////////////////////////////////////////////////////////////////////
 
 #define NIT_EVENT_DECLARE(API, NAME, TYPE) \
-	namespace Events { extern API const EventType<TYPE> NAME; }
+	namespace EVT { extern API const EventType<TYPE> NAME; }
 
 #define NIT_EVENT_DEFINE(NAME, TYPE) \
-	namespace Events { \
+	namespace EVT { \
 		const EventInfo __EI_##NAME(0, #NAME, #TYPE, EventType<TYPE>::getTypeChecker()); \
 		const EventType<TYPE> NAME(__EI_##NAME.getRuntimeId()); \
 	}
 
 #define NIT_NET_EVENT_DEFINE(SERIAL_ID, NAME, TYPE) \
-	namespace Events { \
+	namespace EVT { \
 		const EventInfo __EI_##NAME(SERIAL_ID, #NAME, #TYPE, EventType<TYPE>::getTypeChecker()); \
 		const EventType<TYPE> NAME(__EI_##NAME.getRuntimeId()); \
 	}

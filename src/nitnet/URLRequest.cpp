@@ -30,8 +30,8 @@ NS_NIT_BEGIN;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-NIT_EVENT_DEFINE(OnNetRequestDone, NetRequestEvent);
-NIT_EVENT_DEFINE(OnNetRequestError, NetRequestEvent);
+NIT_EVENT_DEFINE(NET_REQUEST_DONE, NetRequestEvent);
+NIT_EVENT_DEFINE(NET_REQUEST_ERROR, NetRequestEvent);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -148,7 +148,7 @@ void URLRequest::done()
 	_handle = NULL;
 
 	if (_channel) 
-		_channel->send(Events::OnNetRequestDone, new NetRequestEvent(this));
+		_channel->send(EVT::NET_REQUEST_DONE, new NetRequestEvent(this));
 
 	if (_scriptWaitBlock)
 		_scriptWaitBlock->signal(0x01);
@@ -170,7 +170,7 @@ void URLRequest::error(CURLcode err)
 	_handle = NULL;
 
 	if (_channel) 
-		_channel->send(Events::OnNetRequestError, new NetRequestEvent(this));
+		_channel->send(EVT::NET_REQUEST_ERROR, new NetRequestEvent(this));
 
 	if (_scriptWaitBlock)
 		_scriptWaitBlock->signal(0x00);

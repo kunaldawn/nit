@@ -126,7 +126,7 @@ class SceneTestLayer3 : cc.ScriptLayer
 		var rot = cc.action.RotateBy(2, 360)
 		sprite.runAction(cc.action.RepeatForever(rot));
 	
-		channel().bind(Events.OnCCTouchEnded, this, onTouchEnded)
+		channel().bind(EVT.CC_TOUCH_ENDED, this, onTouchEnded)
 	}
 	
 	function onGoBack(Sender)

@@ -157,8 +157,8 @@ class RenderTextureTest : RenderTextureTestDemo
 		_brush.opacity = 20
 		
 		touchEnabled = true;
-		channel().bind(Events.OnCCTouchMoved, this, cctouchesMoved)
-		channel().bind(Events.OnCCTouchEnded, this, cctouchesEnded)
+		channel().bind(EVT.CC_TOUCH_MOVED, this, cctouchesMoved)
+		channel().bind(EVT.CC_TOUCH_ENDED, this, cctouchesEnded)
 	}
 	
 	function cctouchesMoved(evt: cc.TouchEvent)
@@ -255,7 +255,7 @@ class RenderTextureSave : RenderTextureTestDemo
 		menu.position = cc.Point(s.width - 80, s.height - 30)
 		
 		touchEnabled = true;
-		channel().bind(Events.OnCCTouchMoved, this, cctouchesMoved)
+		channel().bind(EVT.CC_TOUCH_MOVED, this, cctouchesMoved)
 	}
 	
 	function cctouchesMoved(evt: cc.TouchEvent)
@@ -463,9 +463,9 @@ class RenderTextureZbuffer : RenderTextureTestDemo
 		sp[8].color = nit.Color(255/255, 255/255, 0, 0)	
 		
 		touchEnabled = true;
-		channel().bind(Events.OnCCTouchBegin, this, cctouchesBegin)
-		channel().bind(Events.OnCCTouchMoved, this, cctouchesMoved)
-		channel().bind(Events.OnCCTouchEnded, this, cctouchesEnded)
+		channel().bind(EVT.CC_TOUCH_BEGIN, this, cctouchesBegin)
+		channel().bind(EVT.CC_TOUCH_MOVED, this, cctouchesMoved)
+		channel().bind(EVT.CC_TOUCH_ENDED, this, cctouchesEnded)
 	}
 	
 	function cctouchesBegin(evt: cc.TouchEvent)

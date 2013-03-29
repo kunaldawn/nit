@@ -48,7 +48,7 @@ void SessionService::onUnregister()
 
 void SessionService::onInit()
 {
-	g_App->channel()->bind(Events::OnAppNativeFinish, this, &SessionService::onAppFinish);
+	g_App->channel()->bind(EVT::APP_NATIVE_FINISH, this, &SessionService::onAppFinish);
 }
 
 void SessionService::onFinish()
@@ -152,7 +152,7 @@ void SessionService::changeIfNeeded()
 		_current = _next;
 		_next = NULL;
 
-		g_App->channel()->send(Events::OnSessionChange, new SessionEvent(_current));
+		g_App->channel()->send(EVT::SESSION_CHANGE, new SessionEvent(_current));
 
 		startCurrent();
 	}

@@ -634,31 +634,31 @@ public:
 
 /// Channel 0 - management events ////////////
 
-NIT_EVENT_DECLARE(NIT_API, OnRemoteConnect, RemoteEvent);					// A remote peer connected
-NIT_EVENT_DECLARE(NIT_API, OnRemoteDisconnect, RemoteEvent);				// A remote peer disconnected
+NIT_EVENT_DECLARE(NIT_API, REMOTE_CONNECT, RemoteEvent);					// A remote peer connected
+NIT_EVENT_DECLARE(NIT_API, REMOTE_DISCONNECT, RemoteEvent);					// A remote peer disconnected
 
-NIT_EVENT_DECLARE(NIT_API, OnRemoteHello, RemoteHelloEvent);				// Received an UDP Hello, if not consumed, 'here' will be sent by 'where' query as default
-NIT_EVENT_DECLARE(NIT_API, OnRemoteError, RemoteErrorEvent);				// A peer or socket server has encountered an error
+NIT_EVENT_DECLARE(NIT_API, REMOTE_HELLO, RemoteHelloEvent);					// Received an UDP Hello, if not consumed, 'here' will be sent by 'where' query as default
+NIT_EVENT_DECLARE(NIT_API, REMOTE_ERROR, RemoteErrorEvent);					// A peer or socket server has encountered an error
 
-NIT_EVENT_DECLARE(NIT_API, OnRemoteUserPacket, RemoteUserPacketEvent);		// Received a UserPacket
+NIT_EVENT_DECLARE(NIT_API, REMOTE_USER_PACKET, RemoteUserPacketEvent);		// Received a UserPacket
 
 /// Per channel events /////////////////
 
-NIT_EVENT_DECLARE(NIT_API, OnRemoteChannelClose, RemoteChannelEvent);		// The channel of remote peer closed
+NIT_EVENT_DECLARE(NIT_API, REMOTE_CHANNEL_CLOSE, RemoteChannelEvent);		// The channel of remote peer closed
 
-NIT_EVENT_DECLARE(NIT_API, OnRemoteNotify, RemoteNotifyEvent);				// The remote peer sent a notification
+NIT_EVENT_DECLARE(NIT_API, REMOTE_NOTIFY, RemoteNotifyEvent);				// The remote peer sent a notification
 
-NIT_EVENT_DECLARE(NIT_API, OnRemoteRequest, RemoteRequestEvent);			// The remote peer sent a request
-NIT_EVENT_DECLARE(NIT_API, OnRemoteRequestCancel, RemoteRequestCancelEvent);  // The remote peer canceld its previous request
-NIT_EVENT_DECLARE(NIT_API, OnRemoteResponse, RemoteResponseEvent);			// The remote peer sent a response
+NIT_EVENT_DECLARE(NIT_API, REMOTE_REQUEST, RemoteRequestEvent);				// The remote peer sent a request
+NIT_EVENT_DECLARE(NIT_API, REMOTE_REQUEST_CANCEL, RemoteRequestCancelEvent);  // The remote peer cancelled its previous request
+NIT_EVENT_DECLARE(NIT_API, REMOTE_RESPONSE, RemoteResponseEvent);			// The remote peer sent a response
 
-NIT_EVENT_DECLARE(NIT_API, OnRemoteUploadStart, RemoteUploadStartEvent);	// The remote peer starts uploading
-NIT_EVENT_DECLARE(NIT_API, OnRemoteUploadCancel, RemoteUploadEvent);		// The remote peer cancels uploading
-NIT_EVENT_DECLARE(NIT_API, OnRemoteUploadEnd, RemoteUploadEvent);			// The remote peer ends uploading
+NIT_EVENT_DECLARE(NIT_API, REMOTE_UPLOAD_START, RemoteUploadStartEvent);	// The remote peer starts uploading
+NIT_EVENT_DECLARE(NIT_API, REMOTE_UPLOAD_CANCEL, RemoteUploadEvent);		// The remote peer cancels uploading
+NIT_EVENT_DECLARE(NIT_API, REMOTE_UPLOAD_END, RemoteUploadEvent);			// The remote peer ends uploading
 
-NIT_EVENT_DECLARE(NIT_API, OnRemoteDownloadStart, RemoteUploadEvent);		// The remote peer starts downloading
-NIT_EVENT_DECLARE(NIT_API, OnRemoteDownloadCancel, RemoteUploadEvent);		// The remote peer cancels downloading
-NIT_EVENT_DECLARE(NIT_API, OnRemoteDownloadEnd, RemoteUploadEvent);			// The remote peer ends downloading
+NIT_EVENT_DECLARE(NIT_API, REMOTE_DOWNLOAD_START, RemoteUploadEvent);		// The remote peer starts downloading
+NIT_EVENT_DECLARE(NIT_API, REMOTE_DOWNLOAD_CANCEL, RemoteUploadEvent);		// The remote peer cancels downloading
+NIT_EVENT_DECLARE(NIT_API, REMOTE_DOWNLOAD_END, RemoteUploadEvent);			// The remote peer ends downloading
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -204,7 +204,7 @@ class Sprite1 : SpriteTestDemo
 		var y = size.height;
 		addNewSpriteWithCoords(cc.Point(x/2, y/2))
 		
-		channel().bind(Events.OnCCTouchEnded, this, ccTouchesEnded)
+		channel().bind(EVT.CC_TOUCH_ENDED, this, ccTouchesEnded)
 	}
 	
 	function onEnter()
@@ -283,7 +283,7 @@ class SpriteBatchNode1 : SpriteTestDemo
 		var y = size.height;
 		addNewSpriteWithCoords(cc.Point(x/2, y/2))
 		
-		channel().bind(Events.OnCCTouchEnded, this, ccTouchesEnded)
+		channel().bind(EVT.CC_TOUCH_ENDED, this, ccTouchesEnded)
 	}
 	
 	function onEnter()
@@ -1411,7 +1411,7 @@ class SpriteNewTexture : SpriteTestDemo
 			addNewSprite()
 		}
 		
-		channel().bind(Events.OnCCTouchEnded, this, ccTouchesEnded)
+		channel().bind(EVT.CC_TOUCH_ENDED, this, ccTouchesEnded)
 	}
 	
 	function onEnter()
@@ -1511,7 +1511,7 @@ class SpriteBatchNodeNewTexture : SpriteTestDemo
 			addNewSprite()
 		}
 		
-		channel().bind(Events.OnCCTouchEnded, this, ccTouchesEnded)
+		channel().bind(EVT.CC_TOUCH_ENDED, this, ccTouchesEnded)
 	}
 	
 	function onEnter()

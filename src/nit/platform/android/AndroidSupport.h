@@ -284,9 +284,9 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-NIT_EVENT_DECLARE(NIT_API, OnAndroidAppCmd, AndroidAppCmdEvent);
-NIT_EVENT_DECLARE(NIT_API, OnAndroidInput, AndroidInputEvent);
-NIT_EVENT_DECLARE(NIT_API, OnAndroidSensor, AndroidSensorEvent);
+NIT_EVENT_DECLARE(NIT_API, ANDROID_APP_CMD, AndroidAppCmdEvent);
+NIT_EVENT_DECLARE(NIT_API, ANDROID_INPUT, AndroidInputEvent);
+NIT_EVENT_DECLARE(NIT_API, ANDROID_SENSOR, AndroidSensorEvent);
 
 ////////////////////////////////////////////////////////////////////////////////
 
