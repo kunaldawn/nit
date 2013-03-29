@@ -962,7 +962,7 @@ public:
 		newSlot(v, -1, "debug", ScriptRuntime::getRuntime(v)->getDebugger());
 		sq_poptop(v);
 
-		sq_dostring(v, "::bp := debug.bp.bindenv(debug)");
+		sq_dostring(v, "::bp := debug.bp.bind(debug)");
 	}
 
 	NB_PROP_GET(Active)					{ return push(v, self(v)->isActive()); }
