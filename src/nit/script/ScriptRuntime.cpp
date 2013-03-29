@@ -521,36 +521,6 @@ ScriptResult ScriptPeer::callWith(const HSQOBJECT& closureObj, int nargs, bool n
 	return SCRIPT_CALL_OK;
 }
 
-ScriptResult ScriptPeer::callEvent(const Event* evt)
-{
-	if (_peerType == SCRIPT_PEER_NONE || evt == NULL) return SCRIPT_CALL_NO_METHOD;
-
-	HSQUIRRELVM v = _runtime->getWorker();
-
-	SQInteger clear = sq_gettop(v);
-	SQRESULT r;
-
-	Ref<ScriptPeer> safe = this;
-
-	sq_pushobject(v, _runtime->_eventsTable);								// stack: <et>
-	sq_pushuserpointer(v, (void*)EventInfo::getByEventId(evt->getId()));	// stack: <et> <ei>
-	r = sq_get(v, -2);														// stack: <et> mn
-	if (SQ_FAILED(r)) { sq_settop(v, clear); return SCRIPT_CALL_NO_METHOD; }
-	sq_replace(v, -2);														// stack: mn
-
-	pushObject(v);															// stack: mn o
-	sq_push(v, -2);															// stack: mn o mn
-	r = sq_get(v, -2);														// stack: mn o fn
-	if (SQ_FAILED(r)) { sq_settop(v, clear); return SCRIPT_CALL_NO_METHOD; }
-	sq_push(v, -2);															// stack: mn o fn o
-	NitBind::push(v, const_cast<Event*>(evt));								// stack: mn o fn evt
-	r = sq_call(v, 2, false, true);											// stack: mn o fn
-	if (SQ_FAILED(r)) { CallErrorHandler(v, _peer, SCRIPT_CALL_ERR, sqx_getstring(v, -3)); sq_settop(v, clear); return SCRIPT_CALL_ERR; }
-	sq_settop(v, clear);													// stack: empty
-
-	return SCRIPT_CALL_OK;
-}
-
 String ScriptPeer::getTypeName()
 {
 	if (this == NULL)

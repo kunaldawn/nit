@@ -80,7 +80,7 @@ void EventAutomata::setState(EventState* state)
 
 bool EventAutomata::sendLocal(const Event* e)
 {
-	if (_state && _eventActive && !e->isConsumed())
+	if (_state && _state->isEventActive() && !e->isConsumed())
 		_state->onEvent(e);
 	return true;
 }

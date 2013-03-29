@@ -103,9 +103,6 @@ public:
 	void								replace(HSQUIRRELVM v, int stackidx);
 
 public:
-	ScriptResult						callEvent(const Event* evt);
-
-public:
 	template <typename TClass>
 	void								pushParam(const TClass& value);
 
@@ -220,7 +217,7 @@ public:
 
 	virtual void 						onEnter()								{ if (_peer) _peer->callMethod("onEnter", 0); }
 	virtual void 						onExit()								{ if (_peer) _peer->callMethod("onExit", 0); }
-	virtual void 						onEvent(const Event* e)					{ if (_peer) _peer->callEvent(e); }
+	virtual void 						onEvent(const Event* e)					{ callOnEvent(e); }
 
 public:									// IScriptRef impl
 	virtual RefCounted*					_ref()									{ return RefCounted::_ref(); }
@@ -236,7 +233,19 @@ protected:
 
 protected:
 	Ref<ScriptPeer>						_peer;
+
+	inline void							callOnEvent(const Event* e);
 };
+
+template <typename TState>
+inline void TScriptState<TState>::callOnEvent(const Event* e)
+{
+	HSQUIRRELVM v = _peer ? _peer->getWorker() : NULL;
+	if (v == NULL) return;
+
+	NitBind::push(v, const_cast<Event*>(e));
+	_peer->callMethod("onEnter", 1);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
