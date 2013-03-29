@@ -384,6 +384,25 @@ void FileUtil::readFile(const String& path, StreamWriter* into, size_t bufSize)
 FileLocator::FileLocator(const String& name, const String& path, bool readOnly, bool findRecursive)
 : Archive(name), _readOnly(readOnly), _findRecursive(findRecursive)
 {
+	init(path);
+}
+
+FileLocator::FileLocator(const String& name, const char* path, bool readOnly, bool findRecursive)
+: Archive(name), _readOnly(readOnly), _findRecursive(findRecursive)
+{
+	init(path);
+}
+
+FileLocator::FileLocator(const String& path, bool readOnly, bool findRecursive)
+: Archive(path), _readOnly(readOnly), _findRecursive(findRecursive)
+{
+	init(path);
+
+	_name = _baseUrl;
+}
+
+void FileLocator::init(const String& path)
+{
 	_baseUrl = path;
 	_filteredOnly = false;
 

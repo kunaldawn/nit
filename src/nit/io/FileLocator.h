@@ -79,6 +79,10 @@ class NIT_API FileLocator : public Archive
 {
 public:
 	FileLocator(const String& name, const String& path, bool readOnly = true, bool findRecursive = false);
+	FileLocator(const String& path, bool readOnly = true, bool findRecursive = false);
+
+	// HACK: To match 'new FileLocator("aaa", "bbb")' pattern
+	FileLocator(const String& name, const char* path, bool readOnly = true, bool findRecursive = false); 
 
 public:
 	const String&						getBaseUrl()							{ return this ? _baseUrl : StringUtil::BLANK(); }
@@ -124,6 +128,7 @@ protected:
 	bool								_filteredOnly : 1;
 	bool								_findRecursive : 1;
 
+	void								init(const String& path);
 	StreamSource*						locateFiltered(const String& streamName);
 	void								findFiltered(const String& pattern, StreamSourceMap& varResults);
 };

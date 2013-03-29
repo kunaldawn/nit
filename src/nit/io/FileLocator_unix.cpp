@@ -447,18 +447,37 @@ void FileUtil::readFile(const String &path, StreamWriter *into, size_t bufSize)
 FileLocator::FileLocator(const String& name, const String& path, bool readOnly, bool findRecursive)
 : Archive(name), _readOnly(readOnly), _findRecursive(findRecursive)
 {
+	init(path);
+}
+
+FileLocator::FileLocator(const String& name, const char* path, bool readOnly, bool findRecursive)
+: Archive(name), _readOnly(readOnly), _findRecursive(findRecursive)
+{
+	init(path);
+}
+
+FileLocator::FileLocator(const String& path, bool readOnly, bool findRecursive)
+: Archive(path), _readOnly(readOnly), _findRecursive(findRecursive)
+{
+	init(path);
+
+	_name = _baseUrl;
+}
+
+void FileLocator::init(const String& path)
+{
 	_baseUrl = path;
 	_filteredOnly = false;
-    
-    if (!_baseUrl.empty())
-    {
-        char buf[MAX_PATH];
-        const char *rp;
-        rp = realpath(_baseUrl.c_str(), buf);
-        if (rp == NULL)
-            NIT_THROW_FMT(EX_NOT_FOUND, "FileLocator '%s': Can't find path '%s' for \n", _name.c_str(), _baseUrl.c_str());
 
-        _baseUrl = rp;
+	if (!_baseUrl.empty())
+	{
+		char buf[MAX_PATH];
+		const char *rp;
+		rp = realpath(_baseUrl.c_str(), buf);
+		if (rp == NULL)
+			NIT_THROW_FMT(EX_NOT_FOUND, "FileLocator '%s': Can't find path '%s' for \n", _name.c_str(), _baseUrl.c_str());
+
+		_baseUrl = rp;
 
 		FileUtil::normalizeSeparator(_baseUrl);
 

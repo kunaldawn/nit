@@ -2382,7 +2382,8 @@ public:
 
 		FuncEntry funcs[] =
 		{
-			CONS_ENTRY_H(				"(name, path: string, readOnly=true, findRecursive=false)"),
+			CONS_ENTRY_H(				"(name, path: string, readOnly=true, findRecursive=false)"
+			"\n"						"(path: string, readOnly=true, findRecursive=false)"),
 			FUNC_ENTRY_H(findFiles,		"(pattern, recursive=false): StreamSource[]"),
 			FUNC_ENTRY_H(findDirs,		"(pattern): string[]"),
 			FUNC_ENTRY_H(normalizePath,	"(path): string"),
@@ -2394,7 +2395,14 @@ public:
 
 	NB_PROP_GET(baseUrl)				{ return push(v, self(v)->getBaseUrl()); }
 
-	NB_CONS()							{ sq_setinstanceup(v, 1, new FileLocator(getString(v, 2), getString(v, 3), optBool(v, 4, true), optBool(v, 5, false))); return 0; }
+	NB_CONS()							
+	{ 
+		if (!isNone(v, 3) && isString(v, 3))
+			setSelf(v, new FileLocator(getString(v, 2), getString(v, 3), optBool(v, 4, true), optBool(v, 5, false)));
+		else
+			setSelf(v, new FileLocator(getString(v, 2), optBool(v, 3, true), optBool(v, 4, false)));
+		return SQ_OK;
+	}
 
 	NB_FUNC(normalizePath)				{ return push(v, self(v)->normalizePath(getString(v, 2))); }
 
