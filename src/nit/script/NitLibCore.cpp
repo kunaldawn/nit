@@ -71,7 +71,7 @@ public:
 
 		FuncEntry funcs[] = 
 		{
-			FUNC_ENTRY(weakref),
+			FUNC_ENTRY(weak),
 			NULL
 		};
 
@@ -110,7 +110,7 @@ public:
 		return 0;
 	}
 
-	NB_FUNC(weakref)
+	NB_FUNC(weak)
 	{
 		WeakRef* weak = self(v)->_weak();
 		weak->incRefCount();
