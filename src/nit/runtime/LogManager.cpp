@@ -105,7 +105,7 @@ const char* LogManager::parseTag(const char*& msg, int& msgLen, uint32& outTagBu
 	{
 		// '*** msg' or '&&1 msg' format (two same letter + a non-space letter)
 		char t = msg[0];
-		if (!isalnum(t) && msg[1] == t)
+		if (t > 0 && !isalnum(t) && msg[1] == t)
 		{
 			tag[0] = *msg++;
 			tag[1] = *msg++;
@@ -119,7 +119,7 @@ const char* LogManager::parseTag(const char*& msg, int& msgLen, uint32& outTagBu
 	{
 		// '++ msg' format (two same letter + a space letter)
 		char t = msg[0];
-		if (!isalnum(t) && msg[1] == t)
+		if (t > 0 && !isalnum(t) && msg[1] == t)
 		{
 			tag[0] = *msg++;
 			tag[1] = *msg++;
