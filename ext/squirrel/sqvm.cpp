@@ -621,8 +621,23 @@ bool SQVM::FOREACH_OP(SQObjectPtr &o1,SQObjectPtr &o2,SQObjectPtr
 		if((nrefidx = sqi_array(o1)->Next(o4, o2, o3)) == -1) _FINISH(exitpos);
 		o4 = (SQInteger) nrefidx; _FINISH(1);
 	case OT_STRING:
-		if((nrefidx = sqi_string(o1)->Next(o4, o2, o3)) == -1)_FINISH(exitpos);
-		o4 = (SQInteger)nrefidx; _FINISH(1);
+		{
+			const char* utf8_itr;
+			if (sqi_type(o4) == OT_NULL)
+			{
+				utf8_itr = sqi_stringval(o1);
+				o2 = 0;
+			}
+			else
+			{
+				utf8_itr = (const char*)sqi_integer(o4);
+				o2 = sqi_integer(o2) + 1;
+			}
+			int ch = nit::Unicode::utf8Advance(utf8_itr);
+			if (ch == 0) _FINISH(exitpos);
+			o3 = ch;
+			o4 = (SQInteger)utf8_itr; _FINISH(1);
+		}
 	case OT_CLASS:
 		if((nrefidx = sqi_class(o1)->Next(o4, o2, o3)) == -1)_FINISH(exitpos);
 		o4 = (SQInteger)nrefidx; _FINISH(1);
@@ -1498,13 +1513,8 @@ bool SQVM::Get(const SQObjectPtr &self,const SQObjectPtr &key,SQObjectPtr &dest,
 	case OT_STRING:
 		if(sq_isnumeric(key)){
 			SQInteger n=sqi_tointeger(key);
-			if(abs((int)n)<sqi_string(self)->_len){
-				if(n<0)n=sqi_string(self)->_len-n;
-				dest=SQInteger(sqi_stringval(self)[n]);
-				return true;
-			}
-			//Raise_IdxError(key);
-			return false;
+			dest = nit::Unicode::uniCharAt(sqi_stringval(self), n);
+			return true;
 		}
 		break;
 	case OT_THREAD:

@@ -94,7 +94,7 @@ function dump(o=null, full=false)	"(obj, showhidden=false)\n(obj, filter: wildca
 	{
 		foreach (k, v in m)
 		{			
-			if (!full && type(k) == "string" && k.find("_") == 0) continue;
+			if (!full && type(k) == "string" && k.ascii_find("_") == 0) continue;
 			if (!full && (type(k) == "userdata" || type(v) == "userdata")) continue;
 			
 			try { v = o[k]; } catch(ex) { v = "<ERROR: " + ex + ">" }
@@ -134,7 +134,7 @@ function dump(o=null, full=false)	"(obj, showhidden=false)\n(obj, filter: wildca
 						help = help.strip()
 						if (k == "constructor")
 							e.append(format("3%-20s %s", k, help))
-						else if (help.find("class") == 0)
+						else if (help.ascii_find("class") == 0)
 							e.append(format("4%-20s %s", k, help))
 						else
 							e.append(format("5%-20s %s", k, help))

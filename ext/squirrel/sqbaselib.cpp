@@ -14,6 +14,8 @@
 #include <stdarg.h>
 #include <ctype.h>
 
+#include "nit/nit.h"
+
 bool str2num(const SQChar *s,SQObjectPtr &res)
 {
 	SQChar *end;
@@ -878,7 +880,7 @@ SQRegFunction SQSharedState::_array_default_delegate_funcz[]={
 };
 
 //STRING DEFAULT DELEGATE//////////////////////////
-static SQInteger string_slice(HSQUIRRELVM v)
+static SQInteger string_ascii_slice(HSQUIRRELVM v)
 {
 	SQInteger sidx,eidx;
 	SQObjectPtr o;
@@ -893,12 +895,20 @@ static SQInteger string_slice(HSQUIRRELVM v)
 	return 1;
 }
 
-static SQInteger string_find(HSQUIRRELVM v)
+static SQInteger string_ascii_find(HSQUIRRELVM v)
 {
 	SQInteger top,start_idx=0;
 	const SQChar *str,*substr,*ret;
-	if(((top=sq_gettop(v))>1) && SQ_SUCCEEDED(sq_getstring(v,1,&str)) && SQ_SUCCEEDED(sq_getstring(v,2,&substr))){
-		if(top>2)sq_getinteger(v,3,&start_idx);
+	if(((top=sq_gettop(v))>1) && SQ_SUCCEEDED(sq_getstring(v,1,&str)) && SQ_SUCCEEDED(sq_getstring(v,2,&substr)))
+	{
+		SQInteger len = sq_getsize(v, 1);
+		if (top>2)
+		{
+			sq_getinteger(v,3,&start_idx);
+			if (start_idx < 0)
+				start_idx = len + start_idx;
+		}
+
 		if((sq_getsize(v,1)>start_idx) && (start_idx>=0)){
 			ret=scstrstr(&str[start_idx],substr);
 			if(ret){
@@ -926,16 +936,158 @@ static SQInteger string_find(HSQUIRRELVM v)
 STRING_TOFUNCZ(tolower)
 STRING_TOFUNCZ(toupper)
 
+static SQInteger string_utf8_len(HSQUIRRELVM v)
+{
+	SQObject self = stack_get(v, 1);
+	size_t utf8len = nit::Unicode::utf8Length(sqi_stringval(self));
+	v->Push((int)utf8len);
+	return 1;
+}
+
+static SQInteger string_ascii(HSQUIRRELVM v)
+{
+	SQObject self = stack_get(v, 1);
+	SQInteger n = sqi_integer(stack_get(v, 2));
+
+	if(abs((int)n)<sqi_string(self)->_len){
+		if(n<0)n=sqi_string(self)->_len-n;
+		v->Push(SQInteger(sqi_stringval(self)[n]));
+		return 1;
+	}
+	return 0;
+}
+
+static SQInteger string_utf8_chars(HSQUIRRELVM v)
+{
+	using namespace nit;
+
+	SQObject self = stack_get(v, 1);
+	const SQChar* str = sqi_stringval(self);
+	SQInteger len = sqi_string(self)->_len;
+
+	SQInteger top = sq_gettop(v);
+
+	SQInteger begin = 0;
+	if (top >= 2) 
+	{
+		sq_getinteger(v, 2, &begin);
+		if (begin > 0)
+			begin = Unicode::utf8Next(str, str + len, begin) - str;
+		else if (begin < 0)
+			begin = Unicode::utf8Prev(str + len, str, -begin) - str;
+	}
+
+	SQInteger end;
+	if (top >= 3)
+	{
+		sq_getinteger(v, 3, &end);
+		if (end > 0)
+			end = Unicode::utf8Next(str, str + len, end) - str;
+		else if (end < 0)
+			end = Unicode::utf8Prev(str + len, str, -end) - str;
+	}
+	else end = len;
+
+	if (begin < 0 || end < 0 || end < begin || begin > len) return sq_throwerror(v,_SC("wrong indexes"));
+
+	SQArray* arr = SQArray::Create(_ss(v), 0);
+	const SQChar* itr = str + begin;
+	const SQChar* iend = str + end;
+	while (itr < iend)
+	{
+		int ch = Unicode::utf8Advance(itr);
+		arr->_values.push_back(ch);
+	}
+	GC_MUTATED(arr);
+	v->Push(arr);
+	return 1;
+}
+
+static SQInteger string_utf8_slice(HSQUIRRELVM v)
+{
+	using namespace nit;
+
+	SQObject self = stack_get(v, 1);
+	const SQChar* str = sqi_stringval(self);
+	SQInteger len = sqi_string(self)->_len;
+
+	SQInteger top = sq_gettop(v);
+
+	SQInteger begin = 0;
+	if (top >= 2) 
+	{
+		sq_getinteger(v, 2, &begin);
+		if (begin > 0)
+			begin = Unicode::utf8Next(str, str + len, begin) - str;
+		else if (begin < 0)
+			begin = Unicode::utf8Prev(str + len, str, -begin) - str;
+	}
+
+	SQInteger end;
+	if (top >= 3)
+	{
+		sq_getinteger(v, 3, &end);
+		if (end > 0)
+			end = Unicode::utf8Next(str, str + len, end) - str;
+		else if (end < 0)
+			end = Unicode::utf8Prev(str + len, str, -end) - str;
+	}
+	else end = len;
+
+	if (begin < 0 || end < 0 || end < begin || begin > len) return sq_throwerror(v,_SC("wrong indexes"));
+
+	v->Push(SQString::Create(_ss(v), str + begin, end - begin));
+	return 1;
+}
+
+static SQInteger string_utf8_find(HSQUIRRELVM v)
+{
+	using namespace nit;
+
+	SQInteger top,start_idx=0;
+	const SQChar *str,*substr,*ret;
+	if (((top=sq_gettop(v))>1) && SQ_SUCCEEDED(sq_getstring(v,1,&str)) && SQ_SUCCEEDED(sq_getstring(v,2,&substr)))
+	{
+		SQInteger ascii_len = sq_getsize(v, 1);
+		if (top>2)
+		{
+			sq_getinteger(v,3,&start_idx);
+			if (start_idx > 0)
+				start_idx = Unicode::utf8Next(str, str + ascii_len, start_idx) - str;
+			else if (start_idx < 0)
+				start_idx = Unicode::utf8Prev(str + ascii_len, str, -start_idx) - str;
+		}
+
+		if ((ascii_len > start_idx) && (start_idx>=0))
+		{
+			ret=scstrstr(&str[start_idx],substr);
+			if(ret) {
+				sq_pushinteger(v, Unicode::utf8CharCount(str, ret));
+				return 1;
+			}
+		}
+		return 0;
+	}
+	return sq_throwerror(v,_SC("invalid param"));
+}
+
 SQRegFunction SQSharedState::_string_default_delegate_funcz[]={
-	{_SC("len"),default_delegate_len,1, _SC("s"),				__FILE__, _SC("(): int")},
 	{_SC("tointeger"),default_delegate_tointeger,1, _SC("s"),	__FILE__, _SC("(): int")},
 	{_SC("tofloat"),default_delegate_tofloat,1, _SC("s"),		__FILE__, _SC("(): float")},
 	{_SC("tostring"),default_delegate_tostring,1, _SC("."),		__FILE__, _SC("(): string")},
-	{_SC("slice"),string_slice,-2, _SC(" s n  n"),				__FILE__, _SC("(start, [end]): string")},
-	{_SC("find"),string_find,-2, _SC("s s n "),					__FILE__, _SC("(substr: string, [startidx]): index: int or null")},
 	{_SC("tolower"),string_tolower,1, _SC("s"),					__FILE__, _SC("(): string")},
 	{_SC("toupper"),string_toupper,1, _SC("s"),					__FILE__, _SC("(): string")},
 	{_SC("weak"),obj_delegate_weakref,1, NULL,					__FILE__, _SC("(): weakref") },
+
+	{_SC("len"),string_utf8_len,1, _SC("s"),					__FILE__, _SC("(): int")},
+	{_SC("chars"),string_utf8_chars, -1, _SC("snn"),			__FILE__, _SC("([start, end]): array")},
+	{_SC("find"), string_utf8_find, -2, _SC("ssnn"),			__FILE__, _SC("(substr: string[, start]): unicode_index // int or null (slow)")},
+	{_SC("slice"), string_utf8_slice, -2, _SC("snn"),			__FILE__, _SC("(start, [end]): string")},
+
+	{_SC("ascii"),string_ascii, 2, _SC("sn"),					__FILE__, _SC("(index): int")},
+	{_SC("ascii_len"),default_delegate_len, 1, _SC("s"),		__FILE__, _SC("(): int")},
+	{_SC("ascii_find"),string_ascii_find,-2, _SC("ssnn"),		__FILE__, _SC("(substr: string[, start]): ascii_index // int or null")},
+	{_SC("ascii_slice"),string_ascii_slice,-2, _SC("snn"),		__FILE__, _SC("(start[, end]): string")},
 	{0,0}
 };
 

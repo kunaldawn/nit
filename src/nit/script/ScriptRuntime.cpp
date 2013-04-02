@@ -1064,11 +1064,8 @@ public:
 
 		// Add methods to 'string' delegate
 		sq_register_h(v, "wildcard", Str_Wildcard,	"(wildcard: string, ignoreCase=false): bool");
-		sq_register_h(v, "replace", Str_Replace, "(substr: string, replace: string, begin=0, end=this.len()): string // can use minus for begin, end");
-		sq_register_h(v, "utf_len",		Str_UTF8Len, "(): int");
-		sq_register_h(v, "utf_char",	Str_UTF8Char, "(i): int");
-		sq_register_h(v, "utf_chars",	Str_UTF8Chars, "([begin[, end]]): array<int>");
-		sq_register_h(v, "utf_slice",	Str_UTF8Slice, "(begin[, end]): string");
+		sq_register_h(v, "replace", Str_Utf8Replace, "(substr, replace: string[, begin, end]): string");
+		sq_register_h(v, "ascii_replace", Str_AsciiReplace, "(substr, replace: string[, begin, end]): string");
 
 		sq_poptop(v);
 
@@ -1084,7 +1081,68 @@ public:
 		return push(v, Wildcard::match(getString(v, 2), getString(v, 1), optBool(v, 3, true)));
 	}
 
-	static SQInteger Str_Replace(HSQUIRRELVM v)
+	static SQInteger Str_Utf8Replace(HSQUIRRELVM v)
+	{
+		const char* str = getString(v, 1);
+		const char* substr = getString(v, 2);
+		const char* replace = getString(v, 3);
+
+		int len = sq_getsize(v, 1);
+
+		String ret;
+		ret.reserve(len);
+
+		int begin = optInt(v, 4, 0);
+
+		if (begin > 0)
+			begin = Unicode::utf8Next(str, str + len, begin) - str;
+		else if (begin < 0)
+			begin = Unicode::utf8Prev(str + len, str, -begin) - str;
+
+		int end;
+		if (isNone(v, 5))
+			end = len;
+		else
+		{
+			end = getInt(v, 5);
+			if (end > 0)
+				end = Unicode::utf8Next(str, str + len, end) - str;
+			else if (begin < 0)
+				end = Unicode::utf8Prev(str + len, str, -end) - str;
+		}
+
+		if (begin < 0) begin = 0;
+		if (begin > len) begin = len;
+		if (end < 0) end = 0;
+		if (end > len) end = len;
+		const char* eos = str + end;
+
+		if (begin > 0)
+			ret.append(str, str + begin);
+
+		str += begin;
+		int substrLen = sq_getsize(v, 2);
+
+		while (str < eos)
+		{
+			const char* found = strstr(str, substr);
+			if (found)
+			{
+				ret.append(str, found);
+				ret.append(replace);
+				str = found + substrLen;
+			}
+			else
+			{
+				ret.append(str);
+				break;
+			}
+		}
+
+		return push(v, ret);
+	}
+
+	static SQInteger Str_AsciiReplace(HSQUIRRELVM v)
 	{
 		const char* str = getString(v, 1);
 		const char* substr = getString(v, 2);
@@ -1128,72 +1186,6 @@ public:
 		}
 
 		return push(v, ret);
-	}
-
-	static SQInteger Str_UTF8Char(HSQUIRRELVM v)
-	{
-		return push(v, Unicode::uniCharAt(getString(v, 1), getInt(v, 2)));
-	}
-
-	static SQInteger Str_UTF8Chars(HSQUIRRELVM v)
-	{
-		const char* utf8 = getString(v, 1);
-		int begin = optInt(v, 2, 0);
-		int end = optInt(v, 3, -1);
-		
-		sq_newarray(v, 0);
-
-		utf8 += Unicode::utf8ByteCount(utf8, begin);
-
-		if (end >= 0)
-		{
-			for (int i = begin; i < end; ++i)
-			{
-				int ch = Unicode::utf8Advance(utf8);
-				if (ch == 0) break;
-				sq_pushinteger(v, ch);
-				sq_arrayappend(v, -2);
-			}
-		}
-		else
-		{
-			int ch;
-			while ((ch = Unicode::utf8Advance(utf8)) != 0)
-			{
-				sq_pushinteger(v, ch);
-				sq_arrayappend(v, -2);
-			}
-		}
-
-		return 1;
-	}
-
-	static SQInteger Str_UTF8Len(HSQUIRRELVM v)
-	{
-		const char* utf8 = getString(v, 1);
-		return push(v, Unicode::utf8Length(utf8));
-	}
-
-	static SQInteger Str_UTF8Slice(HSQUIRRELVM v)
-	{
-		const char* utf8 = getString(v, 1);
-		if (isNone(v, 3))
-		{
-			int begin = Unicode::utf8ByteCount(utf8, getInt(v, 2));
-			sq_pushstring(v, utf8 + begin, -1);
-			return 1;
-		}
-		else
-		{
-			int begin = getInt(v, 2);
-			int end = getInt(v, 3);
-			int count = end - begin;
-			
-			begin = Unicode::utf8ByteCount(utf8, begin);
-			count = Unicode::utf8ByteCount(utf8 + begin, count);
-			sq_pushstring(v, utf8 + begin, count);
-			return 1;
-		}
 	}
 
 	static SQInteger debugbreak(HSQUIRRELVM v)
