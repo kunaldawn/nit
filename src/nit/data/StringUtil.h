@@ -91,10 +91,14 @@ public:									// Unicode conversion routines
 
 public:									// UTF8 utility
 	static size_t						utf8Length(const char* utf8);
+	static size_t						utf8CharCount(const char* start, const char* end);
 	static int							utf8ByteCount(const char* utf8, int charCount);
 	static int							utf8Advance(const char*& utf8);
 	static const char*					utf8Next(const char* utf8);
+	static const char*					utf8Next(const char* utf8, const char* end, size_t count);
 	static const char*					utf8Prev(const char* utf8);
+	static const char*					utf8Prev(const char* utf8, const char* start);
+	static const char*					utf8Prev(const char* utf8, const char* start, size_t count);
 };
 
 ////////////////////////////////////////////////////////////////////////////////

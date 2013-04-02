@@ -243,6 +243,19 @@ size_t Unicode::utf8Length(const char* utf8)
 	return len;
 }
 
+size_t Unicode::utf8CharCount(const char* start, const char* end)
+{
+	size_t count = 0;
+	const char* itr = start;
+	while (itr < end)
+	{
+		if ((*itr & 0xc0) != 0x80)
+			++count;
+		++itr;
+	}
+	return count;
+}
+
 static const int utf8_codelen[16] =
 {
 	1, 1, 1, 1, 1, 1, 1, 1,				// 0000xxxx ~ 0111xxxx	: 1 byte(plain ascii)
@@ -297,10 +310,50 @@ const char* Unicode::utf8Next(const char* utf8)
 	return utf8 + codelen;
 }
 
+const char* Unicode::utf8Next(const char* utf8, const char* end, size_t count)
+{
+	while (utf8 < end && count)
+	{
+		if ((*utf8 & 0xc0) != 0x80)
+			--count;
+		++utf8;
+	}
+	return utf8;
+}
+
 const char* Unicode::utf8Prev(const char* utf8)
 {
 	const uint8* p = (const uint8*)utf8;
-	while ((*(--p) & 0xC0) == 0x80);
+	while (true)
+	{
+		uint8 ch = *(--p);
+		if ((ch & 0xC0) != 0x80) break;
+	}
+
+	return (const char*)p;
+}
+
+const char* Unicode::utf8Prev(const char* utf8, const char* start)
+{
+	const uint8* p = (const uint8*)utf8;
+	while (p > (const uint8*)start)
+	{
+		uint8 ch = *(--p);
+		if ((ch & 0xC0) != 0x80) break;
+	}
+
+	return (const char*)p;
+}
+
+const char* Unicode::utf8Prev(const char* utf8, const char* start, size_t count)
+{
+	const uint8* p = (const uint8*)utf8;
+	while (count && p > (const uint8*)start)
+	{
+		uint8 ch = *(--p);
+		if ((ch & 0xC0) != 0x80) 
+			--count;
+	}
 
 	return (const char*)p;
 }
