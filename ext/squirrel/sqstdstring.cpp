@@ -23,6 +23,8 @@
 #define MAX_WFORMAT_LEN	3
 #define ADDITIONAL_FORMAT_SPACE (100*sizeof(SQChar))
 
+#include "nit/nit.h"
+
 static SQInteger validate_format(HSQUIRRELVM v, SQChar *fmt, const SQChar *src, SQInteger n,SQInteger &width)
 {
 	SQChar swidth[MAX_WFORMAT_LEN];
@@ -105,11 +107,17 @@ SQRESULT sqstd_format(HSQUIRRELVM v,SQInteger nformatstringidx,SQInteger *outlen
 				addlen = (sq_getsize(v,-1)*sizeof(SQChar))+((w+1)*sizeof(SQChar));
 				valtype = 's';
 				break;
-			case 'i': case 'd': case 'c':case 'o':  case 'u':  case 'x':  case 'X':
+			case 'i': case 'd': case 'o':  case 'u':  case 'x':  case 'X':
 				if(SQ_FAILED(sq_getinteger(v,nparam,&ti))) 
 					return sq_throwerror(v,_SC("integer expected for the specified format"));
 				addlen = (ADDITIONAL_FORMAT_SPACE)+((w+1)*sizeof(SQChar));
 				valtype = 'i';
+				break;
+			case 'c':
+				if (SQ_FAILED(sq_getinteger(v, nparam, &ti)))
+					return sq_throwerror(v,_SC("unicode value expected for the specified format"));
+				addlen = 4; // max 4 bytes
+				valtype = 'c';
 				break;
 			case 'f': case 'g': case 'G': case 'e':  case 'E':
 				if(SQ_FAILED(sq_getfloat(v,nparam,&tf))) 
@@ -125,6 +133,7 @@ SQRESULT sqstd_format(HSQUIRRELVM v,SQInteger nformatstringidx,SQInteger *outlen
 			dest = sq_getscratchpad(v,allocated);
 			switch(valtype) {
 			case 's': i += scsprintf(&dest[i],fmt,ts); sq_poptop(v); break;
+			case 'c': i += nit::Unicode::toUtf8Char(ti, &dest[i]); break;
 			case 'i': i += scsprintf(&dest[i],fmt,ti); break;
 			case 'f': i += scsprintf(&dest[i],fmt,tf); break;
 			};
