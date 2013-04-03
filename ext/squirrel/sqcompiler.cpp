@@ -1942,9 +1942,12 @@ public:
 			_fs->SetIntructionParam(trappos, 1, (_fs->GetCurrentPos() - trappos));
 			SQInteger ex_target = _fs->PushLocalVariable(_fs->CreateString(""));
 			_fs->SetIntructionParam(trappos, 0, ex_target);
-			_fs->AddInstruction(_OP_RETTRAP, 1, 0);
+			_fs->AddInstruction(_OP_POPTRAP, 1, 0);
+			_fs->AddInstruction(_OP_JMP, 0, jmppos - _fs->GetCurrentPos() - 2);
 			_fs->SetIntructionParams(jmppos, 0, (_fs->GetCurrentPos() - jmppos), 0);
 			END_SCOPE();
+
+			EmptyFinallyStmt(trappos, jmppos);
 		}
 	}
 	void FinallyStmt(SQInteger trappos, SQInteger jmppos)
