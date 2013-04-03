@@ -913,43 +913,43 @@ public:
 	{
 		PropEntry props[] =
 		{
-			PROP_ENTRY	(Active),
-			PROP_ENTRY_R(Root),
-			PROP_ENTRY_R(Worker),
-			PROP_ENTRY_R(Threads),
+			PROP_ENTRY	(active),
+			PROP_ENTRY_R(root),
+			PROP_ENTRY_R(worker),
+			PROP_ENTRY_R(threads),
 
-			PROP_ENTRY_R(MemoryAllocated),
-			PROP_ENTRY_R(NumThreads),
-			PROP_ENTRY_R(NumTickTimeouts),
-			PROP_ENTRY_R(NumClockTimeouts),
-			PROP_ENTRY_R(TimeWait),
-			PROP_ENTRY_R(StepGCPaused),
+			PROP_ENTRY_R(memoryAllocated),
+			PROP_ENTRY_R(numThreads),
+			PROP_ENTRY_R(numTickTimeouts),
+			PROP_ENTRY_R(numClockTimeouts),
+			PROP_ENTRY_R(timeWait),
+			PROP_ENTRY_R(stepGcPaused),
 			NULL
 		};
 
 		FuncEntry funcs[] =
 		{
-			FUNC_ENTRY_H(Go,			"()"),
-			FUNC_ENTRY_H(StepInto,		"()"),
-			FUNC_ENTRY_H(StepOver,		"()"),
-			FUNC_ENTRY_H(StepOut,		"()"),
+			FUNC_ENTRY_H(go,			"()"),
+			FUNC_ENTRY_H(stepInto,		"()"),
+			FUNC_ENTRY_H(stepOver,		"()"),
+			FUNC_ENTRY_H(stepOut,		"()"),
 
-			FUNC_ENTRY_H(Attach,		"(thread)"),
-			FUNC_ENTRY_H(Detach,		"(thread)"),
+			FUNC_ENTRY_H(attach,		"(thread)"),
+			FUNC_ENTRY_H(detach,		"(thread)"),
 
-			FUNC_ENTRY_H(All,			"(): bp[]"),
-			FUNC_ENTRY_H(Clear,			"()"),
+			FUNC_ENTRY_H(all,			"(): bp[]"),
+			FUNC_ENTRY_H(clear,			"()"),
 			FUNC_ENTRY_H(bp,			"(src, line, enable=true, cond=\"\")"),
 
-			FUNC_ENTRY_H(Enable,		"(index, [index, ...])"),
-			FUNC_ENTRY_H(Disable,		"(index, [index, ...])"),
-			FUNC_ENTRY_H(Condition,		"(index, cond)"),
+			FUNC_ENTRY_H(enable,		"(index, [index, ...])"),
+			FUNC_ENTRY_H(disable,		"(index, [index, ...])"),
+			FUNC_ENTRY_H(condition,		"(index, cond)"),
 
-			FUNC_ENTRY_H(StackSize,		"(thread=null): int"),
-			FUNC_ENTRY_H(StackTrace,	"(thread=null, dumplocals=true)"),
-			FUNC_ENTRY_H(StackDump,		"(thread=null)"),
+			FUNC_ENTRY_H(stackSize,		"(thread=null): int"),
+			FUNC_ENTRY_H(stackTrace,	"(thread=null, dumplocals=true)"),
+			FUNC_ENTRY_H(stackDump,		"(thread=null)"),
 
-			FUNC_ENTRY_H(GCDump,		"(itemfilter="", aftersweep=false) // itemfilter : wildcard"),
+			FUNC_ENTRY_H(gcDump,		"(itemfilter="", aftersweep=false) // itemfilter : wildcard"),
 
 			FUNC_ENTRY	(_dump),
 			FUNC_ENTRY	(_call),
@@ -965,26 +965,26 @@ public:
 		sq_dostring(v, "::bp := debug.bp.bind(debug)");
 	}
 
-	NB_PROP_GET(Active)					{ return push(v, self(v)->isActive()); }
-	NB_PROP_SET(Active)					{ self(v)->setActive(getBool(v, 2)); return 0; }
+	NB_PROP_GET(active)					{ return push(v, self(v)->isActive()); }
+	NB_PROP_SET(active)					{ self(v)->setActive(getBool(v, 2)); return 0; }
 
-	NB_PROP_GET(Root)					{ sq_pushthread(v, ScriptRuntime::getRuntime(v)->getRoot()); return 1; }
-	NB_PROP_GET(Worker)					{ sq_pushthread(v, ScriptRuntime::getRuntime(v)->getWorker()); return 1; }
-	NB_PROP_GET(Threads)				{ return ScriptRuntime::getRuntime(v)->getThreads(v); }
+	NB_PROP_GET(root)					{ sq_pushthread(v, ScriptRuntime::getRuntime(v)->getRoot()); return 1; }
+	NB_PROP_GET(worker)					{ sq_pushthread(v, ScriptRuntime::getRuntime(v)->getWorker()); return 1; }
+	NB_PROP_GET(threads)				{ return ScriptRuntime::getRuntime(v)->getThreads(v); }
 
-	NB_PROP_GET(MemoryAllocated)		{ return push(v, ScriptRuntime::getRuntime(v)->getMemoryAllocated_DebugPurpose()); }
-	NB_PROP_GET(NumThreads)				{ return push(v, ScriptRuntime::getRuntime(v)->_threadList.size()); }
-	NB_PROP_GET(NumTickTimeouts)		{ return push(v, ScriptRuntime::getRuntime(v)->_tickTimeoutHeap.size()); }
-	NB_PROP_GET(NumClockTimeouts)		{ return push(v, ScriptRuntime::getRuntime(v)->_clockTimeoutHeap.size()); }
-	NB_PROP_GET(TimeWait)				{ return push(v, ScriptRuntime::getRuntime(v)->_timeWait.get()); }
-	NB_PROP_GET(StepGCPaused)			{ return push(v, ScriptRuntime::getRuntime(v)->_stepGcPaused); }
+	NB_PROP_GET(memoryAllocated)		{ return push(v, ScriptRuntime::getRuntime(v)->getMemoryAllocated_DebugPurpose()); }
+	NB_PROP_GET(numThreads)				{ return push(v, ScriptRuntime::getRuntime(v)->_threadList.size()); }
+	NB_PROP_GET(numTickTimeouts)		{ return push(v, ScriptRuntime::getRuntime(v)->_tickTimeoutHeap.size()); }
+	NB_PROP_GET(numClockTimeouts)		{ return push(v, ScriptRuntime::getRuntime(v)->_clockTimeoutHeap.size()); }
+	NB_PROP_GET(timeWait)				{ return push(v, ScriptRuntime::getRuntime(v)->_timeWait.get()); }
+	NB_PROP_GET(stepGcPaused)			{ return push(v, ScriptRuntime::getRuntime(v)->_stepGcPaused); }
 
-	NB_FUNC(Go)							{ self(v)->go(); return 0; }
-	NB_FUNC(StepInto)					{ self(v)->stepInto(); return 0; }
-	NB_FUNC(StepOver)					{ self(v)->stepOver(); return 0; }
-	NB_FUNC(StepOut)					{ self(v)->stepOut(); return 0; }
+	NB_FUNC(go)							{ self(v)->go(); return 0; }
+	NB_FUNC(stepInto)					{ self(v)->stepInto(); return 0; }
+	NB_FUNC(stepOver)					{ self(v)->stepOver(); return 0; }
+	NB_FUNC(stepOut)					{ self(v)->stepOut(); return 0; }
 
-	NB_FUNC(StackSize)
+	NB_FUNC(stackSize)
 	{ 
 		HSQUIRRELVM th = v;
 		sq_getthread(v, 2, &th);
@@ -992,7 +992,7 @@ public:
 		return push(v, sq_gettop(th));
 	}
 
-	NB_FUNC(StackTrace)						
+	NB_FUNC(stackTrace)						
 	{ 
 		HSQUIRRELVM th = v;
 		sq_getthread(v, 2, &th);
@@ -1000,7 +1000,7 @@ public:
 		return 0; 
 	}
 
-	NB_FUNC(StackDump)
+	NB_FUNC(stackDump)
 	{
 		HSQUIRRELVM th = v;
 		sq_getthread(v, 2, &th);
@@ -1009,7 +1009,7 @@ public:
 		return 0;
 	}
 
-	NB_FUNC(Attach)
+	NB_FUNC(attach)
 	{
 		HSQUIRRELVM th = NULL;
 		sq_getthread(v, 2, &th);
@@ -1019,7 +1019,7 @@ public:
 		return 0;
 	}
 
-	NB_FUNC(Detach)
+	NB_FUNC(detach)
 	{
 		HSQUIRRELVM th = NULL;
 		sq_getthread(v, 2, &th);
@@ -1029,7 +1029,7 @@ public:
 		return 0;
 	}
 
-	NB_FUNC(All)
+	NB_FUNC(all)
 	{
 		ScriptDebugger::BreakpointSet& bps = self(v)->getBreakpoints();
 
@@ -1047,7 +1047,7 @@ public:
 		return 1;
 	}
 
-	NB_FUNC(GCDump);
+	NB_FUNC(gcDump);
 
 	NB_FUNC(_dump)
 	{
@@ -1074,7 +1074,7 @@ public:
 		return 0;
 	}
 
-	NB_FUNC(Enable)
+	NB_FUNC(enable)
 	{
 		set<int>::type idx;
 		for (int i=2; i<=sq_gettop(v); ++i)
@@ -1090,7 +1090,7 @@ public:
 		return 0;
 	}
 
-	NB_FUNC(Disable)
+	NB_FUNC(disable)
 	{
 		set<int>::type idx;
 		for (int i=2; i<=sq_gettop(v); ++i)
@@ -1106,7 +1106,7 @@ public:
 		return 0;
 	}
 
-	NB_FUNC(Condition)
+	NB_FUNC(condition)
 	{
 		int idx = getInt(v, 2);
 		const char* cond = getString(v, 3);
@@ -1121,7 +1121,7 @@ public:
 		return 0;
 	}
 
-	NB_FUNC(Clear)
+	NB_FUNC(clear)
 	{
 		self(v)->_breakpoints.clear();
 		return 0;
@@ -1443,7 +1443,7 @@ void GCCredit(SQGC* gc)
 #endif
 }
 
-SQInteger NB_ScriptDebugger::_nb_GCDump(HSQUIRRELVM v)
+SQInteger NB_ScriptDebugger::_nb_gcDump(HSQUIRRELVM v)
 {
 	SQGC& gc = v->_sharedstate->_gc;
 

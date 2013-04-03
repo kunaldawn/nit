@@ -775,53 +775,53 @@ public:
 
 		// Register functions //////////////////////////////////
 
-		sq_register_h(v, "NewId", NewId,
+		sq_register_h(v, "newId", NewId,
 			"(): int");
 
-		sq_register_h(v, "MessageBox", MessageBox, 
+		sq_register_h(v, "messageBox", MessageBox, 
 			"(msg: string, caption=null, style=MB.OK|MB.CENTER, parent: Window=null, x=null, y=null): MB");
 
-		sq_register_h(v, "AboutBox", AboutBox,
+		sq_register_h(v, "aboutBox", AboutBox,
 			"(parent=null, icon=null, name=null, version=null, description=null, copyright=null, license=null, web=null, developers: []=null, docwriters: []=null, artists: []=null, translators: []=null)");
 
-		sq_register_h(v, "GetSingleChoice", GetSingleChoice,
+		sq_register_h(v, "getSingleChoice", GetSingleChoice,
 			"(message, caption, choices: array, initialSelection=0, parent: Window=null"
 			" x=null, y=null, center=true, w=null, h=null"
 			"): int // returns -1 if canceled otherwise index of the choice");
 
-		sq_register_h(v, "GetMultiChoices", GetMultiChoices,
+		sq_register_h(v, "getMultiChoices", GetMultiChoices,
 			"(message, caption, choices: array, selected: int[]=null, parent: Window=null"
 			" x=null, y=null, center=true, w=null, h=null"
 			"): [] // returns null if canceled otherwise array of selected");
 
-		sq_register_h(v, "DirSelector", DirSelector,
+		sq_register_h(v, "dirSelector", DirSelector,
 			"(message=STR.DirSelectorPrompt, path=\"\", style=0, pos=null, parent: Window=null): string");
 
-		sq_register_h(v, "FileSelector", FileSelector,
+		sq_register_h(v, "fileSelector", FileSelector,
 			"(message, path=\"\", filename=\"\", ext=\"\", wildcard=null, flags=0: FileDialog.STYLE.OPEN | FileDialog.STYLE.SAVE | FileDialog.STYLE.OVERWRITE_PROMPT | FileDialog.STYLE.FILE_MUST_EXIST, parent: Window=null, x=null, y=null): string");
 
-		sq_register_h(v, "GetColorFromUser", GetColorFromUser,
+		sq_register_h(v, "getColorFromUser", GetColorFromUser,
 			"(parent: Window, color: Color, caption=\"\"): Color"); 
 
 		// 		sq_register_h(v, "GetFontFromUser", NitLibWx::GetFontFromUser,
 // 			"(parent: Window=null, fontInit=NULL_FONT, caption=\"\")");
 
-		sq_register_h(v, "GetTextFromUser", GetTextFromUser,
+		sq_register_h(v, "getTextFromUser", GetTextFromUser,
 			"(msg: string, caption=null, default_value=\"\", x=null, y=null, center=true): string");
 
-		sq_register_h(v, "GetPasswordFromUser", GetPasswordFromUser,
+		sq_register_h(v, "getPasswordFromUser", GetPasswordFromUser,
 			"(msg: string, caption=null, default_value=\"\", x=null, y=null, center=true): string");
 
-		sq_register_h(v, "LogMessage", LogMessage,
+		sq_register_h(v, "logMessage", LogMessage,
 			"(msg: string)\n(fmt: string, ...)");
 
-		sq_register_h(v, "LogWarning", LogWarning,
+		sq_register_h(v, "logWarning", LogWarning,
 			"(msg: string)\n(fmt: string, ...)");
 
-		sq_register_h(v, "LogError", LogError,
+		sq_register_h(v, "logError", LogError,
 			"(msg: string)\n(fmt: string, ...)");
 
-		sq_register_h(v, "LogFlush", LogFlush, "()");
+		sq_register_h(v, "logFlush", LogFlush, "()");
 
 		if (dynamic_cast<wxNitApp*>(wxTheApp))
 		{

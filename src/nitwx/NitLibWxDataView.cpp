@@ -266,13 +266,13 @@ wxScriptDataViewModel::wxScriptDataViewModel(HSQUIRRELVM v, int peerIdx)
 	peerIdx = NitBind::toAbsIdx(v, -1);
 
 	// abstract
-	ok = ok && LinkMethod(v, peerIdx, "GetChildren",	_getChildren);
-	ok = ok && LinkMethod(v, peerIdx, "GetColumnCount",	_getColumnCount);
-	ok = ok && LinkMethod(v, peerIdx, "GetColumnType",	_getColumnType);
-	ok = ok && LinkMethod(v, peerIdx, "GetParent",		_getParent);
-	ok = ok && LinkMethod(v, peerIdx, "GetValue",		_getValue);
-	ok = ok && LinkMethod(v, peerIdx, "IsContainer",	_isContainer);
-	ok = ok && LinkMethod(v, peerIdx, "SetValue",		_setValue);
+	ok = ok && LinkMethod(v, peerIdx, "getChildren",	_getChildren);
+	ok = ok && LinkMethod(v, peerIdx, "getColumnCount",	_getColumnCount);
+	ok = ok && LinkMethod(v, peerIdx, "getColumnType",	_getColumnType);
+	ok = ok && LinkMethod(v, peerIdx, "getParent",		_getParent);
+	ok = ok && LinkMethod(v, peerIdx, "getValue",		_getValue);
+	ok = ok && LinkMethod(v, peerIdx, "isContainer",	_isContainer);
+	ok = ok && LinkMethod(v, peerIdx, "setValue",		_setValue);
 
 	if (!ok) 
 	{
@@ -281,15 +281,15 @@ wxScriptDataViewModel::wxScriptDataViewModel(HSQUIRRELVM v, int peerIdx)
 	}
 
 	// overrides - Not needed
-	LinkMethod(v, peerIdx, "HasContainerColumns",		_hasContainerColumns);
-	LinkMethod(v, peerIdx, "HasDefaultCompare",			_hasDefaultCompare);
-	LinkMethod(v, peerIdx, "Compare",					_compare);
-	LinkMethod(v, peerIdx, "GetAttr",					_getAttr);
-	LinkMethod(v, peerIdx, "IsEnabled",					_isEnabled);
+	LinkMethod(v, peerIdx, "hasContainerColumns",		_hasContainerColumns);
+	LinkMethod(v, peerIdx, "hasDefaultCompare",			_hasDefaultCompare);
+	LinkMethod(v, peerIdx, "compare",					_compare);
+	LinkMethod(v, peerIdx, "getAttr",					_getAttr);
+	LinkMethod(v, peerIdx, "isEnabled",					_isEnabled);
 
-	LinkMethod(v, peerIdx, "Cleared",					_cleared);
-	LinkMethod(v, peerIdx, "Resort",					_resort);
-	LinkMethod(v, peerIdx, "ValueChanged",				_valueChanged);
+	LinkMethod(v, peerIdx, "cleared",					_cleared);
+	LinkMethod(v, peerIdx, "resort",					_resort);
+	LinkMethod(v, peerIdx, "valueChanged",				_valueChanged);
 
 	// Connected closure object are referenced by the peer or the class.
 	// So we don't need to addref / release again.
