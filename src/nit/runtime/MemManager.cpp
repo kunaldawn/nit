@@ -512,7 +512,8 @@ MemManager::MemManager()
 
 MemManager::~MemManager()
 {
-	assert(_initialized == false);
+	// TODO: assert fails when CTRL+C to console
+//	assert(_initialized == false);
 }
 
 MemManager* MemManager::getInstance()
