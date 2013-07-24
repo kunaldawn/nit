@@ -83,10 +83,10 @@ Version 0.9.0 'minimal-docs'
 
 **Planned**
 
-- Minimal document about nit script language
-- Minimal document about nit runtime
-- Minimal document about nit bundler
-- Some documents about how-to-s, tutorial
+- Minimal document about nit script language in korean
+- Minimal document about nit runtime in korean
+- Minimal document about nit bundler in korean
+- Some documents about how-to-s, tutorial in korean
 
 
 Version 1.0.0 'useful'
@@ -101,7 +101,8 @@ Version 1.0.0 'useful'
 - platform-wise sdk distribution
 - Useful script ide
 - Project raking tools
-- A lot of documents
+- Minimal document translations in english.
+- A fair amount of detailed documents in korean.
 - Samples & Test suite
 
 ---
