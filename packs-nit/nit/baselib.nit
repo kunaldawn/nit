@@ -97,7 +97,7 @@ function dump(o=null, full=false)	"(obj, showhidden=false)\n(obj, filter: wildca
 			if (!full && type(k) == "string" && k.ascii_find("_") == 0) continue;
 			if (!full && (type(k) == "userdata" || type(v) == "userdata")) continue;
 			
-			try { v = o[k]; } catch(ex) { v = "<ERROR: " + ex + ">" }
+			try v = o[k] catch(ex) v = "<ERROR: " + ex + ">"
 
 			if (type(v) == "string")
 				v = "\"" + v + "\""
@@ -162,7 +162,7 @@ function dump(o=null, full=false)	"(obj, showhidden=false)\n(obj, filter: wildca
 	}
 
 	if (type(o) != "array")
-		e.sort(@(a,b) => a <=> b );
+		e.sort by (a, b) => a <=> b
 		
 	for (var i=0; i < e.len(); ++i)
 	{
@@ -240,57 +240,6 @@ class Queue
 		print("");
 		return true
 	}
-}
-
-////////////////////////////////
-
-class Stack
-{
-	_top = 0
-	_data = null
-	
-	property size		get _top
-	property empty		get (_top == 0)
-	property top		get (!empty ? _data[_top-1] : null)
-	
-	function at(index)	"(index)"	{ return (!empty && index < _top) ? _data[index] : null }
-	function push(x)	"(obj)"		{ _data[_top++] := x }
-	function pop()		"() : obj"	{ return empty ? null : _data.delete(--_top) }
-	
-	constructor(...)		"(...) // returns queue initialized with given params"
-	{
-		_data = {}
-		
-		foreach (x in vargv)
-		{
-			push(x)
-		}
-	}
-	
-	function all()			"(): generator // use with foreach"
-	{
-		for (var i=0; i<size; ++i)
-		{
-			yield at(i);
-		}
-	}	
-	
-	function clear()		"()"
-	{
-		_data.clear()
-		_top = 0
-	}	
-	
-	function _dump()
-	{
-		print("  contents:");
-		for (var i=0; i < size; ++i)
-		{
-			printf("  %-20d = %s", i, at(i));
-		}
-		print("");
-		return true
-	}	
 }
 
 ////////////////////////////////
