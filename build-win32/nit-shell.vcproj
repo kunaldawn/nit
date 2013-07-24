@@ -150,6 +150,10 @@
 	</References>
 	<Files>
 		<File
+			RelativePath="..\src\nitwx\nitwx.rc"
+			>
+		</File>
+		<File
 			RelativePath="..\src\nitshell\wxNitShellApp.cpp"
 			>
 		</File>
