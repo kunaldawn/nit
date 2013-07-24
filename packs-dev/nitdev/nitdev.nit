@@ -543,6 +543,7 @@ class NitEditFrame : wx.ScriptFrame
 		var frame = this
 		
 		bind(EVT.SHOW, frame, onShow)
+		bind(EVT.CLOSE, frame, onClose)
 
 		_editorFont = wx.Font :> this(10, 
 			FAMILY.TELETYPE, STYLE.NORMAL, WEIGHT.NORMAL, false, "Consolas")
@@ -571,7 +572,7 @@ class NitEditFrame : wx.ScriptFrame
 			[ ID.SAVEAS,	"Save &As...\tAlt+S",	"Save the current document to a file with a new name" ],
 			[ ID.SAVEALL,	"Save A&ll\tCtrl+Shift+S", "Save all open documents" ],
 			null,
-			[ ID.EXIT,		"E&xit\tAlt+X",			"Exit Program" ]
+			[ ID.EXIT,		"E&xit\tAlt+X",			"Exit Program" ],
 		] )
 		
 		menuBar.append(fileMenu, "&File")
@@ -580,9 +581,11 @@ class NitEditFrame : wx.ScriptFrame
 		bind(EVT.MENU, ID.RESTART, getroottable()) by (evt) => dofile(fileSource.name, fileSource.locator)
 		
 		bind(EVT.MENU, ID.OPEN, frame, onFileOpen)
-		bind(EVT.MENU, ID.EXIT, frame, onFileExit)
+		bind(EVT.MENU, ID.EXIT, frame) by (evt) => close()
 	
-		bind(EVT.UPDATE_UI, ID.EXIT, frame) by (evt) { evt.enabled = false }
+		// TODO: windows 8 mouse cursor disappearing caused by setting evt.enabled = false on EVT.UPDATE_UI
+		if (false)
+			bind(EVT.UPDATE_UI, ID.EXIT, frame) by (evt) { evt.enabled = false }
 		
 		// Edit Menu //////
 		
@@ -788,7 +791,7 @@ class NitEditFrame : wx.ScriptFrame
 	
 	property currDocPane get
 	{
-		return try _docPanes :> getPage(selection)
+		return _docPanes :> pageCount > 0 ? getPage(selection) : null
 	}
 	
 	property currDocument get 
@@ -804,6 +807,12 @@ class NitEditFrame : wx.ScriptFrame
 	
 	function onShow(evt)
 	{
+	}
+	
+	function onClose(evt: wx.CommandEvent)
+	{
+		if (!saveOnExit(true)) return
+		app.stop()
 	}
 	
 	function onFileOpen(evt: wx.CommandEvent)
@@ -865,12 +874,6 @@ class NitEditFrame : wx.ScriptFrame
 		if (pageIndex != -1)
 			_docPanes.selection = pageIndex
 		pane.setFocus()
-	}
-	
-	function onFileExit(evt: wx.CommandEvent)
-	{
-		if (!saveOnExit(true)) return
-		close()
 	}
 	
 	function onEditAutoComplete(evt: wx.CommandEvent)
@@ -989,8 +992,8 @@ class NitEditFrame : wx.ScriptFrame
 		}
 	}
 	
-	var _currAttachedAddr = null
-	var _lastAttachedAddr = "127.0.0.1"
+	var _currAttachedAddr: string = null
+	var _lastAttachedAddr: string = "127.0.0.1"
 	var _debugClient: DebugClient
 	
 	function onDebugAttach(evt: wx.CommandEvent)
@@ -1008,12 +1011,21 @@ class NitEditFrame : wx.ScriptFrame
 			costart by
 			{
 				var debugClient = DebugClient(this, app.runtime.debugServer.remote.hostPeer)
-				_debugClient = debugClient
 
-				debugClient.requestAttach()
+				try 
+				{
+					debugClient.requestAttach()
+					_debugClient = debugClient
 				
-				_currAttachedAddr = addr
-				_lastAttachedAddr = addr
+					_currAttachedAddr = addr
+					_lastAttachedAddr = addr
+				}
+				catch (ex)
+				{
+					print("*** " + ex)
+					_debugClient = null
+					_currAttachedAddr = null
+				}
 			}
 		}
 	}
@@ -1028,47 +1040,27 @@ class NitEditFrame : wx.ScriptFrame
 	
 	function onDebugBreak(evt: wx.CommandEvent)
 	{
-		costart by
-		{
-			if (_debugClient)
-				_debugClient.request(_debugClient.CMD.RQ_BREAK);
-		}
+		costart by _debugClient ? _debugClient :> request(CMD.RQ_BREAK) : print("*** not connected")
 	}
 	
 	function onDebugStepInto(evt: wx.CommandEvent)
 	{
-		costart by
-		{
-			if (_debugClient)
-				_debugClient.request(_debugClient.CMD.RQ_STEP_INTO);
-		}
+		costart by _debugClient ? _debugClient :> request(CMD.RQ_STEP_INTO) : print("*** not connected")
 	}
 	
 	function onDebugStepOver(evt: wx.CommandEvent)
 	{
-		costart by
-		{
-			if (_debugClient)
-				_debugClient.request(_debugClient.CMD.RQ_STEP_OVER);
-		}
+		costart by _debugClient ? _debugClient :> request(CMD.RQ_STEP_OVER) : print("*** not connected")
 	}
 	
 	function onDebugStepOut(evt: wx.CommandEvent)
 	{
-		costart by
-		{
-			if (_debugClient)
-				_debugClient.request(_debugClient.CMD.RQ_STEP_OUT);
-		}
+		costart by _debugClient ? _debugClient :> request(CMD.RQ_STEP_OUT) : print("*** not connected")
 	}
 	
 	function onDebugContinue(evt: wx.CommandEvent)
 	{
-		costart by
-		{
-			if (_debugClient)
-				_debugClient.request(_debugClient.CMD.RQ_GO);
-		}
+		costart by _debugClient ? _debugClient :> request(CMD.RQ_GO) : print("*** not connected")
 	}
 	
 	function onServerActive(evt: RemoteNotifyEvent)
@@ -1378,6 +1370,7 @@ class NitEditFrame : wx.ScriptFrame
 	
 	function saveOnExit(canCancel: bool) : bool
 	{
+//		wx.messageBox("can't quit!"); return false
 		return true
 	}
 	
