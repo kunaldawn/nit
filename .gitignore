@@ -20,3 +20,5 @@ nit-rsh.history.txt
 *.aps
 *.o
 *.d
+
+/lookup.sqlite
