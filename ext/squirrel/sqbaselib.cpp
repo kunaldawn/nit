@@ -686,6 +686,31 @@ static SQInteger array_apply(HSQUIRRELVM v)
 	return 1;
 }
 
+static SQInteger array_each(HSQUIRRELVM v)
+{
+	SQObject &o = stack_get(v, 1);
+	SQArray *a = sqi_array(o);
+	SQInteger size = a->Size();
+	SQObjectPtr temp;
+	for (SQInteger n = 0; n < size; ++n)
+	{
+		a->Get(n, temp);
+		v->Push(a);
+		v->Push(temp);
+		if (SQ_FAILED(sq_call(v, 2, SQTrue, SQFalse)))
+			return SQ_ERROR;
+
+		SQObjectPtr& ret = v->GetUp(-1);
+		if (sqi_type(ret) == OT_BOOL && sqi_integer(ret) == 0)
+		{
+			v->Pop(); break; 
+		}
+		v->Pop();
+	}
+	v->Push(o);
+	return 1;
+}
+
 static SQInteger array_reduce(HSQUIRRELVM v)
 {
 	SQObject &o = stack_get(v,1);
@@ -857,24 +882,25 @@ static SQInteger array_slice(HSQUIRRELVM v)
 
 SQRegFunction SQSharedState::_array_default_delegate_funcz[]={
 	{_SC("len"),default_delegate_len,1, _SC("a"),	__FILE__, _SC("(): int")},
-	{_SC("append"),array_append,2, _SC("a"),		__FILE__, _SC("(val): this")},
+	{_SC("append"),array_append,2, _SC("a"),		__FILE__, _SC("(val): this // same with push()")},
 	{_SC("extend"),array_extend,2, _SC("aa"),		__FILE__, _SC("(array): this")},
 	{_SC("push"),array_append,2, _SC("a"),			__FILE__, _SC("(val): this")},
 	{_SC("pop"),array_pop,1, _SC("a"),				__FILE__, _SC("(): obj")},
 	{_SC("top"),array_top,1, _SC("a"),				__FILE__, _SC("(): obj")},
 	{_SC("insert"),array_insert,3, _SC("an"),		__FILE__, _SC("(idx, val): this")},
 	{_SC("remove"),array_remove,2, _SC("an"),		__FILE__, _SC("(idx): obj")},
-	{_SC("resize"),array_resize,-2, _SC("an"),		__FILE__, _SC("(size, [fill]): this")},
+	{_SC("resize"),array_resize,-2, _SC("an"),		__FILE__, _SC("(size[, fill]): this")},
 	{_SC("reverse"),array_reverse,1, _SC("a"),		__FILE__, _SC("(): this")},
 	{_SC("sort"),array_sort,-1, _SC("ac"),			__FILE__, _SC("([compare]): this // compare = @(a,b) => a <=> b")},
-	{_SC("slice"),array_slice,-2, _SC("ann"),		__FILE__, _SC("(start,[end]): array")},
+	{_SC("slice"),array_slice,-2, _SC("ann"),		__FILE__, _SC("(start[, end]): array")},
 	{_SC("weak"),obj_delegate_weakref,1, NULL,		__FILE__, _SC("(): weakref") },
 	{_SC("tostring"),default_delegate_tostring,1, _SC("."), __FILE__, _SC("(): string")},
 	{_SC("clear"),obj_clear,1, _SC("."),			__FILE__, _SC("()")},
-	{_SC("map"),array_map,2, _SC("ac"),				__FILE__, _SC("(func): array // func = @(a)") }, 
-	{_SC("apply"),array_apply,2, _SC("ac"),			__FILE__, _SC("(func): this // replaces the original value")}, 
-	{_SC("reduce"),array_reduce,2, _SC("ac"),		__FILE__, _SC("(func): value // func = @(prevval, curval)")}, 
-	{_SC("filter"),array_filter,2, _SC("ac"),		__FILE__, _SC("(func): array // func = @(index, val) => true")},
+	{_SC("map"),array_map,2, _SC("ac"),				__FILE__, _SC("(func): array // func = @(v) => nv, returns new array with return values") }, 
+	{_SC("apply"),array_apply,2, _SC("ac"),			__FILE__, _SC("(func): this // func = @(v) => nv, replaces the original value")}, 
+	{_SC("each"),array_each,2, _SC("ac"),			__FILE__, _SC("(func): this // func = @(v) => b, if b == false stops iteration")},
+	{_SC("reduce"),array_reduce,2, _SC("ac"),		__FILE__, _SC("(func): value // func = @(v0, v) => v1, returns last v1")}, 
+	{_SC("filter"),array_filter,2, _SC("ac"),		__FILE__, _SC("(func): array // func = @(i, v) => true/false, returns new array with filtered values")},
 	{_SC("find"),array_find,2, _SC("a."),			__FILE__, _SC("(value): index or null")},
 	{0,0}
 };
