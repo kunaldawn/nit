@@ -347,12 +347,16 @@ public:
 	StreamLocator*						getDefaultLocator()						{ return _defaultLocator; }
 	void								setDefaultLocator(StreamLocator* locator);
 
+	StreamLocator*						getLocatorOverride()					{ return _locatorOverride; }
+	void								setLocatorOverride(StreamLocator* locator);
+
 	SQRESULT							require(const String& unitName, Ref<ScriptUnit>& outUnit, StreamLocator* locator = NULL);
 	bool								doFile(const String& unitName, StreamLocator* locator = NULL);
 
 public:									// returns current loading unit & its locator
 	ScriptUnit*							getUnit()								{ return _unitStack.empty() ? NULL : _unitStack.back(); }
 	StreamLocator*						getLocator()							{ return getUnit()->getLocator(); }
+	
 
 public:
 	typedef map<String, Ref<ScriptUnit> >::type UnitMap;
@@ -391,6 +395,7 @@ private:
 public:
 	UnitMap								_units;
 	vector<Ref<ScriptUnit> >::type		_unitStack;
+	Ref<StreamLocator>					_locatorOverride;
 	Ref<StreamLocator>					_defaultLocator;
 
 public:

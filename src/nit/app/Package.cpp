@@ -624,11 +624,14 @@ bool Package::initScripts()
 	}
 
 	// call OnLoad
+	Ref<StreamLocator> oldLocator = script->getLocatorOverride();
+	script->setLocatorOverride(this);
 	for (uint i=0; i<_onLoadScripts.size(); ++i)
 	{
 		LOG_TIMESCOPE(0, ".. package '%s'.OnLoad> %s", _name.c_str(), _onLoadScripts[i].c_str());
 		sq_dostring(script->getRoot(), _onLoadScripts[i].c_str());
 	}
+	script->setLocatorOverride(oldLocator);
 
 	_scriptOpening = false;
 	_scriptReady = true;

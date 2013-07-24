@@ -1218,7 +1218,7 @@ public:
 		Ref<ScriptUnit> unit = runtime->createUnit(filename, locator);
 
 		if (unit == NULL)
-			return sqx_throwfmt(v, "can't do file: %s", filename);
+			return sqx_throwfmt(v, "dofile() can't find: %s", filename);
 
 		runtime->_unitStack.push_back(unit);
 
@@ -1318,7 +1318,7 @@ public:
 		}
 		else
 		{
-			const SQChar* thname = "sol_thread";
+			const SQChar* thname = "nit_cotask";
 			sq_getthreadname(v, &thname);
 			channel = new LogChannel(thname);
 			sq_pushuserpointer(v, &l);
@@ -1659,7 +1659,7 @@ void ScriptRuntime::startup()
 	_root = sq_open(1024);
 	ASSERT(_root);
 
-	sq_setthreadname(_root, "sol_main", -1);
+	sq_setthreadname(_root, "nit_main", -1);
 
 	HSQUIRRELVM v = _root;
 
@@ -2022,6 +2022,11 @@ void ScriptRuntime::setDefaultLocator(StreamLocator* locator)
 	_defaultLocator = locator;
 }
 
+void ScriptRuntime::setLocatorOverride(StreamLocator* locator)
+{
+	_locatorOverride = locator;
+}
+
 String ScriptRuntime::unitSourceID(StreamSource* source)
 {
 	return source->getUrl();
@@ -2030,6 +2035,10 @@ String ScriptRuntime::unitSourceID(StreamSource* source)
 StreamSource* ScriptRuntime::locateUnit(const String& unitName, StreamLocator* locator)
 {
 	// If no locator specified (NULL) : auto detect locator.
+
+	// If any overrides are present, load from the locator
+	if (locator == NULL && _locatorOverride)
+		locator = _locatorOverride;
 
 	// First, select the locator with which this loads current script.
 	if (locator == NULL)
