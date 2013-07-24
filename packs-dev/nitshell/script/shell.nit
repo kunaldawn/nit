@@ -27,9 +27,9 @@ if (quiet)
 }
 else if (std)
 {
-	::print := stdout.print.bindenv(stdout)
-	::printf := stdout.printf.bindenv(stdout)
-	::error := stderr.print.bindenv(stderr)
+	::print := stdout.print.bind(stdout)
+	::printf := stdout.printf.bind(stdout)
+	::error := stderr.print.bind(stderr)
 }
 
 if (error || help || (lines.len() == 0 && files.len() == 0 && !running))
