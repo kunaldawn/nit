@@ -93,18 +93,20 @@ class DebugClient
 	function onNotify(evt: RemoteNotifyEvent)
 	{
 		if (_packetLog)
-			printf(".. [dbgcli] nt cmd 0x%04X", evt.Command)
+			printf(".. [dbgcli] nt cmd 0x%04X", evt.command)
 		
-		var handler = try _notifyHandlers[evt.Command]
+		var handler = try _notifyHandlers[evt.command]
 		if (handler)
 			handler.call(_client, evt)
 		else
+		{
 			throw format("can't find notify handler for cmd 0x%04X", evt.command)
+		}
 	}
 	
 	function onResponse(evt: RemoteResponseEvent)
 	{
-		var rqid = evt.requestID
+		var rqid = evt.requestId
 		var req = try _requests[rqid]
 		
 		if (req) 
@@ -118,7 +120,7 @@ class DebugClient
 	{
 		var command: CMD
 		var params
-		var requestID: int
+		var requestId: int
 		var code: int
 		var result
 		var _wb: WaitBlock
@@ -131,7 +133,7 @@ class DebugClient
 	
 	function request(cmd: CMD, params=null, codeHandler=null) : table
 	{
-		var rq_id = _peer.remote.request(_Peer, _channelId, cmd, params)
+		var rq_id = _peer.remote.request(_peer, _channelId, cmd, params)
 		var code = null
 		var ret = null
 		var wb = nit.WaitBlock()
@@ -148,7 +150,7 @@ class DebugClient
 		
 		_requests[rq_id] := request
 
-		wb.wWait()
+		wb.wait()
 
 		if (_packetLog)
 			printf(".. [dbgcli] rq #%d cmd 0x%04X: code %d, ret: %s", rq_id, cmd, code, ret())
@@ -282,7 +284,7 @@ class DebugClient
 	{
 		var rec = evt.packet.readValue()
 		
-		var rq_id = evt.requestID
+		var rq_id = evt.requestId
 		var req = try _requests[rq_id]
 		
 		if (_packetLog)

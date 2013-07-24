@@ -538,7 +538,7 @@ class NitEditFrame : wx.ScriptFrame
 	
 	constructor()
 	{
-		base.constructor(null, wx.ID.ANY, "wxSolEdit")
+		base.constructor(null, wx.ID.ANY, "nit-dev")
 		
 		var frame = this
 		
@@ -551,7 +551,7 @@ class NitEditFrame : wx.ScriptFrame
 		{
 			var statusTxtWidth = getTextExtent("OVRW").width
 			setStatusWidths([-1, statusTxtWidth, statusTxtWidth, statusTxtWidth*5])
-			statusText = "Welcome to wxSolEdit"
+			statusText = "Welcome to nit-dev"
 		}
 		
 		var ID = frame.ID
