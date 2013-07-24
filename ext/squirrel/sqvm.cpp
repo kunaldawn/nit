@@ -793,19 +793,37 @@ bool SQVM::CLASS_OP(SQObjectPtr &target,SQInteger baseclass,SQInteger attributes
 
 bool SQVM::IsEqual(const SQObjectPtr &o1,const SQObjectPtr &o2,bool &res)
 {
-	if(sqi_type(o1) == sqi_type(o2)) {
+	SQObjectType t1 = sqi_type(o1);
+	SQObjectType t2 = sqi_type(o2);
+
+	// TODO: add '_eq' metamethod
+
+	if (t1 == t2) {
+		// NOTE: 80% of equality fits here (int vs int, inst vs inst)
 		res = (sqi_userpointer(o1) == sqi_userpointer(o2));
-		// TODO: add '_eq' metamethod
-		// TODO: true if purged instance 'IsEqual' to null
+		return true;
 	}
-	else {
-		if(sq_isnumeric(o1) && sq_isnumeric(o2)) {
-			res = (sqi_tofloat(o1) == sqi_tofloat(o2));
-		}
-		else {
+
+	if (t1 == OT_NULL || t2 == OT_NULL)
+	{
+		// true if purged instance 'IsEqual' to null
+		if (t1 == OT_INSTANCE)
+			res = sqi_instance(o1)->_class == NULL;
+		else if (t2 == OT_INSTANCE)
+			res = sqi_instance(o2)->_class == NULL;
+		else
 			res = false;
-		}
+		return true;
 	}
+
+	if ((t1 & SQOBJECT_NUMERIC) && (t2 & SQOBJECT_NUMERIC))
+	{
+		// int vs float
+		res = (sqi_tofloat(o1) == sqi_tofloat(o2));
+		return true;
+	}
+
+	res = false;
 	return true;
 }
 
