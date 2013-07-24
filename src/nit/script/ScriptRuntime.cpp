@@ -1053,7 +1053,7 @@ public:
 		sq_register_h(v, "dostream", dostream,						"(reader: StreamReader): ret // returns executed code's return value");
 		sq_register_h(v, "loadstream", loadstream,					"(reader: StreamReader): func // returns loaded code as a function");
 
-		sq_dostring(v, "function printf(...) \"(fmt, ...)\" { print(format.acall(this, vargv)); }");
+		sq_dostring(v, "function printf(...) \"(fmt, ...)\" { print(format.acall(this, ...)); }");
 
 		sq_register_h(v, "getregistrytable", getRegistryTable,		"(): table");
 		sq_register_h(v, "getcachetable", getCacheTable,			"(): table");

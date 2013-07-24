@@ -177,7 +177,7 @@ public:
 		funcstate._name = SQString::Create(_ss(_vm), _SC("main"));
 		_fs = &funcstate;
 		_fs->AddParameter(_fs->_sharedstate->_thisidx);
-		_fs->AddParameter(_fs->CreateString(_SC("vargv")));
+		_fs->AddParameter(_fs->CreateString(_SC("...")));
 		_fs->_varparams = 1;
 		_fs->_sourcename = _sourcename;
 		SQInteger stacksize = _fs->GetStackSize();
@@ -804,12 +804,14 @@ public:
 			break;
 		case TK_IDENTIFIER:
 		case TK_CONSTRUCTOR:
+		case TK_VARPARAMS:
 		case TK_THIS:{
 				SQObject id;
 				SQObject constant;
 
 				switch(_token) {
 					case TK_IDENTIFIER:  id = _fs->CreateString(_lex._svalue);		break;
+					case TK_VARPARAMS:   id = _fs->CreateString("...");				break;
 					case TK_THIS:        id = _fs->_sharedstate->_thisidx;	        break;
 					case TK_CONSTRUCTOR: id = _fs->_sharedstate->_constructoridx;	break;
 				}
@@ -2093,7 +2095,7 @@ public:
 			while(_token!=_SC(')')) {
 				if(_token == TK_VARPARAMS) {
 					if(defparams > 0) Error(_SC("function with default parameters cannot have variable number of parameters"));
-					funcstate->AddParameter(_fs->CreateString(_SC("vargv")));
+					funcstate->AddParameter(_fs->CreateString(_SC("...")));
 					funcstate->_varparams = 1;
 					Lex();
 					if(_token != _SC(')')) Error(_SC("expected ')'"));
