@@ -679,7 +679,8 @@ bool Remote::onRecv(RemotePeer* peer, MemoryBuffer* recvBuf)
 			}
 			else
 			{
-				Ref<Event> evt = new RemoteUserPacketEvent(this, peer, hdr.msg, &packet);
+				Ref<RemoteUserPacketEvent> evt = new RemoteUserPacketEvent(this, peer, hdr.msg);
+				packet.readValue(evt->data);
 				_channel0->send(EVT::REMOTE_USER_PACKET, evt);
 			}
 		}
@@ -774,8 +775,6 @@ void Remote::doShutdown()
 	// NOTE: A disconnection regarded as cancel to the remote peer, so we don't need to send cancels to it.
 	// Just send events to channels of local peer. (Someone on local may be watching if canceled)
 
-	Ref<MemoryBuffer> dummy = new MemoryBuffer();
-
 	// Cancel all remaining requests
 
 	Requests canceledRequests;
@@ -788,8 +787,7 @@ void Remote::doShutdown()
 
 		if (e.to && e.channel)
 		{
-			PacketIO dummyPacket(e.to, dummy, 0, 0);
-			e.channel->send(EVT::REMOTE_RESPONSE, new RemoteResponseEvent(this, e.to, e.channelId, e.command, e.requestId, RESPONSE_CANCELED, &dummyPacket));
+			e.channel->send(EVT::REMOTE_RESPONSE, new RemoteResponseEvent(this, e.to, e.channelId, e.command, e.requestId, RESPONSE_CANCELED));
 		}
 	}
 
@@ -899,16 +897,12 @@ void Remote::cancelEntries(TPredicate pred)
 		_requests.erase(itr++);
 	}
 
-	Ref<MemoryBuffer> dummyBuf = new MemoryBuffer();
-
 	for (RequestList::iterator itr = canceledRequests.begin(), end = canceledRequests.end(); itr != end; ++itr)
 	{
 		RequestEntry& e = *itr;
 		if (e.to && e.channel)
 		{
-			if (dummyBuf == NULL) dummyBuf = new MemoryBuffer();
-			PacketIO dummy(e.to, dummyBuf, 0, 0);
-			e.channel->send(EVT::REMOTE_RESPONSE, new RemoteResponseEvent(this, e.to, e.channelId, e.command, e.requestId, RESPONSE_CANCELED, &dummy));
+			e.channel->send(EVT::REMOTE_RESPONSE, new RemoteResponseEvent(this, e.to, e.channelId, e.command, e.requestId, RESPONSE_CANCELED));
 		}
 	}
 
@@ -1051,7 +1045,8 @@ void Remote::recvNotify(RemotePeer* from, PacketIO* packet)
 	if (channel)
 	{
 		uint16 command = packet->read<uint16>();
-		Ref<RemoteNotifyEvent> evt = new RemoteNotifyEvent(this, from, channelId, command, packet);
+		Ref<RemoteNotifyEvent> evt = new RemoteNotifyEvent(this, from, channelId, command);
+		packet->readValue(evt->param);
 		channel->send(EVT::REMOTE_NOTIFY, evt);
 	}
 }
@@ -1066,7 +1061,8 @@ void Remote::recvRequest(RemotePeer* from, PacketIO* packet)
 	if (channel == NULL)
 		return response(from, channelId, command, requestId, RESPONSE_NO_CHANNEL, NULL);
 
-	Ref<RemoteRequestEvent> evt = new RemoteRequestEvent(this, from, channelId, command, requestId, packet);
+	Ref<RemoteRequestEvent> evt = new RemoteRequestEvent(this, from, channelId, command, requestId);
+	packet->readValue(evt->param);
 
 	channel->send(EVT::REMOTE_REQUEST, evt);
 	if (evt->_delayed)
@@ -1138,7 +1134,8 @@ void Remote::recvResponse(RemotePeer* from, PacketIO* packet)
 
 	_requests.erase(itr); // Delete first, then notify
 
-	Ref<RemoteResponseEvent> evt = new RemoteResponseEvent(this, from, channelId, command, requestId, code, packet);
+	Ref<RemoteResponseEvent> evt = new RemoteResponseEvent(this, from, channelId, command, requestId, code);
+	packet->readValue(evt->param);
 	channel->send(EVT::REMOTE_RESPONSE, evt);
 }
 
@@ -1160,7 +1157,8 @@ void Remote::recvUploadStart(RemotePeer* from, PacketIO* packet)
 
 	uint32 streamSize	= packet->read<uint32>();
 
-	Ref<RemoteUploadStartEvent> evt = new RemoteUploadStartEvent(this, from, channelId, command, requestId, uploadId, streamSize, packet);
+	Ref<RemoteUploadStartEvent> evt = new RemoteUploadStartEvent(this, from, channelId, command, requestId, uploadId, streamSize);
+	packet->readValue(evt->param);
 
 	channel->send(EVT::REMOTE_UPLOAD_START, evt);
 
@@ -1368,13 +1366,6 @@ void Remote::recvDownloadEnd(RemotePeer* from, PacketIO* packet)
 	if (channel) channel->send(EVT::REMOTE_DOWNLOAD_END, new RemoteUploadEvent(this, from, uploadId, downloadId));
 }
 
-void Remote::sendUserPacket(RemotePeer* to, uint16 hdrMsg, DataToSend* data)
-{
-	ASSERT_THROW(to && to->getRemote() == this, EX_INVALID_PARAMS);
-
-	to->sendPacket(hdrMsg, NULL, 0, data);
-}
-
 void Remote::sendUserPacket(RemotePeer* to, uint16 hdrMsg, const DataValue& data)
 {
 	ASSERT_THROW(to && to->getRemote() == this, EX_INVALID_PARAMS);
@@ -1382,7 +1373,7 @@ void Remote::sendUserPacket(RemotePeer* to, uint16 hdrMsg, const DataValue& data
 	to->sendPacket(hdrMsg, NULL, 0, data);
 }
 
-void Remote::notify(RemotePeer* to, ChannelId channel, CommandId cmd, DataToSend* data)
+void Remote::notify(RemotePeer* to, ChannelId channel, CommandId cmd, const DataValue& param)
 {
 	ASSERT_THROW(to && to->getRemote() == this, EX_INVALID_PARAMS);
 
@@ -1392,23 +1383,10 @@ void Remote::notify(RemotePeer* to, ChannelId channel, CommandId cmd, DataToSend
 		uint16 cmd;
 	} hdr = { channel, cmd };
 
-	to->sendPacket(HDR_NOTIFY, &hdr, sizeof(hdr), data);
+	to->sendPacket(HDR_NOTIFY, &hdr, sizeof(hdr), param);
 }
 
-void Remote::notify(RemotePeer* to, ChannelId channel, CommandId cmd, const DataValue& data)
-{
-	ASSERT_THROW(to && to->getRemote() == this, EX_INVALID_PARAMS);
-
-	struct  
-	{
-		uint16 channel;
-		uint16 cmd;
-	} hdr = { channel, cmd };
-
-	to->sendPacket(HDR_NOTIFY, &hdr, sizeof(hdr), data);
-}
-
-Remote::RequestId Remote::request(RemotePeer* to, ChannelId channelId, CommandId cmd, DataToSend* msg)
+Remote::RequestId Remote::request(RemotePeer* to, ChannelId channelId, CommandId cmd, const DataValue& param)
 {
 	ASSERT_THROW(to && to->getRemote() == this, EX_INVALID_PARAMS);
 	ASSERT_THROW(!_shutdown, EX_INVALID_STATE);
@@ -1425,41 +1403,7 @@ Remote::RequestId Remote::request(RemotePeer* to, ChannelId channelId, CommandId
 		uint32 requestId;
 	} hdr = { channelId, cmd, requestId };
 
-	bool ok = to->sendPacket(HDR_REQUEST, &hdr, sizeof(hdr), msg);
-
-	if (!ok) return 0;
-
-	RequestEntry e;
-	e.channel	= channel;
-	e.channelId	= channelId;
-	e.command	= cmd;
-	e.requestId = requestId;
-	e.to		= to;
-	e.startTime = Timestamp::now();
-
-	_requests.insert(std::make_pair(requestId, e));
-
-	return requestId;
-}
-
-Remote::RequestId Remote::request(RemotePeer* to, ChannelId channelId, CommandId cmd, const DataValue& msg)
-{
-	ASSERT_THROW(to && to->getRemote() == this, EX_INVALID_PARAMS);
-	ASSERT_THROW(!_shutdown, EX_INVALID_STATE);
-
-	EventChannel* channel = getChannel(channelId);
-	ASSERT_THROW(channel, EX_INVALID_PARAMS);
-
-	uint32 requestId = _nextRequestId++;
-
-	struct
-	{
-		uint16 channelId;
-		uint16 cmd;
-		uint32 requestId;
-	} hdr = { channelId, cmd, requestId };
-
-	bool ok = to->sendPacket(HDR_REQUEST, &hdr, sizeof(hdr), msg);
+	bool ok = to->sendPacket(HDR_REQUEST, &hdr, sizeof(hdr), param);
 
 	if (!ok) return 0;
 
@@ -1502,33 +1446,7 @@ void Remote::cancelRequest(RequestId id)
 	_requests.erase(itr);
 }
 
-void Remote::delayedResponse(ResponseId id, int32 code, DataToSend* msg)
-{
-	Responses::iterator itr = _responses.find(id);
-
-	if (itr == _responses.end()) return;
-
-	ResponseEntry& e = itr->second;
-
-	Ref<RemotePeer> from = e.from.get();
-
-	if (from)
-	{
-		struct
-		{
-			uint16 channelId;
-			uint16 command;
-			uint32 requestId;
-			int32  code;
-		} hdr = { e.channelId, e.command, e.requestId, code };
-
-		from->sendPacket(HDR_RESPONSE, &hdr, sizeof(hdr), msg);
-	}
-
-	_responses.erase(itr);
-}
-
-void Remote::delayedResponse(ResponseId id, int32 code, const DataValue& msg)
+void Remote::delayedResponse(ResponseId id, int32 code, const DataValue& param)
 {
 	Responses::iterator itr = _responses.find(id);
 	
@@ -1548,7 +1466,7 @@ void Remote::delayedResponse(ResponseId id, int32 code, const DataValue& msg)
 			int32  code;
 		} hdr = { e.channelId, e.command, e.requestId, code };
 
-		from->sendPacket(HDR_RESPONSE, &hdr, sizeof(hdr), msg);
+		from->sendPacket(HDR_RESPONSE, &hdr, sizeof(hdr), param);
 	}
 
 	_responses.erase(itr);
@@ -1586,7 +1504,7 @@ void Remote::response(RemotePeer* to, ChannelId channel, CommandId cmd, RequestI
 	to->sendPacket(HDR_RESPONSE, &hdr, sizeof(hdr), msg);
 }
 
-Remote::UploadId Remote::upload(RemotePeer* to, ChannelId channelId, CommandId cmd, RequestId requestId, StreamReader* reader, uint32 streamSize, DataToSend* msg)
+Remote::UploadId Remote::upload(RemotePeer* to, ChannelId channelId, CommandId cmd, RequestId requestId, StreamReader* reader, uint32 streamSize, const DataValue& param)
 {
 	ASSERT_THROW(to && to->getRemote() == this, EX_INVALID_PARAMS);
 	ASSERT_THROW(!_shutdown, EX_INVALID_STATE);
@@ -1605,50 +1523,7 @@ Remote::UploadId Remote::upload(RemotePeer* to, ChannelId channelId, CommandId c
 		uint32 streamSize;
 	} hdr = { channelId, cmd, requestId, uploadId, streamSize };
 
-	bool ok = to->sendPacket(HDR_UPLOAD_START, &hdr, sizeof(hdr), msg);
-
-	if (!ok) return 0;
-
-	UploadEntry e;
-	e.channel		= channel;
-	e.to			= to;
-	e.reader		= reader;
-	e.channelId		= channelId;
-	e.command		= cmd;
-	e.requestId		= requestId;
-	e.uploadId		= uploadId;
-	e.downloadId	= 0;
-	e.streamSize	= streamSize;
-	e.offset		= 0;
-	e.bytesLeft		= 0;
-	e.packetSize	= 0;
-	e.startTime		= Timestamp::now();
-
-	_uploads.insert(std::make_pair(uploadId, e));
-
-	return uploadId;
-}
-
-Remote::UploadId Remote::upload(RemotePeer* to, ChannelId channelId, CommandId cmd, RequestId requestId, StreamReader* reader, uint32 streamSize, const DataValue& msg)
-{
-	ASSERT_THROW(to && to->getRemote() == this, EX_INVALID_PARAMS);
-	ASSERT_THROW(!_shutdown, EX_INVALID_STATE);
-
-	EventChannel* channel = getChannel(channelId);
-	ASSERT_THROW(channel, EX_INVALID_PARAMS);
-
-	uint32 uploadId = _nextUploadId++;
-
-	struct
-	{
-		uint16 channelId;
-		uint16 command;
-		uint32 requestId;
-		uint32 uploadId;
-		uint32 streamSize;
-	} hdr = { channelId, cmd, requestId, uploadId, streamSize };
-
-	bool ok = to->sendPacket(HDR_UPLOAD_START, &hdr, sizeof(hdr), msg);
+	bool ok = to->sendPacket(HDR_UPLOAD_START, &hdr, sizeof(hdr), param);
 
 	if (!ok) return 0;
 
@@ -1918,7 +1793,7 @@ void Remote::updateTimeout()
 
 		Ref<RemoteResponseEvent> evt;
 		Ref<EventChannel> channel = e.channel.get();
-		if (channel) evt = new RemoteResponseEvent(this, e.to, e.channelId, e.command, e.requestId, RESPONSE_TIMEOUT, NULL);
+		if (channel) evt = new RemoteResponseEvent(this, e.to, e.channelId, e.command, e.requestId, RESPONSE_TIMEOUT);
 
 		Ref<RemotePeer> to = e.to.get();
 
@@ -2152,19 +2027,11 @@ Remote::ResponseId RemoteRequestEvent::delay() const
 	return _responseID;
 }
 
-void RemoteRequestEvent::response(int32 code, DataToSend* msg) const
+void RemoteRequestEvent::response(int32 code, const DataValue& param) const
 {
 	ASSERT_THROW(!isConsumed(), EX_INVALID_STATE);
 
-	remote->response(peer, channelId, command, requestId, code, msg);
-	consume();
-}
-
-void RemoteRequestEvent::response(int32 code, const DataValue& msg) const
-{
-	ASSERT_THROW(!isConsumed(), EX_INVALID_STATE);
-
-	remote->response(peer, channelId, command, requestId, code, msg);
+	remote->response(peer, channelId, command, requestId, code, param);
 	consume();
 }
 

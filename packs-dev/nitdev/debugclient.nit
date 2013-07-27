@@ -131,9 +131,9 @@ class DebugClient
 		}
 	}
 	
-	function request(cmd: CMD, params=null, codeHandler=null) : table
+	function request(cmd: CMD, param=null, codeHandler=null) : table
 	{
-		var rq_id = _peer.remote.request(_peer, _channelId, cmd, params)
+		var rq_id = _peer.remote.request(_peer, _channelId, cmd, param)
 		var code = null
 		var ret = null
 		var wb = nit.WaitBlock()
@@ -143,7 +143,7 @@ class DebugClient
 			function onResponse(evt: RemoteResponseEvent)
 			{
 				code = evt.code
-				ret = evt.packet.readValue()
+				ret = evt.param
 				wb.signal(1)
 			}
 		}
@@ -223,14 +223,14 @@ class DebugClient
 	
 	function requestFile(writer: StreamWriter, pack: string, file: string, crc: int): FileInfo
 	{
-		var params = 
+		var param = 
 		{
 			pack = pack
 			file = file
 			remote_crc = crc
 		}
 		
-		var req_id = _peer.remote.request(_peer, _channelId, CMD.RQ_FILE, params)
+		var req_id = _peer.remote.request(_peer, _channelId, CMD.RQ_FILE, param)
 		var wb = nit.WaitBlock()
 		
 		var code = null
@@ -242,7 +242,7 @@ class DebugClient
 			function onResponse(evt: RemoteResponseEvent)
 			{
 				code = evt.code
-				ret = evt.packet.readValue()
+				ret = evt.param
 				wb.signal(1)
 			}
 			
@@ -282,7 +282,7 @@ class DebugClient
 	
 	function onUploadStart(evt: RemoteUploadStartEvent)
 	{
-		var rec = evt.packet.readValue()
+		var rec = evt.param()
 		
 		var rq_id = evt.requestId
 		var req = try _requests[rq_id]

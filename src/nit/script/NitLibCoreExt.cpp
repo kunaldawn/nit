@@ -60,67 +60,6 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-NB_TYPE_VALUE(NIT_API, nit::DataToSend, NULL);
-
-class NB_DataToSend : TNitClass<DataToSend>
-{
-public:
-	static void Register(HSQUIRRELVM v)
-	{
-		PropEntry props[] =
-		{
-			NULL
-		};
-
-		FuncEntry funcs[] =
-		{
-			// NOTE: const char* or const void* is dangerous for script so do not provide constructor for them
-			CONS_ENTRY_H(	"(buf: MemoryBuffer, size: int)"
-			"\n"			"(rdr: StreamReader, size: int)"
-			"\n"			"(buf: MemoryBuffer, offset: int, size: int)"
-			"\n"			"(rdr: StreamReader, offset: int, size: int)"
-			"\n"			"(str: string)"),
-			NULL
-		};
-
-		bind(v, props, funcs);
-	}
-
-	NB_CONS()
-	{
-		switch (sq_gettop(v))
-		{
-		case 2:
-			if (isString(v, 2))
-				new (self(v)) DataToSend(getString(v, 2), sq_getsize(v, 2));
-			else
-				new (self(v)) DataToSend(get<MemoryBuffer>(v, 2));
-			break;
-
-		case 3:
-			if (is<MemoryBuffer>(v, 2))
-				new (self(v)) DataToSend(get<MemoryBuffer>(v, 2), getInt(v, 3));
-			else
-				new (self(v)) DataToSend(get<StreamReader>(v, 2), getInt(v, 3));
-			break;
-
-		case 4:
-			if (is<MemoryBuffer>(v, 2))
-				new (self(v)) DataToSend(get<MemoryBuffer>(v, 2), getInt(v, 3), getInt(v, 4));
-			else
-				new (self(v)) DataToSend(get<StreamReader>(v, 2), getInt(v, 3), getInt(v, 4));
-			break;
-
-		default:
-			return sq_throwerror(v, "invalid arguments");
-		}
-
-		return SQ_OK;
-	}
-};
-
-////////////////////////////////////////////////////////////////////////////////
-
 NB_TYPE_REF(NIT_API, nit::TcpSocket, SocketBase, incRefCount, decRefCount);
 
 class NB_TcpSocket : TNitClass<TcpSocket>
@@ -229,19 +168,19 @@ public:
 			FUNC_ENTRY_H(serverWhere,		"(hostQuery: string, myPort=PORT_DEFAULT.UDP, targetPort=PORT_DEFAULT.UDP): bool"),
 			FUNC_ENTRY_H(serverHere,		"(hostinfo: string, broadcastAddr=\"255.255.255.255\", targetPort=PORT_DEFAULT.UDP): bool"),
 
-			FUNC_ENTRY_H(sendUserPacket,	"(to: RemotePeer, hdrMsg: uint16, data: DataValue or DataToSend)"),
+			FUNC_ENTRY_H(sendUserPacket,	"(to: RemotePeer, hdrMsg: uint16, data: DataValue=void)"),
 			FUNC_ENTRY_H(registerUserMsg,	"(hdrMsg: uint16)"),
 
-			FUNC_ENTRY_H(notify,			"(to: RemotePeer, channel: uint16, cmd: uint16, params: DataValue or DataToSend=null)"),
+			FUNC_ENTRY_H(notify,			"(to: RemotePeer, channel: uint16, cmd: uint16, param: DataValue=void)"),
 
-			FUNC_ENTRY_H(request,			"(to: RemotePeer, channel: uint16, cmd: uint16, params: DataValue or DataToSend=null): RequestID"),
+			FUNC_ENTRY_H(request,			"(to: RemotePeer, channel: uint16, cmd: uint16, param: DataValue=void): RequestID"),
 			FUNC_ENTRY_H(cancelRequest,		"(id: RequestID)"),
 			FUNC_ENTRY_H(setRequestTimeout,	"(id: RequestID, millis: int) // clears timeout when millis == 0"),
 			FUNC_ENTRY_H(getRequestStatus,	"(id: RequestID) : { StartTime: Timestamp } // null if not valid"),
 
-			FUNC_ENTRY_H(delayedResponse,	"(id: ResponseID, code: int, params: DataValue or DataToSend=null)"),
+			FUNC_ENTRY_H(delayedResponse,	"(id: ResponseID, code: int, param: DataValue=void)"),
 
-			FUNC_ENTRY_H(upload,			"(to: RemotePeer, channel: uint16, cmd: uint16, requestID: uint32, reader: StreamReader, streamSize: uint32, params: DataValue or DataToSend=null): UploadID"),
+			FUNC_ENTRY_H(upload,			"(to: RemotePeer, channel: uint16, cmd: uint16, requestID: uint32, reader: StreamReader, streamSize: uint32, param: DataValue=void): UploadID"),
 			FUNC_ENTRY_H(setUploadTimeout,	"(id: UploadID, millis: int) // clears timeout when millis == 0"),
 			FUNC_ENTRY_H(cancelUpload,		"(id: UploadID)"),
 			FUNC_ENTRY_H(getUploadStatus,	"(id: UploadID) : { Sent: int, Size: int, StartTime: Timestamp } // null if not valid"),
@@ -250,7 +189,7 @@ public:
 			FUNC_ENTRY_H(setDownloadTimeout,"(id: DownloadID, millis: int) // clears timeout when millis == 0"),
 			FUNC_ENTRY_H(getDownloadStatus,	"(id: DownloadID) : { Received: int, Size: int, StartTime: Timestamp } // null if not valid"),
 
-			FUNC_ENTRY_H(openChannel,		"(id: uint16, serviceName: string, info: DataValue=null): EventChannel"),
+			FUNC_ENTRY_H(openChannel,		"(id: uint16, serviceName: string, info: DataValue=void): EventChannel"),
 			FUNC_ENTRY_H(getChannel,		"(id: uint16): EventChannel"),
 			FUNC_ENTRY_H(closeChannel,		"(id: uint16)"),
 			NULL
@@ -326,15 +265,10 @@ public:
 
 	NB_FUNC(sendUserPacket)
 	{
-		if (isNone(v, 4) || is<DataToSend>(v, 4))
-			self(v)->sendUserPacket(get<RemotePeer>(v, 2), getInt(v, 3), opt<DataToSend>(v, 4, NULL));
-		else
-		{
-			DataValue value;
-			SQRESULT sr = ScriptDataValue::toValue(v, 4, value);
-			if (SQ_FAILED(sr)) return sr;
-			self(v)->sendUserPacket(get<RemotePeer>(v, 2), getInt(v, 3), value);
-		}
+		DataValue value;
+		SQRESULT sr = ScriptDataValue::toValue(v, 4, value);
+		if (SQ_FAILED(sr)) return sr;
+		self(v)->sendUserPacket(get<RemotePeer>(v, 2), getInt(v, 3), value);
 		return 0;
 	}
 
@@ -342,23 +276,15 @@ public:
 
 	NB_FUNC(notify)					
 	{ 
-		if (isNone(v, 5) || is<DataToSend>(v, 5))
-			self(v)->notify(get<RemotePeer>(v, 2), getInt(v, 3), getInt(v, 4), opt<DataToSend>(v, 5, NULL)); 
-		else
-		{
-			DataValue value;
-			SQRESULT sr = ScriptDataValue::toValue(v, 5, value);
-			if (SQ_FAILED(sr)) return sr;
-			self(v)->notify(get<RemotePeer>(v, 2), getInt(v, 3), getInt(v, 4), value);
-		}
+		DataValue value;
+		SQRESULT sr = ScriptDataValue::toValue(v, 5, value);
+		if (SQ_FAILED(sr)) return sr;
+		self(v)->notify(get<RemotePeer>(v, 2), getInt(v, 3), getInt(v, 4), value);
 		return 0; 
 	}
 
 	NB_FUNC(request)					
 	{ 
-		if (isNone(v, 5) || is<DataToSend>(v, 5))
-			return push(v, self(v)->request(get<RemotePeer>(v, 2), getInt(v, 3), getInt(v, 4), opt<DataToSend>(v, 5, NULL))); 
-
 		DataValue value;
 		SQRESULT sr = ScriptDataValue::toValue(v, 5, value);
 		if (SQ_FAILED(sr)) return sr;
@@ -370,23 +296,15 @@ public:
 
 	NB_FUNC(delayedResponse)			
 	{ 
-		if (isNone(v, 4) || is<DataToSend>(v, 4))
-			self(v)->delayedResponse(getInt(v, 2), getInt(v, 3), opt<DataToSend>(v, 4, NULL)); 
-		else
-		{
-			DataValue value;
-			SQRESULT sr = ScriptDataValue::toValue(v, 4, value);
-			if (SQ_FAILED(sr)) return sr;
-			self(v)->delayedResponse(getInt(v, 2), getInt(v, 3), value);
-		}
-		return 0; 
+		DataValue value;
+		SQRESULT sr = ScriptDataValue::toValue(v, 4, value);
+		if (SQ_FAILED(sr)) return sr;
+		self(v)->delayedResponse(getInt(v, 2), getInt(v, 3), value);
+		return 0;
 	}
 
 	NB_FUNC(upload)
 	{ 
-		if (isNone(v, 7) || is<DataToSend>(v, 8))
-			return push(v, self(v)->upload(get<RemotePeer>(v, 2), getInt(v, 3), getInt(v, 4), getInt(v, 5), get<StreamReader>(v, 6), getInt(v, 7), opt<DataToSend>(v, 8, NULL))); 
-
 		DataValue value;
 		SQRESULT sr = ScriptDataValue::toValue(v, 8, value);
 		if (SQ_FAILED(sr)) return sr;
@@ -501,60 +419,6 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-NB_TYPE_WEAK(NIT_API, nit::Remote::PacketIO, NULL);
-
-class NB_RemotePacketIO : TNitClass<Remote::PacketIO>
-{
-public:
-	static void Register(HSQUIRRELVM v)
-	{
-		PropEntry props[] =
-		{
-			PROP_ENTRY_R(pos),
-			PROP_ENTRY_R(dataLeft),
-			NULL
-		};
-
-		FuncEntry funcs[] =
-		{
-			FUNC_ENTRY_H(write,			"(writer: StreamWriter, size: int)"),
-			FUNC_ENTRY_H(openReader,	"(size: int): StreamReader"),
-			FUNC_ENTRY_H(skip,			"(size: int)"),
-			FUNC_ENTRY_H(readString,	"(size: int): string"),
-			FUNC_ENTRY_H(readValue,		"(): DataValue"),
-			FUNC_ENTRY_H(readI32,		"(): int"),
-			FUNC_ENTRY_H(readU32,		"(): int"),
-			FUNC_ENTRY_H(readI16,		"(): int"),
-			FUNC_ENTRY_H(readU16,		"(): int"),
-			FUNC_ENTRY_H(readI8,		"(): int"),
-			FUNC_ENTRY_H(readU8,		"(): int"),
-			FUNC_ENTRY_H(readF32,		"(): float"),
-			NULL
-		};
-
-		bind(v, props, funcs);
-	}
-
-	NB_PROP_GET(pos)					{ return push(v, self(v)->getPos()); }
-	NB_PROP_GET(dataLeft)				{ return push(v, self(v)->getDataLeft()); }
-
-	NB_FUNC(write)						{ self(v)->write(get<StreamWriter>(v, 2), getInt(v, 2)); return 0; }
-	NB_FUNC(openReader)					{ return push(v, self(v)->openReader(getInt(v, 2))); }
-	NB_FUNC(skip)						{ self(v)->skip(getInt(v, 2)); return 0; }
-
-	NB_FUNC(readString)					{ return push(v, self(v)->readString(getInt(v, 2))); }
-	NB_FUNC(readValue)					{ return push(v, self(v)->readValue()); }
-	NB_FUNC(readI32)					{ return push(v, (int)self(v)->read<int32>()); }
-	NB_FUNC(readU32)					{ return push(v, (int)self(v)->read<uint32>()); }
-	NB_FUNC(readI16)					{ return push(v, (int)self(v)->read<int16>()); }
-	NB_FUNC(readU16)					{ return push(v, (int)self(v)->read<uint16>()); }
-	NB_FUNC(readI8)						{ return push(v, (int)self(v)->read<int8>()); }
-	NB_FUNC(readU8)						{ return push(v, (int)self(v)->read<uint8>()); }
-	NB_FUNC(readF32)					{ return push(v, (float)self(v)->read<float>()); }
-};
-
-////////////////////////////////////////////////////////////////////////////////
-
 NB_TYPE_REF(NIT_API, nit::RemoteEvent, Event, incRefCount, decRefCount);
 
 class NB_RemoteEvent : TNitClass<RemoteEvent>
@@ -645,7 +509,7 @@ public:
 		PropEntry props[] =
 		{
 			PROP_ENTRY_R(hdrMsg),
-			PROP_ENTRY_R(packet),
+			PROP_ENTRY_R(data),
 			NULL
 		};
 
@@ -653,7 +517,7 @@ public:
 	}
 
 	NB_PROP_GET(hdrMsg)					{ return push(v, self(v)->hdrMsg); }
-	NB_PROP_GET(packet)					{ return push(v, self(v)->packet.get()); }
+	NB_PROP_GET(data)					{ return push(v, self(v)->data); }
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -690,7 +554,7 @@ public:
 		{
 			PROP_ENTRY_R(channelId),
 			PROP_ENTRY_R(command),
-			PROP_ENTRY_R(packet),
+			PROP_ENTRY_R(param),
 			NULL
 		};
 
@@ -699,7 +563,7 @@ public:
 
 	NB_PROP_GET(channelId)				{ return push(v, self(v)->channelId); }
 	NB_PROP_GET(command)				{ return push(v, self(v)->command); }
-	NB_PROP_GET(packet)					{ return push(v, self(v)->packet.get()); }
+	NB_PROP_GET(param)					{ return push(v, self(v)->param); }
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -720,7 +584,7 @@ public:
 		FuncEntry funcs[] =
 		{
 			FUNC_ENTRY_H(delay,			"(): ResponseID"),
-			FUNC_ENTRY_H(response,		"(code: int, params: DataValue or DataToSend=null)"),
+			FUNC_ENTRY_H(response,		"(code: int, param: DataValue=void)"),
 			NULL
 		};
 
@@ -733,15 +597,10 @@ public:
 
 	NB_FUNC(response)
 	{ 
-		if (isNone(v, 4) || is<DataToSend>(v, 4))
-			self(v)->response(getInt(v, 2), opt<DataToSend>(v, 4, NULL)); 
-		else
-		{
-			DataValue value;
-			SQRESULT sr = ScriptDataValue::toValue(v, 4, value);
-			if (SQ_FAILED(sr)) return sr;
-			self(v)->response(getInt(v, 2), value);
-		}
+		DataValue value;
+		SQRESULT sr = ScriptDataValue::toValue(v, 4, value);
+		if (SQ_FAILED(sr)) return sr;
+		self(v)->response(getInt(v, 2), value);
 		return 0; 
 	}
 };
@@ -885,14 +744,12 @@ public:
 
 SQRESULT NitLibCoreExt(HSQUIRRELVM v)
 {
-	NB_DataToSend::Register(v);
 	NB_SocketBase::Register(v);
 	NB_TcpSocket::Register(v);
 	NB_TcpSocketServer::Register(v);
 
 	NB_Remote::Register(v);
 	NB_RemotePeer::Register(v);
-	NB_RemotePacketIO::Register(v);
 
 	NB_RemoteEvent::Register(v);
 	NB_RemoteHelloEvent::Register(v);

@@ -143,7 +143,7 @@ public:
 		case RQ_ATTACH:
 			if (evt->code < 0)
 			{
-				String msg = evt->packet->readValue().toString();
+				String msg = evt->param.toString();
 				LOG(0, "[nit-rsh] Can't attach debugger (%d) %s\n", evt->code, msg.c_str());
 				evt->peer->disconnect();
 				break;
@@ -157,9 +157,10 @@ public:
 
 	void onServerLogEntry(const RemoteNotifyEvent* evt)
 	{
-		MemoryAccess* access = evt->packet->access(evt->packet->getDataLeft());
+		size_t blobSize;
+		const void* blob = evt->param.toBlob(&blobSize);
 
-		RemoteLogEntry entry(access->getMemory(), access->getSize());
+		RemoteLogEntry entry(blob, blobSize);
 
 		COLORREF color;
 
@@ -190,8 +191,6 @@ public:
 
 		if (entry.flags & entry.FLAG_LINEEND)
 			_console->printString("\n", -1, color);
-
-		delete access;
 	}
 
 	virtual void onConsoleShow(ConsoleWindow* con)

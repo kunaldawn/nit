@@ -393,9 +393,10 @@ void wxNitConsole::DetachLogger()
 
 void wxNitConsole::PrintRemoteLog(const RemoteNotifyEvent* evt)
 {
-	MemoryAccess* access = evt->packet->access(evt->packet->getDataLeft());
+	size_t blobSize;
+	const void* blob = evt->param.toBlob(&blobSize);
 
-	RemoteLogEntry entry(access->getMemory(), access->getSize());
+	RemoteLogEntry entry(blob, blobSize);
 
 	COLORREF color;
 
@@ -426,8 +427,6 @@ void wxNitConsole::PrintRemoteLog(const RemoteNotifyEvent* evt)
 
 	if (entry.flags & entry.FLAG_LINEEND)
 		_consoleWin.printString("\n", -1, color);
-
-	delete access;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

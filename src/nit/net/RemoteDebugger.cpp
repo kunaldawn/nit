@@ -84,8 +84,8 @@ public:
 			writeCStr(entry->fnName);
 		}
 
-        DataToSend data(_buffer);
-		attached->getRemote()->notify(attached, _debugServer->getChannelID(), DebugServer::NT_SVR_LOG_ENTRY, &data);
+		attached->getRemote()->notify(attached, _debugServer->getChannelID(), DebugServer::NT_SVR_LOG_ENTRY, 
+			DataValue(_buffer).convertTo(DataValue::TYPE_BLOB));
 		_buffer->clear();
 	}
 
@@ -116,8 +116,8 @@ public:
 			_buffer->pushBack("\n", 1);
 		}
 
-        DataToSend data(_buffer);
-		attached->getRemote()->notify(attached, _debugServer->getChannelID(), DebugServer::NT_SVR_LOG_ENTRY, &data);
+		attached->getRemote()->notify(attached, _debugServer->getChannelID(), DebugServer::NT_SVR_LOG_ENTRY, 
+			DataValue(_buffer).convertTo(DataValue::TYPE_BLOB));
 
 		_buffer->clear();
 	}
@@ -265,8 +265,8 @@ void DebugServer::onRemoteRequest(const RemoteRequestEvent* evt)
 		if (_peer != NULL)
 			return evt->response(RESPONSE_ERROR, DataValue("another debug client already attached"));
 
-		// TODO: check client version from params
-		attach(evt->peer, evt->packet->readValue());
+		// TODO: check client version from the param
+		attach(evt->peer, evt->param);
 		return evt->response(RESPONSE_OK);
 	}
 
@@ -346,8 +346,7 @@ void DebugServer::onNotifyCommand(const RemoteNotifyEvent* evt)
 	NitRuntime* rt = NitRuntime::getSingleton();
 	if (rt == NULL) return;
 
-	Remote::PacketIO* packet = evt->packet;
-	String cmd = packet->readValue().toString();
+	String cmd = evt->param.toString();
 
 	LOG(0, "++ Remote> %s\n", cmd.c_str());
 	rt->debugCommand(cmd);
@@ -398,7 +397,7 @@ void DebugServer::onRequestFile(const RemoteRequestEvent* evt)
 	if (_fileSystem == NULL)
 		return evt->response(RESPONSE_ERROR, DataValue("no filesystem"));
 
-	Ref<DataRecord> rec = evt->packet->readValue().toRecord();
+	Ref<DataRecord> rec = evt->param.toRecord();
 	if (rec == NULL) 
 		return evt->response(RESPONSE_ERROR);
 
@@ -562,7 +561,7 @@ void DebugServer::Continue()
 
 void DebugServer::onNotifyClearBP(const RemoteNotifyEvent* evt)
 {
-	DataValue params = evt->packet->readValue();
+	DataValue& params = evt->param;
 
 	Ref<DataKey> type = params.get("type").toKey();
 
@@ -585,7 +584,7 @@ void DebugServer::onNotifyClearBP(const RemoteNotifyEvent* evt)
 
 void DebugServer::onNotifyAddBP(const RemoteNotifyEvent* evt)
 {
-	DataValue params = evt->packet->readValue();
+	DataValue& params = evt->param;
 
 	Breakpoint bp;
 	bp.id		= params.get("id");
@@ -601,7 +600,7 @@ void DebugServer::onNotifyAddBP(const RemoteNotifyEvent* evt)
 
 void DebugServer::onNotifyRemoveBP(const RemoteNotifyEvent* evt)
 {
-	DataValue params = evt->packet->readValue();
+	DataValue& params = evt->param;
 
 	int bp_id = params.get("id");
 

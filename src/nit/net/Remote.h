@@ -155,8 +155,7 @@ public:
 	const RemotePeers&					getGuestPeers()							{ return _guestPeers; }
 
 public:									// UserPacket - Receiver should register its packet handler (if not Invalid Msg error occurs)
-	void								sendUserPacket(RemotePeer* to, uint16 hdrMsg, DataToSend* data = NULL);
-	void								sendUserPacket(RemotePeer* to, uint16 hdrMsg, const DataValue& data);
+	void								sendUserPacket(RemotePeer* to, uint16 hdrMsg, const DataValue& data = DataValue::Void());
 	void								registerUserMsg(uint16 hdrMsg);
 
 public:
@@ -169,25 +168,21 @@ public:
 public:									// notify protocol
 	typedef uint16						CommandId;
 
-	void								notify(RemotePeer* to, ChannelId channel, CommandId cmd, DataToSend* params = NULL);
-	void								notify(RemotePeer* to, ChannelId channel, CommandId cmd, const DataValue& params);
+	void								notify(RemotePeer* to, ChannelId channel, CommandId cmd, const DataValue& param = DataValue::Void());
 
 public:									// request-response protocol
 	typedef uint32						RequestId;
-	RequestId							request(RemotePeer* to, ChannelId channel, CommandId cmd, DataToSend* params = NULL);
-	RequestId							request(RemotePeer* to, ChannelId channel, CommandId cmd, const DataValue& params);
+	RequestId							request(RemotePeer* to, ChannelId channel, CommandId cmd, const DataValue& param = DataValue::Void());
 	void								cancelRequest(RequestId id);
 	bool								getRequestStatus(RequestId id, Timestamp* outStartTime = NULL);
 	void								setRequestTimeout(RequestId id, uint millis);
 
 	typedef uint32						ResponseId;
-	void								delayedResponse(ResponseId id, int32 code, DataToSend* msg = NULL);
-	void								delayedResponse(ResponseId id, int32 code, const DataValue& msg);
+	void								delayedResponse(ResponseId id, int32 code, const DataValue& param = DataValue::Void());
 
 public:									// upload-download protocol
 	typedef uint32						UploadId;
-	UploadId							upload(RemotePeer* to, ChannelId channel, CommandId cmd, RequestId requestId, StreamReader* reader, uint32 streamSize, DataToSend* params = NULL);
-	UploadId							upload(RemotePeer* to, ChannelId channel, CommandId cmd, RequestId requestId, StreamReader* reader, uint32 streamSize, const DataValue& params);
+	UploadId							upload(RemotePeer* to, ChannelId channel, CommandId cmd, RequestId requestId, StreamReader* reader, uint32 streamSize, const DataValue& param);
 	void								setUploadTimeout(UploadId id, uint millis);
 	void								cancelUpload(UploadId id);
 	bool								getUploadStatus(UploadId id, size_t* outSent = NULL, size_t* outSize = NULL, Timestamp* outStartTime = NULL);
@@ -508,10 +503,10 @@ class NIT_API RemoteUserPacketEvent : public RemoteEvent
 {
 public:
 	RemoteUserPacketEvent() { }
-	RemoteUserPacketEvent(nit::Remote* remote, RemotePeer* peer, uint16 hdrMsg, Remote::PacketIO* packet) 
-		: RemoteEvent(remote, peer), hdrMsg(hdrMsg), packet(packet) { }
+	RemoteUserPacketEvent(nit::Remote* remote, RemotePeer* peer, uint16 hdrMsg) 
+		: RemoteEvent(remote, peer), hdrMsg(hdrMsg) { }
 
-	Weak<Remote::PacketIO>				packet;
+	mutable DataValue					data;
 	uint16								hdrMsg;
 };
 
@@ -535,12 +530,12 @@ class NIT_API RemoteNotifyEvent : public RemoteEvent
 {
 public:
 	RemoteNotifyEvent() { }
-	RemoteNotifyEvent(nit::Remote* remote, RemotePeer* peer, uint16 channelId, uint16 cmd, Remote::PacketIO* packet) 
-		: RemoteEvent(remote, peer), channelId(channelId), command(cmd), packet(packet) { }
+	RemoteNotifyEvent(nit::Remote* remote, RemotePeer* peer, uint16 channelId, uint16 cmd) 
+		: RemoteEvent(remote, peer), channelId(channelId), command(cmd) { }
 
 	uint16								channelId;
 	uint16								command;
-	Weak<Remote::PacketIO>				packet;
+	mutable DataValue					param;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -549,15 +544,14 @@ class NIT_API RemoteRequestEvent : public RemoteNotifyEvent
 {
 public:
 	RemoteRequestEvent() { }
-	RemoteRequestEvent(nit::Remote* remote, RemotePeer* peer, uint16 channelId, uint16 cmd, uint32 requestId, Remote::PacketIO* packet)
-		: RemoteNotifyEvent(remote, peer, channelId, cmd, packet), requestId(requestId), _delayed(false) { }
+	RemoteRequestEvent(nit::Remote* remote, RemotePeer* peer, uint16 channelId, uint16 cmd, uint32 requestId)
+		: RemoteNotifyEvent(remote, peer, channelId, cmd), requestId(requestId), _delayed(false) { }
 
 	uint32								requestId;
 
 	nit::Remote::ResponseId				delay() const;
 
-	void								response(int32 code, DataToSend* params = NULL) const;
-	void								response(int32 code, const DataValue& params) const;
+	void								response(int32 code, const DataValue& param = DataValue::Void()) const;
 
 private:
 	friend class nit::Remote;
@@ -585,8 +579,8 @@ class NIT_API RemoteResponseEvent : public RemoteNotifyEvent
 {
 public:
 	RemoteResponseEvent() {}
-	RemoteResponseEvent(nit::Remote* remote, RemotePeer* peer, uint16 channelId, uint16 cmd, uint32 requestId, int32 code, Remote::PacketIO* packet)
-		: RemoteNotifyEvent(remote, peer, channelId, cmd, packet), requestId(requestId), code(code) { }
+	RemoteResponseEvent(nit::Remote* remote, RemotePeer* peer, uint16 channelId, uint16 cmd, uint32 requestId, int32 code)
+		: RemoteNotifyEvent(remote, peer, channelId, cmd), requestId(requestId), code(code) { }
 
 	uint32								requestId;
 	int32								code;
@@ -598,8 +592,8 @@ class NIT_API RemoteUploadStartEvent : public RemoteNotifyEvent
 {
 public:
 	RemoteUploadStartEvent() { }
-	RemoteUploadStartEvent(nit::Remote* remote, RemotePeer* peer, uint16 channelId, uint16 cmd, uint32 requestId, uint32 uploadId, uint32 streamSize, Remote::PacketIO* packet)
-		: RemoteNotifyEvent(remote, peer, channelId, cmd, packet), requestId(requestId), uploadId(uploadId), streamSize(streamSize), _offsetResponse(0), _sizeResponse(0), _packetSizeResponse(0) { }
+	RemoteUploadStartEvent(nit::Remote* remote, RemotePeer* peer, uint16 channelId, uint16 cmd, uint32 requestId, uint32 uploadId, uint32 streamSize)
+		: RemoteNotifyEvent(remote, peer, channelId, cmd), requestId(requestId), uploadId(uploadId), streamSize(streamSize), _offsetResponse(0), _sizeResponse(0), _packetSizeResponse(0) { }
 
 	uint32								requestId;
 	uint32								uploadId;
