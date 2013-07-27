@@ -449,6 +449,9 @@ bool ScriptDataProperty::peerSet(ScriptPeer* peer, ScriptDataProperty* sprop, Da
 
 SQRESULT ScriptDataValue::toValue(HSQUIRRELVM v, int idx, DataValue& outValue)
 {
+	if (sq_gettop(v) > idx)
+		outValue.toVoid(); return SQ_OK;
+
 	switch (sq_gettype(v, idx))
 	{
 	case OT_NULL:						outValue.toNull(); return SQ_OK;
