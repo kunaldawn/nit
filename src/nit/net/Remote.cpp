@@ -555,15 +555,15 @@ bool Remote::serverWhere(const String& hostQuery, uint16 myPort, uint16 targetPo
 	_udpReceiver->bind(myPort);
 
 	char buf[128];
-	HelloPacket* packet = (HelloPacket*)buf;
-	packet->signature = HDR_SIGNATURE;
-	packet->msg = HELLO_SERVER_WHERE;
-	packet->hostPort = _udpReceiver->getBindPort();
+	HelloPacket* pk = (HelloPacket*)buf;
+	pk->signature = HDR_SIGNATURE;
+	pk->msg = HELLO_SERVER_WHERE;
+	pk->hostPort = _udpReceiver->getBindPort();
 
-	packet->hostInfoLen = hostQuery.length();
+	pk->hostInfoLen = hostQuery.length();
 	strncpy(buf + sizeof(HelloPacket), hostQuery.c_str(), hostQuery.length());
 
-	size_t packetLen = sizeof(HelloPacket) + packet->hostInfoLen;
+	size_t packetLen = sizeof(HelloPacket) + pk->hostInfoLen;
 
 	return _udpReceiver->sendTo("255.255.255.255", targetPort, buf, packetLen);
 }
@@ -576,15 +576,15 @@ bool Remote::serverHere(const String& hostinfo, const String& targetAddr, uint16
 	Ref<UdpSocket> udpSender = new UdpSocket(this);
 
 	char buf[128];
-	HelloPacket* packet = (HelloPacket*)buf;
-	packet->signature = HDR_SIGNATURE;
-	packet->msg = HELLO_SERVER_HERE;
-	packet->hostPort = _server->getBindPort();
+	HelloPacket* pk = (HelloPacket*)buf;
+	pk->signature = HDR_SIGNATURE;
+	pk->msg = HELLO_SERVER_HERE;
+	pk->hostPort = _server->getBindPort();
 
-	packet->hostInfoLen = hostinfo.length();
+	pk->hostInfoLen = hostinfo.length();
 	strncpy(buf + sizeof(HelloPacket), hostinfo.c_str(), hostinfo.length());
 
-	size_t packetLen = sizeof(HelloPacket) + packet->hostInfoLen;
+	size_t packetLen = sizeof(HelloPacket) + pk->hostInfoLen;
 
 	return udpSender->sendTo(targetAddr, targetPort, buf, packetLen);
 }
@@ -642,7 +642,7 @@ bool Remote::onRecv(RemotePeer* peer, MemoryBuffer* recvBuf)
 		if (recvBuf->getSize() < hdr.packetLen)
 			return true;
 
-		PacketIO packet(peer, recvBuf, sizeof(hdr), hdr.packetLen - sizeof(hdr));
+		PacketReader packet(peer, recvBuf, sizeof(hdr), hdr.packetLen, hdr.packetLen - sizeof(hdr));
 
 		if (_packetDump)
 		{
@@ -681,11 +681,12 @@ bool Remote::onRecv(RemotePeer* peer, MemoryBuffer* recvBuf)
 			{
 				Ref<RemoteUserPacketEvent> evt = new RemoteUserPacketEvent(this, peer, hdr.msg);
 				packet.readValue(evt->data);
+				packet.consume();
 				_channel0->send(EVT::REMOTE_USER_PACKET, evt);
 			}
 		}
 
-		recvBuf->popFront(hdr.packetLen);
+		packet.consume();
 	}
 
 	return true;
@@ -709,42 +710,42 @@ void Remote::onUdpRecv(UdpSocket* socket, const String& peerAddr, uint16 peerPor
 	if (len < sizeof(HelloPacket))
 		return;
 
-	HelloPacket* packet = (HelloPacket*)msg;
-	if (packet->signature != HDR_SIGNATURE)
+	HelloPacket* pk = (HelloPacket*)msg;
+	if (pk->signature != HDR_SIGNATURE)
 		return;
 
-	if (len < sizeof(HelloPacket) + packet->hostInfoLen)
+	if (len < sizeof(HelloPacket) + pk->hostInfoLen)
 		return;
 
-	String hostinfo((const char*)(msg + sizeof(HelloPacket)), packet->hostInfoLen);
+	String hostinfo((const char*)(msg + sizeof(HelloPacket)), pk->hostInfoLen);
 
 	bool testLog = true;
 	if (testLog)
 	{
-		switch (packet->msg)
+		switch (pk->msg)
 		{
 		case HELLO_SERVER_HERE:
-			LOG(0, "++ [HELLO] Here : %s:%d '%s'\n", peerAddr.c_str(), (int)packet->hostPort, hostinfo.c_str());
+			LOG(0, "++ [HELLO] Here : %s:%d '%s'\n", peerAddr.c_str(), (int)pk->hostPort, hostinfo.c_str());
 			break;
 
 		case HELLO_SERVER_WHERE:
-			LOG(0, "++ [HELLO] Where? %s:%d '%s'\n", peerAddr.c_str(), (int)packet->hostPort, hostinfo.c_str());
+			LOG(0, "++ [HELLO] Where? %s:%d '%s'\n", peerAddr.c_str(), (int)pk->hostPort, hostinfo.c_str());
 			break;
 
 		default:
-			LOG(0, "++ [HELLO] msg:%d %s:%d '%s'\n", packet->msg, peerAddr.c_str(), (int)packet->hostPort, hostinfo.c_str());
+			LOG(0, "++ [HELLO] msg:%d %s:%d '%s'\n", pk->msg, peerAddr.c_str(), (int)pk->hostPort, hostinfo.c_str());
 		}
 	}
 
-	Ref<Event> evt = new RemoteHelloEvent(this, hostinfo, peerAddr, packet->hostPort, (HelloMsg)packet->msg);
+	Ref<Event> evt = new RemoteHelloEvent(this, hostinfo, peerAddr, pk->hostPort, (HelloMsg)pk->msg);
 	_channel0->send(EVT::REMOTE_HELLO, evt);
 
 	if (evt->isConsumed()) return;
 
-	if (packet->msg == HELLO_SERVER_WHERE)
+	if (pk->msg == HELLO_SERVER_WHERE)
 	{
 		if (_server && _server->isListening())
-			serverHere(_serverHostInfo, peerAddr, packet->hostPort);
+			serverHere(_serverHostInfo, peerAddr, pk->hostPort);
 	}
 }
 
@@ -1000,7 +1001,7 @@ void Remote::onDisconnect(RemotePeer* peer)
 	_channel0->send(EVT::REMOTE_DISCONNECT, new RemoteEvent(this, peer));
 }
 
-void Remote::recvWelcome(RemotePeer* from, PacketIO* packet)
+void Remote::recvWelcome(RemotePeer* from, PacketReader* packet)
 {
 	Ref<TcpSocket> socket = from->getSocket();
 	LOG(0, "++ Connected %s: %d\n", socket->getAddr().c_str(), (int)socket->getPort());
@@ -1022,9 +1023,10 @@ struct Remote::Predicates::RecvChannelClose
 	RemotePeer* peer;
 };
 
-void Remote::recvChannelClose(RemotePeer* from, PacketIO* packet)
+void Remote::recvChannelClose(RemotePeer* from, PacketReader* packet)
 {
 	uint16 channelId = packet->read<uint16>();
+	packet->consume();
 
 	Channels::iterator itr = _channels.find(channelId);
 	if (itr == _channels.end()) return;
@@ -1037,7 +1039,7 @@ void Remote::recvChannelClose(RemotePeer* from, PacketIO* packet)
 	channel->send(EVT::REMOTE_CHANNEL_CLOSE, evt);
 }
 
-void Remote::recvNotify(RemotePeer* from, PacketIO* packet)
+void Remote::recvNotify(RemotePeer* from, PacketReader* packet)
 {
 	uint16 channelId = packet->read<uint16>();
 
@@ -1047,11 +1049,12 @@ void Remote::recvNotify(RemotePeer* from, PacketIO* packet)
 		uint16 command = packet->read<uint16>();
 		Ref<RemoteNotifyEvent> evt = new RemoteNotifyEvent(this, from, channelId, command);
 		packet->readValue(evt->param);
+		packet->consume();
 		channel->send(EVT::REMOTE_NOTIFY, evt);
 	}
 }
 
-void Remote::recvRequest(RemotePeer* from, PacketIO* packet)
+void Remote::recvRequest(RemotePeer* from, PacketReader* packet)
 {
 	uint16 channelId	= packet->read<uint16>();
 	uint16 command		= packet->read<uint16>();
@@ -1063,6 +1066,7 @@ void Remote::recvRequest(RemotePeer* from, PacketIO* packet)
 
 	Ref<RemoteRequestEvent> evt = new RemoteRequestEvent(this, from, channelId, command, requestId);
 	packet->readValue(evt->param);
+	packet->consume();
 
 	channel->send(EVT::REMOTE_REQUEST, evt);
 	if (evt->_delayed)
@@ -1088,7 +1092,7 @@ void Remote::recvRequest(RemotePeer* from, PacketIO* packet)
 	}
 }
 
-void Remote::recvRequestCancel(RemotePeer* from, PacketIO* packet)
+void Remote::recvRequestCancel(RemotePeer* from, PacketReader* packet)
 {
 	uint16 channelId = packet->read<uint16>();
 
@@ -1097,6 +1101,7 @@ void Remote::recvRequestCancel(RemotePeer* from, PacketIO* packet)
 
 	uint16 command		= packet->read<uint16>();
 	uint32 requestId	= packet->read<uint32>();
+	packet->consume();
 
 	// TODO: Check performance
 	for (Responses::iterator itr = _responses.begin(), end = _responses.end(); itr != end; ++itr)
@@ -1113,7 +1118,7 @@ void Remote::recvRequestCancel(RemotePeer* from, PacketIO* packet)
 	}
 }
 
-void Remote::recvResponse(RemotePeer* from, PacketIO* packet)
+void Remote::recvResponse(RemotePeer* from, PacketReader* packet)
 {
 	uint16 channelId	= packet->read<uint16>();
 
@@ -1136,10 +1141,11 @@ void Remote::recvResponse(RemotePeer* from, PacketIO* packet)
 
 	Ref<RemoteResponseEvent> evt = new RemoteResponseEvent(this, from, channelId, command, requestId, code);
 	packet->readValue(evt->param);
+	packet->consume();
 	channel->send(EVT::REMOTE_RESPONSE, evt);
 }
 
-void Remote::recvUploadStart(RemotePeer* from, PacketIO* packet)
+void Remote::recvUploadStart(RemotePeer* from, PacketReader* packet)
 {
 	uint16 channelId	= packet->read<uint16>();
 	uint16 command		= packet->read<uint16>();
@@ -1159,6 +1165,7 @@ void Remote::recvUploadStart(RemotePeer* from, PacketIO* packet)
 
 	Ref<RemoteUploadStartEvent> evt = new RemoteUploadStartEvent(this, from, channelId, command, requestId, uploadId, streamSize);
 	packet->readValue(evt->param);
+	packet->consume();
 
 	channel->send(EVT::REMOTE_UPLOAD_START, evt);
 
@@ -1201,7 +1208,7 @@ void Remote::recvUploadStart(RemotePeer* from, PacketIO* packet)
 	}
 }
 
-void Remote::recvUploadPacket(RemotePeer* from, PacketIO* packet)
+void Remote::recvUploadPacket(RemotePeer* from, PacketReader* packet)
 {
 	uint32 downloadId = packet->read<uint32>();
 
@@ -1223,6 +1230,7 @@ void Remote::recvUploadPacket(RemotePeer* from, PacketIO* packet)
 
 		// TODO: Dump some log message
 
+		packet->consume();
 		cancelDownload(downloadId);
 		return;
 	}
@@ -1231,7 +1239,8 @@ void Remote::recvUploadPacket(RemotePeer* from, PacketIO* packet)
 
 	try
 	{
-		packet->write(e.writer, packetLen);
+		packet->copyWriteTo(e.writer, packetLen);
+		packet->consume();
 		ok = true;
 		e.bytesLeft -= packetLen;
 	}
@@ -1259,10 +1268,11 @@ void Remote::recvUploadPacket(RemotePeer* from, PacketIO* packet)
 	if (channel) channel->send(EVT::REMOTE_DOWNLOAD_END, new RemoteUploadEvent(this, from, uploadId, downloadId));
 }
 
-void Remote::recvUploadCancel(RemotePeer* from, PacketIO* packet)
+void Remote::recvUploadCancel(RemotePeer* from, PacketReader* packet)
 {
 	uint32 uploadId = packet->read<uint32>();
 	uint32 downloadId = packet->read<uint32>();
+	packet->consume();
 
 	if (downloadId == 0)
 	{
@@ -1292,13 +1302,14 @@ void Remote::recvUploadCancel(RemotePeer* from, PacketIO* packet)
 	if (channel) channel->send(EVT::REMOTE_UPLOAD_CANCEL, new RemoteUploadEvent(this, from, uploadId, downloadId));
 }
 
-void Remote::recvDownloadStart(RemotePeer* from, PacketIO* packet)
+void Remote::recvDownloadStart(RemotePeer* from, PacketReader* packet)
 {
 	uint32 uploadId		= packet->read<uint32>();
 	uint32 downloadId	= packet->read<uint32>();
 	uint32 offset		= packet->read<uint32>();
 	uint32 size			= packet->read<uint32>();
 	uint16 packetLen	= packet->read<uint16>();
+	packet->consume();
 
 	Uploads::iterator itr = _uploads.find(uploadId);
 
@@ -1342,16 +1353,18 @@ void Remote::recvDownloadStart(RemotePeer* from, PacketIO* packet)
 	// Actual upload will start at next ProcessUploads() loop
 }
 
-void Remote::recvDownloadCancel(RemotePeer* from, PacketIO* packet)
+void Remote::recvDownloadCancel(RemotePeer* from, PacketReader* packet)
 {
 	uint32 uploadId = packet->read<uint32>();
+	packet->consume();
 
 	cancelUpload(uploadId);
 }
 
-void Remote::recvDownloadEnd(RemotePeer* from, PacketIO* packet)
+void Remote::recvDownloadEnd(RemotePeer* from, PacketReader* packet)
 {
 	uint32 uploadId = packet->read<uint32>();
+	packet->consume();
 
 	Uploads::iterator itr = _uploads.find(uploadId);
 	if (itr == _uploads.end()) return;
@@ -1950,50 +1963,34 @@ void Remote::setListening(bool flag)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Remote::PacketIO::PacketIO(RemotePeer* peer, MemoryBuffer* recvBuf, size_t pos, size_t packetLen) 
-: _peer(peer), _recvBuf(recvBuf), _pos(pos), _dataLeft(packetLen)
+Remote::PacketReader::PacketReader(RemotePeer* peer, MemoryBuffer* recvBuf, size_t pos, size_t packetLen, size_t dataLen) 
+: _peer(peer), _recvBuf(recvBuf), _pos(pos), _packetLen(packetLen), _dataLeft(dataLen)
 {
 
 }
 
-void Remote::PacketIO::read(void* buf, size_t size)
+void Remote::PacketReader::read(void* buf, size_t size)
 {
+	assert(_recvBuf && "packet consumed");
+
 	_recvBuf->copyTo(buf, _pos, size);
 	_pos += size;
 	_dataLeft -= size;
 }
 
-void Remote::PacketIO::write(StreamWriter* writer, size_t size)
+void Remote::PacketReader::copyWriteTo(StreamWriter* writer, size_t size)
 {
+	assert(_recvBuf && "packet consumed");
+
 	_recvBuf->save(writer, _pos, size);
 	_pos += size;
 	_dataLeft -= size;
 }
 
-String Remote::PacketIO::readString(size_t size)
+void Remote::PacketReader::readValue(DataValue& outValue)
 {
-	size_t pos = _pos;
-	_pos += size;
-	_dataLeft -= size;
-	return _recvBuf->toString(pos, size);
-}
+	assert(_recvBuf && "packet consumed");
 
-void Remote::PacketIO::skip(size_t size)
-{
-	_pos += size;
-	_dataLeft -= size;
-}
-
-StreamReader* Remote::PacketIO::openReader(size_t size)
-{
-	Ref<MemoryBuffer::Reader> r = new MemoryBuffer::Reader(_recvBuf, NULL, _pos, size);
-	_pos += size;
-	_dataLeft -= size;
-	return r;
-}
-
-void Remote::PacketIO::readValue(DataValue& outValue)
-{
 	if (_dataLeft == 0)
 	{
 		outValue.toVoid();
@@ -2005,12 +2002,13 @@ void Remote::PacketIO::readValue(DataValue& outValue)
 	_dataLeft -= bytesRead;
 }
 
-MemoryAccess* Remote::PacketIO::access(size_t size)
+void Remote::PacketReader::consume()
 {
-	MemoryAccess* access = new MemoryBuffer::Access(_recvBuf, _pos, size);
-	_pos += size;
-	_dataLeft -= size;
-	return access;
+	if (_recvBuf)
+	{
+		_recvBuf->popFront(_packetLen);
+		_recvBuf = NULL;
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////

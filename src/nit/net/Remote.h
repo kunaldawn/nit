@@ -193,30 +193,27 @@ public:									// upload-download protocol
 	bool								getDownloadStatus(DownloadId id, size_t* outReceived = NULL, size_t* outSize = NULL, Timestamp* outStartTime = NULL);
 
 public:
-	class NIT_API PacketIO : public WeakSupported
+	class PacketReader : public WeakSupported
 	{
 	public:
-		PacketIO(RemotePeer* peer, MemoryBuffer* recvBuf, size_t pos, size_t packetLen);
+		PacketReader(RemotePeer* peer, MemoryBuffer* recvBuf, size_t pos, size_t packetLen, size_t dataLen);
 
-		size_t							getPos()								{ return _pos; }
 		size_t							getDataLeft()							{ return _dataLeft; }
 
 		template <typename TValue>
 		TValue							read()									{ TValue value; read(&value, sizeof(value)); return value; }
 
 		void							read(void* buf, size_t size);
-		void							write(StreamWriter* writer, size_t size);
-		String							readString(size_t size);
+		void							copyWriteTo(StreamWriter* writer, size_t size);
 		void							readValue(DataValue& outValue);
-		DataValue						readValue()								{ DataValue value; readValue(value); return value; }
-		void							skip(size_t size);
-		StreamReader*					openReader(size_t size);
-		MemoryAccess*					access(size_t size);
+
+		void							consume();
 
 	private:
 		RemotePeer*						_peer;
 		MemoryBuffer*					_recvBuf;
 		size_t							_pos;
+		size_t							_packetLen;
 		size_t							_dataLeft;
 	};
 
@@ -238,23 +235,23 @@ protected:
 	void								response(RemotePeer* to, ChannelId channel, CommandId cmd, RequestId requestId, uint32 code, const DataValue& msg);
 
 protected:
-	void								recvWelcome(RemotePeer* from, PacketIO* packet);
+	void								recvWelcome(RemotePeer* from, PacketReader* packet);
 
-	void								recvChannelClose(RemotePeer* from, PacketIO* packet);
+	void								recvChannelClose(RemotePeer* from, PacketReader* packet);
 
-	void								recvNotify(RemotePeer* from, PacketIO* packet);
+	void								recvNotify(RemotePeer* from, PacketReader* packet);
 
-	void								recvRequest(RemotePeer* from, PacketIO* packet);
-	void								recvRequestCancel(RemotePeer* from, PacketIO* packet);
-	void								recvResponse(RemotePeer* from, PacketIO* packet);
+	void								recvRequest(RemotePeer* from, PacketReader* packet);
+	void								recvRequestCancel(RemotePeer* from, PacketReader* packet);
+	void								recvResponse(RemotePeer* from, PacketReader* packet);
 
-	void								recvUploadStart(RemotePeer* from, PacketIO* packet);
-	void								recvUploadPacket(RemotePeer* from, PacketIO* packet);
-	void								recvUploadCancel(RemotePeer* from, PacketIO* packet);
+	void								recvUploadStart(RemotePeer* from, PacketReader* packet);
+	void								recvUploadPacket(RemotePeer* from, PacketReader* packet);
+	void								recvUploadCancel(RemotePeer* from, PacketReader* packet);
 
-	void								recvDownloadStart(RemotePeer* from, PacketIO* packet);
-	void								recvDownloadCancel(RemotePeer* from, PacketIO* packet);
-	void								recvDownloadEnd(RemotePeer* from, PacketIO* packet);
+	void								recvDownloadStart(RemotePeer* from, PacketReader* packet);
+	void								recvDownloadCancel(RemotePeer* from, PacketReader* packet);
+	void								recvDownloadEnd(RemotePeer* from, PacketReader* packet);
 
 	void								processUploads();
 
@@ -521,7 +518,6 @@ public:
 
 	uint16								channelId;
 	uint16								serviceID;
-	Weak<Remote::PacketIO>				packet;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
