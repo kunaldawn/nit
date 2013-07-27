@@ -592,8 +592,11 @@ bool Remote::serverHere(const String& hostinfo, const String& targetAddr, uint16
 
 bool Remote::listen(const String& hostinfo, uint16 port)
 {
-	if (isListening())
-		NIT_THROW_FMT(EX_INVALID_STATE, "already listening port %d", _server->getBindPort());
+	if (_server)
+		NIT_THROW_FMT(EX_INVALID_STATE, "already listening %s:%d", _server->getBindAddr().c_str(), _server->getBindPort());
+
+	if (_hostPeer)
+		NIT_THROW_FMT(EX_INVALID_STATE, "already connected to %s:%d", _hostPeer->getSocket()->getAddr().c_str(), _hostPeer->getSocket()->getPort());
 
 	if (_server)
 		_server->shutdown();
@@ -618,6 +621,9 @@ bool Remote::listen(const String& hostinfo, uint16 port)
 
 bool Remote::connect(const String& givenAddr)
 {
+	if (_server)
+		NIT_THROW_FMT(EX_INVALID_STATE, "already listening %s:%d", _server->getBindAddr().c_str(), _server->getBindPort());
+
 	if (_hostPeer)
 		_hostPeer->disconnect();
 
