@@ -106,9 +106,17 @@ public:
 		RESPONSE_FILE_ERROR				= -102,
 	};
 
+	enum
+	{
+		PORT_DEFAULT					= 51220,
+	};
+
 public:
 	DebugServer(Remote::ChannelId channelID = 0xdeb6);
 	~DebugServer();
+
+public:
+	void								listen(const String& addr = StringUtil::BLANK(), uint16 port = PORT_DEFAULT);
 
 public:
 	void								attach(RemotePeer* peer, DataValue params);

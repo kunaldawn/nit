@@ -222,6 +222,7 @@ public:
 			if (StringUtil::startsWith(cmd, "connect"))
 			{
 				String addr = cmd.substr(8);
+
 				if (_remote.connect(addr))
 				{
 					DataValue params = DataValue::fromJson("{ client:'nit-rsh', version:'1.0', log:true }");

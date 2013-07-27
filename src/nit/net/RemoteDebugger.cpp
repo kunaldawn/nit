@@ -200,7 +200,7 @@ int RemoteLogEntry::formatHeader(char* buf, int bufSize)
 
 DebugServer::DebugServer(Remote::ChannelId channelID /*= 0xdeb6*/)
 {
-	_remote	= new Remote();
+	_remote		= NULL;
 	_debugger	= NULL;
 
 	_channelID = channelID;
@@ -209,6 +209,27 @@ DebugServer::DebugServer(Remote::ChannelId channelID /*= 0xdeb6*/)
 	_debugging = false;
 
 	_breakpointsUpdated = false;
+
+	listen();
+}
+
+DebugServer::~DebugServer()
+{
+	if (_logger)
+		LogManager::getSingleton().detach(_logger);
+
+	safeDelete(_remote);
+}
+
+void DebugServer::listen(const String& addr, uint16 port)
+{
+	if (_remote)
+	{
+		_remote->shutdown();
+		LogManager::getSingleton().detach(_logger);
+	}
+
+	_remote = new Remote();
 
 	typedef DebugServer ThisClass;
 
@@ -220,7 +241,7 @@ DebugServer::DebugServer(Remote::ChannelId channelID /*= 0xdeb6*/)
 	_logger->setLogLevel(LOG_LEVEL_VERBOSE);
 	LogManager::getSingleton().attach(_logger);
 
-	ch = _remote->openChannel(channelID, "nit.RemoteDebug");
+	ch = _remote->openChannel(_channelID, "nit.RemoteDebug");
 
 	ch->bind(EVT::REMOTE_REQUEST, this, &ThisClass::onRemoteRequest);
 	ch->bind(EVT::REMOTE_NOTIFY, this, &ThisClass::onRemoteNotify);
@@ -229,7 +250,9 @@ DebugServer::DebugServer(Remote::ChannelId channelID /*= 0xdeb6*/)
 
 	NitRuntime* rt = NitRuntime::getSingleton();
 
-	if (!_remote->listen(rt->getHostName()))
+	String hostaddr = addr.empty() ? rt->getHostName() : addr;
+
+	if (!_remote->listen(hostaddr, port))
 	{
 		rt->alert(rt->getTitle(), "Can't listen Remote");
 	}
@@ -237,14 +260,6 @@ DebugServer::DebugServer(Remote::ChannelId channelID /*= 0xdeb6*/)
 	{
 		rt->info(rt->getTitle(), (String("started & listening: ") + rt->getMainIp()).c_str());
 	}
-}
-
-DebugServer::~DebugServer()
-{
-	if (_logger)
-		LogManager::getSingleton().detach(_logger);
-
-	safeDelete(_remote);
 }
 
 void DebugServer::update()
