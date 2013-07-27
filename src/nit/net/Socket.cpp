@@ -86,6 +86,9 @@ SocketBase::~SocketBase()
 
 bool SocketBase::error(const char* msg, int err)
 {
+	if (!isValid())
+		return false;
+
 	disconnect();
 	LOG(0, "*** [Socket] %s: %s (%d)\n", msg, errorToStr(err), err);
 	return false;
