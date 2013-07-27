@@ -131,7 +131,7 @@ public:
 
 public:
 	bool								listen(const String& myhostname, uint16 port = PORT_DEFAULT_TCP);
-	bool								connect(const String& addr, uint16 port = PORT_DEFAULT_TCP);
+	bool								connect(const String& addr);
 
 	void								update();
 	void								shutdown();

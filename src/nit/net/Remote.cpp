@@ -467,7 +467,8 @@ Remote::Remote()
 	_nextUploadId		= 1;
 	_nextDownloadId		= 1;
 
-	_broadcastPeer	= new BroadcastPeer(this);
+	_server				= NULL;
+	_broadcastPeer		= NULL;
 
 	_updating			= false;
 	_shutdown			= false;
@@ -591,26 +592,48 @@ bool Remote::serverHere(const String& hostinfo, const String& targetAddr, uint16
 
 bool Remote::listen(const String& hostinfo, uint16 port)
 {
+	if (isListening())
+		NIT_THROW_FMT(EX_INVALID_STATE, "already listening port %d", _server->getBindPort());
+
 	if (_server)
 		_server->shutdown();
 
 	_server = new TcpSocketServer(this);
 	bool ok = _server->listen(port);
 
-	if (!ok) 
+	if (!ok)
+	{
 		_server = NULL;
+		return false;
+	}
 
 	_serverHostInfo = hostinfo;
 
-	if (ok) serverHere(hostinfo);
+	_broadcastPeer = new BroadcastPeer(this);
 
-	return ok;
+	serverHere(hostinfo);
+
+	return true;
 }
 
-bool Remote::connect(const String& addr, uint16 port)
+bool Remote::connect(const String& givenAddr)
 {
 	if (_hostPeer)
 		_hostPeer->disconnect();
+
+	uint16 port = Remote::PORT_DEFAULT_TCP;
+	String addr = givenAddr;
+
+	size_t colonPos = addr.find(':');
+	if (colonPos != addr.npos)
+	{
+		port = DataValue(addr.substr(colonPos+1)).toInt();
+		addr = addr.substr(0, colonPos);
+	}
+
+	StringUtil::trim(addr);
+
+	LOG(0, "connecting %s: %d\n", addr.c_str(), port);
 
 	Ref<TcpSocket> socket = new TcpSocket(NULL, addr, port);
 	
@@ -839,6 +862,9 @@ void Remote::doShutdown()
 
 	// Remove all channels except channel 0
 	ChannelEntry entry0 = _channels[0];
+
+	// and renew event channel of channel 0
+	entry0.channel = new EventChannel();
 
 	_channels.clear();
 	_channels[0] = entry0;
