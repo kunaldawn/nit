@@ -41,6 +41,8 @@ public:
 	virtual bool						stepOver() = 0;
 	virtual bool						stepOut() = 0;
 
+	virtual bool						inspect(int inspectId, DataValue& outValue) = 0;
+
 	virtual void						updateBreakpoints() = 0;
 };
 

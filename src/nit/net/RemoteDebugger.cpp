@@ -509,36 +509,40 @@ void DebugServer::onRequestGo(const RemoteRequestEvent* evt)
 {
 	bool ok = _debugger->go();
 
-	if (!ok) evt->response(RESPONSE_ERROR);
-
-	evt->response(RESPONSE_OK);
+	if (!ok) 
+		evt->response(RESPONSE_ERROR);
+	else
+		evt->response(RESPONSE_OK);
 }
 
 void DebugServer::onRequestStepInto(const RemoteRequestEvent* evt)
 {
 	bool ok = _debugger->stepInto();
 
-	if (!ok) evt->response(RESPONSE_ERROR);
-
-	evt->response(RESPONSE_OK);
+	if (!ok) 
+		evt->response(RESPONSE_ERROR);
+	else
+		evt->response(RESPONSE_OK);
 }
 
 void DebugServer::onRequestStepOver(const RemoteRequestEvent* evt)
 {
 	bool ok = _debugger->stepOver();
 
-	if (!ok) evt->response(RESPONSE_ERROR);
-
-	evt->response(RESPONSE_OK);
+	if (!ok) 
+		evt->response(RESPONSE_ERROR);
+	else
+		evt->response(RESPONSE_OK);
 }
 
 void DebugServer::onRequestStepOut(const RemoteRequestEvent* evt)
 {
 	bool ok = _debugger->stepOut();
 
-	if (!ok) evt->response(RESPONSE_ERROR);
-
-	evt->response(RESPONSE_OK);
+	if (!ok) 
+		evt->response(RESPONSE_ERROR);
+	else
+		evt->response(RESPONSE_OK);
 }
 
 void DebugServer::onRequestLocals(const RemoteRequestEvent* evt)
@@ -548,7 +552,15 @@ void DebugServer::onRequestLocals(const RemoteRequestEvent* evt)
 
 void DebugServer::onRequestInspect(const RemoteRequestEvent* evt)
 {
+	int inspectId = evt->param.get("inspect_id").toInt();
 
+	DataValue value;
+	bool ok = _debugger->inspect(inspectId, value);
+
+	if (!ok) 
+		evt->response(RESPONSE_ERROR);
+	else
+		evt->response(RESPONSE_OK, value);
 }
 
 void DebugServer::onRequestEvaluate(const RemoteRequestEvent* evt)

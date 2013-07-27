@@ -584,7 +584,11 @@ class NitEditFrame : wx.ScriptFrame
 		var fileSource = script.unit.source
 		bind(EVT.MENU, ID.RESTART, getroottable()) by (evt) => dofile(fileSource.name, fileSource.locator)
 		
-		bind(EVT.MENU, ID.SELF_DEBUG, frame) by (evt) => app.runtime.debugServer.listen(null, 1234)
+		bind(EVT.MENU, ID.SELF_DEBUG, frame) by (evt)
+		{
+			app.runtime.debugServer.listen(null, 1234)
+			debug.active = true
+		}
 		
 		bind(EVT.MENU, ID.OPEN, frame, onFileOpen)
 		bind(EVT.MENU, ID.EXIT, frame) by (evt) => close()
@@ -1002,7 +1006,7 @@ class NitEditFrame : wx.ScriptFrame
 	var _lastAttachedAddr: string = "127.0.0.1"
 	var _debugClient: DebugClient
 	var _remote = Remote()
-	var _remoteTask = costart by { while (true) { sleep(); _remote.update(); } }
+	var _remoteTask = costart by { var remote = _remote.weak(); try while (true) { sleep(); remote.ref().update() }  }
 	
 	function onDebugAttach(evt: wx.CommandEvent)
 	{
@@ -1266,7 +1270,7 @@ class NitEditFrame : wx.ScriptFrame
 				var stackItem =
 				{
 					stackinfo = si
-					Status = ""
+					status = ""
 					name = format("%s.%s()", si.this_name, si.func)
 					location = try format("%s: %s #%d", si.pack.name, si.file.name, si.line) : "(unknown)"
 				}
@@ -1279,37 +1283,66 @@ class NitEditFrame : wx.ScriptFrame
 		}
 	}
 	
+	function addInspectItem(model, name, o, parent_id = 0)
+	{
+		var kind = try o.kind : "item"
+		var type = o.type
+		var value = o.value
+		
+		if (type == "string")
+			value = '"' + value.replace('\n', '\\n') + '"'
+			
+		if (type == "closure" || type == "n-closure")
+			name += "()"
+		
+		if (try o.truncated)
+			value += "..."
+		
+		var item =
+		{
+			inspect_id = try o.inspect_id
+			kind = kind
+			name = name
+			value = value
+			type = type
+		}
+		
+		if (item.inspect_id)
+			model.addExpanderItem(item, onExpandInspector.bind(weak()), parent_id)
+		else
+			model.addItem(item, parent_id)
+	}
+	
 	function updateLocals(locals)
 	{
 		var model = _localsModel
 		
 		model.clear()
-	
-		foreach (name, o in locals)
+		
+		var sortedNames = locals.keys().sort()
+		foreach (name in sortedNames)
 		{
-			var item =
-			{
-				inspect_id = try o.inspect_id
-				
-				kind = "l"
-				name 	= name
-				value 	= o.value
-				type 	= o.type
-			}
-			
-			if (item.inspect_id)
-				model.addExpanderItem(item, onExpandInspector.bind(weak()))
-			else 
-				model.addItem(item)
+			var o = locals[name]
+			addInspectItem(model, name, o)
 		}
 	}
 	
 	function onExpandInspector(item, parent_id)
 	{
-		_localsModel.addExpanderItem( 
-			{ kind = "t", name = "test of " + try item.inspect_id, value = 10, type = "int" }, 
-			onExpandInspector.bind(weak()),
-			parent_id )
+		var model = _localsModel
+		
+		costart by
+		{
+			var members = _debugClient.requestInspect(item.inspect_id)()
+
+			var sortedNames = members.keys().sort()
+				
+			foreach (name in sortedNames)
+			{
+				var o = members[name]
+				addInspectItem(model, name, o, parent_id)
+			}
+		}
 	}
 
 	function onServerResume(evt: RemoteNotifyEvent)

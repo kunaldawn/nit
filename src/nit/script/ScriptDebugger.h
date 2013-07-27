@@ -95,6 +95,8 @@ public:									// IDebugger Impl
 	virtual bool						stepOver();
 	virtual bool						stepOut();
 
+	virtual bool						inspect(int inspectId, DataValue& outValue);
+
 	virtual void						updateBreakpoints();
 
 protected:
@@ -123,16 +125,15 @@ private:
 	int									_nextStackID;
 	int									_nextInspectID;
 
-	typedef unordered_map<int, HSQOBJECT>::type ObjectMap;
+	typedef unordered_map<int, Ref<ScriptPeer> >::type ObjectMap;
 	ObjectMap							_inspectTrap;
 
 	void								clearTrap(HSQUIRRELVM v, ObjectMap& trap);
 
 	void								resetTraps(HSQUIRRELVM v);
 	Ref<DataRecord>						createThreadInfo(HSQUIRRELVM th, ScriptRuntime* srt, int startLevel, int lineFix = -1);
-	Ref<DataRecord>						createObjInfo(HSQUIRRELVM v, int stackIdx, const char* valueStr = NULL);
+	Ref<DataRecord>						createObjInfo(HSQUIRRELVM v, int stackIdx, const char* kind, const char* varName, const char* func);
 	void								populateMemberInfo(HSQUIRRELVM v, int stackIdx, Ref<DataRecord> members);
-
 	friend class						NB_ScriptDebugger;
 };
 

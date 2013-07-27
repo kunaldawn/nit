@@ -172,6 +172,15 @@ class DebugClient
 		}
 	}
 	
+	function requestInspect(inspectId: int)
+	{
+		return request(CMD.RQ_INSPECT, { inspect_id = inspectId }) by (code, ret)
+		{
+			if (code < 0) throw
+				format("can't inspect (code: %d): %s", code, ret())
+		}
+	}
+	
 	function notifyCommand(cmd: string)
 	{
 		_peer.remote.notify(_peer, _channelId, CMD.NT_COMMAND, cmd)
