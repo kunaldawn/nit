@@ -659,6 +659,10 @@ void ScriptDebugger::populateMemberInfo(HSQUIRRELVM v, int stackidx, Ref<DataRec
 
 	switch (type)
 	{
+	case OT_ARRAY:
+		metaIdx = objIdx;
+		break;
+
 	case OT_TABLE:
 	case OT_USERDATA:
 		sq_getdelegate(v, objIdx);
@@ -685,9 +689,8 @@ void ScriptDebugger::populateMemberInfo(HSQUIRRELVM v, int stackidx, Ref<DataRec
 
 	case OT_WEAKREF:
 	case OT_NATIVEWEAKREF:
-		sq_getweakrefval(v, objIdx);
-		members->set("$ref", createObjInfo(v, -1, "internal", varName, func));
-		sq_poptop(v);
+		// Code never reach here - ScriptPeer saves weak's strong reference instead.
+		assert(false);
 		break;
 
 	case OT_CLOSURE:
@@ -729,9 +732,19 @@ void ScriptDebugger::populateMemberInfo(HSQUIRRELVM v, int stackidx, Ref<DataRec
 		}
 
 		sq_push(v, itr.keyIndex());
+		sq_push(v, -1);
+
+		const char* kind = "member";
+
+		if (SQ_SUCCEEDED(sq_getproperty(v, metaIdx)))
+		{
+			kind = "property";
+			sq_pop(v, 2);
+		}
+
 		if (SQ_SUCCEEDED(sq_get(v, objIdx)))
 		{
-			objInfo = createObjInfo(v, -1, "member", varName, func);
+			objInfo = createObjInfo(v, -1, kind, varName, func);
 			if (objInfo)
 				members->set(key, objInfo);
 			sq_poptop(v);
@@ -739,7 +752,7 @@ void ScriptDebugger::populateMemberInfo(HSQUIRRELVM v, int stackidx, Ref<DataRec
 		else
 		{
 			objInfo = new DataRecord();
-			objInfo->set("kind", "member");
+			objInfo->set("kind", kind);
 			objInfo->set("type", "");
 			objInfo->set("value", "<error>");
 
@@ -777,13 +790,13 @@ void ScriptDebugger::breakExecution(HSQUIRRELVM v, Ref<DataRecord> breakInfo, in
 
 	resetTraps(v);
 
+	// make thread info (and associated stack & locals)
 	Ref<DataArray> threads = new DataArray();
 	breakInfo->set("threads", threads);
 
 	ScriptRuntime* srt = ScriptRuntime::getRuntime(v);
 
 	Ref<DataRecord> threadInfo;
-
 	threadInfo = createThreadInfo(v, srt, level, line);
 	threads->append(threadInfo);
 
@@ -801,66 +814,45 @@ void ScriptDebugger::breakExecution(HSQUIRRELVM v, Ref<DataRecord> breakInfo, in
 	}
 	sq_poptop(v);
 
-	bool enableTempFields = false;
+	// make globals info
+	Ref<DataRecord> globals = new DataRecord();
+	breakInfo->set("globals", globals);
 
-	// Assign '_locals', '_this', '_thread' temporary field for debugging
-	if (enableTempFields)
-	{
-		sq_pushroottable(v);
+	sq_pushroottable(v);
+	globals->set("$root", createObjInfo(v, -1, "system", "", ""));
+	sq_poptop(v);
 
-		SQStackInfos si;
-		if (SQ_SUCCEEDED(sq_stackinfos(v, level, &si)))
-		{
-			sq_pushstring(v, "_locals", -1);
-			sq_newtable(v);
-			const char* name = NULL;
-			int seq = 0;
-			int thisSeq = -1;
-			while ((name = sq_getlocal(v, level, seq)))
-			{
-				sq_pushstring(v, name, -1);
-				sq_push(v, -2);
-				sq_newslot(v, -4, false);
-				sq_poptop(v);
-				if (strcmp(name, "this") == 0)
-					thisSeq = seq;
-				++seq;
-			}
-			sq_newslot(v, -3, false);
+	sq_pushconsttable(v);
+	globals->set("$consts", createObjInfo(v, -1, "system", "", ""));
+	sq_poptop(v);
 
-			if (thisSeq != -1)
-			{
-				sq_pushstring(v, "_this", -1);
-				sq_getlocal(v, level, thisSeq);
-				sq_newslot(v, -3, false);
-			}
-		}
+	sq_pushregistrytable(v);
+	globals->set("$registry", createObjInfo(v, -1, "system", "", ""));
+	sq_poptop(v);
 
-		sq_pushstring(v, "_thread", -1);
-		sq_pushthread(v, v);
-		sq_newslot(v, -3, false);
+	NitBind::push(v, g_App);
+	globals->set("app", createObjInfo(v, -1, "nit", "", ""));
+	sq_poptop(v);
 
-		sq_poptop(v);
-	}
+	NitBind::push(v, srt);
+	globals->set("script", createObjInfo(v, -1, "nit", "", ""));
+	sq_poptop(v);
 
+	NitBind::push(v, g_Package);
+	globals->set("package", createObjInfo(v, -1, "nit", "", ""));
+	sq_poptop(v);
+
+	NitBind::push(v, g_Session);
+	globals->set("session", createObjInfo(v, -1, "nit", "", ""));
+	sq_poptop(v);
+
+	// Dive into the trap!
 	_targetThread = v;
 
 	_debugServer->breakTrap(breakInfo);
 
+	// Escaped from the trap
 	_targetThread = NULL;
-
-	// Remove temporary fields for debugging
-	if (enableTempFields)
-	{
-		sq_pushroottable(v);
-		sq_pushstring(v, "_locals", -1);
-		sq_deleteslot(v, -2, false);
-		sq_pushstring(v, "_this", -1);
-		sq_deleteslot(v, -2, false);
-		sq_pushstring(v, "_thread", -1);
-		sq_deleteslot(v, -2, false);
-		sq_poptop(v);
-	}
 
 	resetTraps(v);
 
@@ -894,9 +886,6 @@ bool ScriptDebugger::command(String line)
 		LOG(0, "  step  (so) : step over   (F10)\n");
 		LOG(0, "  ret   (sr) : step out    (Shift+F11)\n");
 		LOG(0, "  ?debug     : dump debugger\n");
-		LOG(0, "  ?_locals   : dump locals\n");
-		LOG(0, "  ?_this     : dump locals[\"this\"] : alternative for 'this' keyword\n");
-		LOG(0, "  ?_thread   : dump current thread\n");
 	}
 	else
 		return false;

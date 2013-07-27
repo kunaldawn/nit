@@ -48,12 +48,12 @@ class DataModel
 		
 		if (expander)
 		{
-			costart(@{
+			costart by {
 				_expanders[id] := getthread().weak()
 				sleep()
-				expander(try item.obj, id)
+				expander(this, try item.obj, id)
 				_expanders.delete(id)
-			})
+			}
 		}
 		
 		return item.children
@@ -694,6 +694,10 @@ class NitEditFrame : wx.ScriptFrame
 		_localsWin = createLocalsView(_consolePages, _localsModel)
 		_consolePages.addPage(_localsWin, "Locals")
 		
+		_globalsModel = DataModel()
+		_globalsWin = createGlobalsView(_consolePages, _globalsModel)
+		_consolePages.addPage(_globalsWin, "Globals")
+		
 		_consolePages.visible = false
 		
 		_splitter.initialize(_docPanes)
@@ -778,7 +782,7 @@ class NitEditFrame : wx.ScriptFrame
 			var line 	= si.line
 			
 			costart by { showEditor(addr, pack, file, url, line) }
-			costart by { updateLocals(si.locals) }
+			costart by { updateInspector(_localsModel, si.locals) }
 		}
 	}
 	
@@ -797,6 +801,13 @@ class NitEditFrame : wx.ScriptFrame
 		}
 		
 		return view
+	}
+
+	function createGlobalsView(parent: wx.Widget, model: DataModel)
+	{
+		// HACK: same with localsView
+		
+		return createLocalsView(parent, model)
 	}
 	
 	property currDocPane get
@@ -1215,7 +1226,7 @@ class NitEditFrame : wx.ScriptFrame
 				url  = url
 			}, id)
 			editor = doc.debugEditor
-			editor.appendText(w.buffer.ToString())
+			editor.appendText(w.buffer.toString())
 			doc.readOnly = true
 		}
 		else
@@ -1243,7 +1254,8 @@ class NitEditFrame : wx.ScriptFrame
 	function updateDebugWindows(params)
 	{
 		costart by { updateCallstack(params) }
-		costart by { updateLocals(params.threads[0].callstack[0].locals) }
+		costart by { updateInspector(_localsModel, params.threads[0].callstack[0].locals) }
+		costart by { updateInspector(_globalsModel, params.globals) }
 	}
 	
 	function updateCallstack(params)
@@ -1313,24 +1325,20 @@ class NitEditFrame : wx.ScriptFrame
 			model.addItem(item, parent_id)
 	}
 	
-	function updateLocals(locals)
+	function updateInspector(model, items)
 	{
-		var model = _localsModel
-		
 		model.clear()
 		
-		var sortedNames = locals.keys().sort()
+		var sortedNames = items.keys().sort()
 		foreach (name in sortedNames)
 		{
-			var o = locals[name]
+			var o = items[name]
 			addInspectItem(model, name, o)
 		}
 	}
 	
-	function onExpandInspector(item, parent_id)
+	function onExpandInspector(model, item, parent_id)
 	{
-		var model = _localsModel
-		
 		costart by
 		{
 			var members = _debugClient.requestInspect(item.inspect_id)()
@@ -1617,14 +1625,17 @@ class NitEditFrame : wx.ScriptFrame
 	var _localConsole
 	var _remoteConsole
 	
-	var _bpwindow
-	var _bpmodel
+	var _bpwindow : wx.DataViewCtrl
+	var _bpmodel : DataModel
 	
-	var _callstackWin
-	var _callstackModel
+	var _callstackWin : wx.DataViewCtrl
+	var _callstackModel : DataModel
 	
-	var _localsWin
-	var _localsModel
+	var _localsWin : wx.DataViewCtrl
+	var _localsModel : DataModel
+	
+	var _globalsWin : wx.DataViewCtrl 
+	var _globalsModel : DataModel
 }
 
 f := NitEditFrame()

@@ -266,7 +266,7 @@ class DebugClient
 						pack 			= rec.pack
 						file 			= rec.file
 						crc 			= rec.local_crc
-						contentType		= ::ContentType.fromValue(rec.content_type)
+						contentType		= ContentType.fromValue(rec.content_type)
 					}
 				} catch (ex) print("*** OnDownload: " + ex)
 			}
