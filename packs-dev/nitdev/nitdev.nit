@@ -995,6 +995,8 @@ class NitEditFrame : wx.ScriptFrame
 	var _currAttachedAddr: string = null
 	var _lastAttachedAddr: string = "127.0.0.1"
 	var _debugClient: DebugClient
+	var _remote = Remote()
+	var _remoteTask = costart by { while (true) { sleep(); _remote.update(); } }
 	
 	function onDebugAttach(evt: wx.CommandEvent)
 	{
@@ -1006,11 +1008,11 @@ class NitEditFrame : wx.ScriptFrame
 		
 		var addr = wx.getTextFromUser("Enter IP address[:port]", "Attach To...", _lastAttachedAddr)
 		
-		if (app.runtime.debugServer.remote.connect(addr))
+		if (_remote.connect(addr))
 		{
 			costart by
 			{
-				var debugClient = DebugClient(this, app.runtime.debugServer.remote.hostPeer)
+				var debugClient = DebugClient(this, _remote.hostPeer)
 
 				try 
 				{

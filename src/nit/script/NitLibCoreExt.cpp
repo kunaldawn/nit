@@ -159,6 +159,8 @@ public:
 
 		FuncEntry funcs[] =
 		{
+			CONS_ENTRY_H(					"()"),
+
 			FUNC_ENTRY_H(listen,			"(hostname: string, port=PORT_DEFAULT.TCP): bool"),
 			FUNC_ENTRY_H(connect,			"(addr: string): bool // 'hostaddr:hostport' format"),
 
@@ -250,6 +252,8 @@ public:
 			arrayAppend(v, -1, itr->get());
 		return 1;
 	}
+
+	NB_CONS()							{ setSelf(v, new Remote()); return SQ_OK; }
 
 	NB_PROP_SET(listening)				{ self(v)->setListening(getBool(v, 2)); return 0; }
 	NB_PROP_SET(packetDump)				{ self(v)->setPacketDump(getBool(v, 2)); return 0; }
