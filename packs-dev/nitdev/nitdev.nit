@@ -14,8 +14,10 @@ var function id_char(ch: int): bool
 
 debug.active = false
 
+app.runtime.debugServer.remote.shutdown()
+
 // reopen remote debug host on other port - to debug debugger itself
-app.runtime.debugServer.listen(null, 1234)
+//app.runtime.debugServer.listen(null, 1234)
 //app.runtime.debugServer.remote.packetDump = true
 
 dofile("nitdebugwin")	// TODO: change dofile to require
@@ -146,7 +148,7 @@ class DataModel
 		foreach (expander in _expanders)
 			try expander.kill()
 		_expanders = {}
-		_peer.Cleared()
+		_peer.cleared()
 	}
 	
 	function addItem(obj: object, parent_id: int=0): int
@@ -301,7 +303,7 @@ class DataModel
 class Document
 {
 	property id			 		get _id			// int or given key
-	property title	: string 	get _title		set { _title = value; UpdateTitles() }
+	property title	: string 	get _title		set { _title = value; updateTitles() }
 	property file 	: string	get _file
 	property pack 	: string	get _pack
 	property url	: string	get _url
@@ -503,6 +505,7 @@ class NitEditFrame : wx.ScriptFrame
 	static ID =
 	{
 		RESTART			= wx.newId()
+		SELF_DEBUG		= wx.newId()
 		
 		NEW				= wx.ID.NEW
 		OPEN			= wx.ID.OPEN
@@ -563,6 +566,7 @@ class NitEditFrame : wx.ScriptFrame
 
 		var fileMenu = wx.Menu( [
 			[ ID.RESTART,	"&Restart\tCtrl+F7",	"Restart Debugger" ],
+			[ ID.SELF_DEBUG, "Self &Debug",			"Enable Self Debug" ],
 			null,
 			[ ID.NEW, 		"&New\tCtrl+N",			"Create an empty document" ],
 			[ ID.OPEN, 		"&Open...\tCtrl+O",		"Open an existing document" ],
@@ -579,6 +583,8 @@ class NitEditFrame : wx.ScriptFrame
 		
 		var fileSource = script.unit.source
 		bind(EVT.MENU, ID.RESTART, getroottable()) by (evt) => dofile(fileSource.name, fileSource.locator)
+		
+		bind(EVT.MENU, ID.SELF_DEBUG, frame) by (evt) => app.runtime.debugServer.listen(null, 1234)
 		
 		bind(EVT.MENU, ID.OPEN, frame, onFileOpen)
 		bind(EVT.MENU, ID.EXIT, frame) by (evt) => close()
@@ -725,8 +731,8 @@ class NitEditFrame : wx.ScriptFrame
 		
 		view with
 		{
-			appendTextColumn("File",		model.addColumn("string", "Title")) with { width = 200 }
-			appendTextColumn("Line",		model.addColumn("int", "Line")) with { width = 60 }
+			appendTextColumn("File",		model.addColumn("string", "title")) with { width = 200 }
+			appendTextColumn("Line",		model.addColumn("int", "line")) with { width = 60 }
 
 			associateModel(model.peer)
 		}
@@ -740,9 +746,9 @@ class NitEditFrame : wx.ScriptFrame
 		
 		view with
 		{
-			appendTextColumn("",			model.addColumn("wxIcon", "Status")) with { width = 20 }
-			appendTextColumn("Name",		model.addColumn("string", "Name")) with { width = 120; view.expanderColumn = this }
-			appendTextColumn("Location",	model.addColumn("string", "Location")) with { width = 180 }
+			appendTextColumn("",			model.addColumn("wxIcon", "status")) with { width = 20 }
+			appendTextColumn("Name",		model.addColumn("string", "name")) with { width = 120; view.expanderColumn = this }
+			appendTextColumn("Location",	model.addColumn("string", "location")) with { width = 180 }
 
 			associateModel(model.peer)
 		}
@@ -778,10 +784,10 @@ class NitEditFrame : wx.ScriptFrame
 		
 		view with
 		{
-			appendTextColumn("Kind",		model.addColumn("string", "Kind")) with { width = 20 }
-			appendTextColumn("Name",		model.addColumn("string", "Name")) with { width = 120; view.expanderColumn = this }
-			appendTextColumn("Value",		model.addColumn("string", "Value")) with { width = 200 }
-			appendTextColumn("Type",		model.addColumn("string", "Type")) with { width = 80 }
+			appendTextColumn("Kind",		model.addColumn("string", "kind")) with { width = 20 }
+			appendTextColumn("Name",		model.addColumn("string", "name")) with { width = 120; view.expanderColumn = this }
+			appendTextColumn("Value",		model.addColumn("string", "value")) with { width = 200 }
+			appendTextColumn("Type",		model.addColumn("string", "type")) with { width = 80 }
 			
 			associateModel(model.peer)
 		}
@@ -1104,7 +1110,7 @@ class NitEditFrame : wx.ScriptFrame
 	
 	function onServerBreak(evt: RemoteNotifyEvent)
 	{
-		var params = evt.packet.readValue()
+		var params = evt.param()
 		
 		::p := params // TODO: debug purpose
 
@@ -1122,11 +1128,13 @@ class NitEditFrame : wx.ScriptFrame
 			var addr = _currAttachedAddr
 			var pack = try params.pack.name
 			var file = try params.file.name
-			var url  = try params.url.name
+			var url  = try params.url.name : try params.src
 			var func = try params.func
 			var line = try params.line
 			
 			var pane = showEditor(addr, pack, file, url, line)
+			if (pane == null) return;
+			
 			var editor = pane.editor
 			
 			resetDebugPaneState()
@@ -1148,18 +1156,23 @@ class NitEditFrame : wx.ScriptFrame
 	function showEditor(addr, pack, file, url, line) : DocumentPane
 	{
 		var id = format("%s> %s: %s", addr, pack, file)
+		print(id)
 		
 		var doc = getDocument(id)
 		var editor
 		
 		if (doc == null)
-			doc = findDocument(@(doc) {
-				var url = try doc.url.tolower().replace("\\", "/")
-				var packPos = url ? url.find(pack.tolower()) : null
-				var filePos = url ? url.find(file.tolower()) : null
-				
-				return packPos && filePos && packPos < filePos
-			})
+			doc = findDocument by (doc) {
+				if (pack)
+				{
+					var url = try doc.url.tolower().replace("\\", "/")
+					var packPos = url ? url.find(pack.tolower()) : null
+					var filePos = url ? url.find(file.tolower()) : null
+					
+					return packPos && filePos && packPos < filePos
+				}
+				else return url == doc.url
+			}
 		
 		var w = MemoryBuffer.Writer()
 		var fi
@@ -1229,7 +1242,7 @@ class NitEditFrame : wx.ScriptFrame
 		costart by { updateLocals(params.threads[0].callstack[0].locals) }
 	}
 	
-	function UpdateCallstack(params)
+	function updateCallstack(params)
 	{
 		var model = _callstackModel
 		
@@ -1255,7 +1268,7 @@ class NitEditFrame : wx.ScriptFrame
 					stackinfo = si
 					Status = ""
 					name = format("%s.%s()", si.this_name, si.func)
-					location = format("%s: %s #%d", si.pack.name, si.file.name, si.line)
+					location = try format("%s: %s #%d", si.pack.name, si.file.name, si.line) : "(unknown)"
 				}
 				
 				var st_id = model.addItem(stackItem, th_id)
