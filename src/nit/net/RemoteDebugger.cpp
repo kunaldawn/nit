@@ -271,6 +271,15 @@ void DebugServer::update()
 		_debugger->updateBreakpoints();
 		_breakpointsUpdated = false;
 	}
+
+	while (!_pendingCommands.empty())
+	{
+		String cmd = _pendingCommands.front();
+		_pendingCommands.pop_front();
+
+		LOG(0, "++ Remote> %s\n", cmd.c_str());
+		NitRuntime::getSingleton()->debugCommand(cmd);
+	}
 }
 
 void DebugServer::onRemoteRequest(const RemoteRequestEvent* evt)
@@ -362,9 +371,7 @@ void DebugServer::onNotifyCommand(const RemoteNotifyEvent* evt)
 	if (rt == NULL) return;
 
 	String cmd = evt->param.toString();
-
-	LOG(0, "++ Remote> %s\n", cmd.c_str());
-	rt->debugCommand(cmd);
+	_pendingCommands.push_back(cmd);
 }
 
 void DebugServer::attach(RemotePeer* peer, DataValue params)

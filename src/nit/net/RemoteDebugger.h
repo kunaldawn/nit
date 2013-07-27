@@ -170,6 +170,8 @@ protected:
 
 	Logger*								_logger;
 
+	list<String>::type					_pendingCommands;
+
 	typedef unordered_map<Remote::UploadId, Remote::ResponseId>::type FileRequests;
 	FileRequests						_fileRequests;
 
