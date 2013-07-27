@@ -160,7 +160,7 @@ public:
 		FuncEntry funcs[] =
 		{
 			FUNC_ENTRY_H(listen,			"(hostname: string, port=PORT_DEFAULT.TCP): bool"),
-			FUNC_ENTRY_H(connect,			"(addr: string, port=PORT_DEFAULT.TCP): bool"),
+			FUNC_ENTRY_H(connect,			"(addr: string): bool // 'hostaddr:hostport' format"),
 
 			FUNC_ENTRY_H(shutdown,			"()"),
 			FUNC_ENTRY_H(update,			"()"),
@@ -255,7 +255,7 @@ public:
 	NB_PROP_SET(packetDump)				{ self(v)->setPacketDump(getBool(v, 2)); return 0; }
 
 	NB_FUNC(listen)						{ return push(v, self(v)->listen(getString(v, 2), optInt(v, 3, type::PORT_DEFAULT_TCP))); }
-	NB_FUNC(connect)					{ return push(v, self(v)->connect(getString(v, 2), optInt(v, 3, type::PORT_DEFAULT_TCP))); }
+	NB_FUNC(connect)					{ return push(v, self(v)->connect(getString(v, 2))); }
 
 	NB_FUNC(shutdown)					{ self(v)->shutdown(); return 0; }
 	NB_FUNC(update)						{ self(v)->update(); return 0; }
@@ -731,13 +731,18 @@ public:
 
 		FuncEntry funcs[] =
 		{
+			FUNC_ENTRY_H(listen,		"(addr="", port=DebugServer.PORT_DEFAULT)"),
 			NULL
 		};
 
 		bind(v, props, funcs);
+
+		addStatic(v, "PORT_DEFAULT",	(int)DebugServer::PORT_DEFAULT);
 	}
 
 	NB_PROP_GET(remote)					{ return push(v, self(v)->getRemote()); }
+
+	NB_FUNC(listen)						{ self(v)->listen(optString(v, 2, ""), optInt(v, 3, DebugServer::PORT_DEFAULT)); return 0; }
 };
 
 ////////////////////////////////////////////////////////////////////////////////
