@@ -170,7 +170,8 @@ SQRESULT ScriptDataSchema::setup(HSQUIRRELVM v, int clsIdx, const String& keyNam
 
 		// Inspect getter and setter (only property returns something)
 		sq_push(v, itr.keyIndex());
-		sq_getproperty(v, clsIdx);
+		if (SQ_FAILED(sq_getproperty(v, clsIdx)))
+			continue;
 
 		bool hasGetter = sq_gettype(v, -2) != OT_NULL;
 		bool hasSetter = sq_gettype(v, -1) != OT_NULL;

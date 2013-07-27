@@ -928,9 +928,11 @@ SQRESULT sq_getproperty(HSQUIRRELVM v, SQInteger idx)
 
 	SQObjectPtr getter = _null_;
 	SQObjectPtr setter = _null_;
-	sqi_class(self)->GetProperty(name, getter, setter);
+	bool hasProperty = sqi_class(self)->GetProperty(name, getter, setter);
 
 	v->Pop();
+	if (!hasProperty) return SQ_ERROR;
+
 	v->Push(getter);
 	v->Push(setter);
 	return SQ_OK;
