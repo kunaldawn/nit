@@ -762,7 +762,6 @@ public:
 			FUNC_ENTRY_H(toObject,		"(): DataObject"),
 			FUNC_ENTRY_H(toBuffer,		"(): MemoryBuffer"),
 			FUNC_ENTRY_H(toKey,			"(): DataKey"),
-			FUNC_ENTRY_H(toScript,		"(): object"),
 
 			FUNC_ENTRY_H(fromJson,		"[class] (json: string): DataValue"),
 			FUNC_ENTRY_H(toJson,		"(compact=true): string"),
@@ -826,7 +825,6 @@ public:
 	NB_FUNC(toObject)					{ return push(v, self(v)->toObject()); }
 	NB_FUNC(toBuffer)					{ return push(v, self(v)->toBuffer()); }
 	NB_FUNC(toKey)						{ return push(v, self(v)->toKey()); }
-	NB_FUNC(toScript)					{ return ScriptDataValue::push(v, *self(v), true); }
 
 	NB_FUNC(toVoid)						{ self(v)->toVoid(); return 0; }
 	NB_FUNC(toNull)						{ self(v)->toNull(); return 0; }
@@ -865,7 +863,7 @@ public:
 	NB_FUNC(saveJson)					{ self(v)->saveJson(get<StreamWriter>(v, 2)); return 0; }
 	NB_FUNC(savePlist)					{ self(v)->savePlist(get<StreamWriter>(v, 2)); return 0; }
 
-	NB_FUNC(_call)						{ return ScriptDataValue::push(v, *self(v)); }
+	NB_FUNC(_call)						{ return ScriptDataValue::push(v, *self(v), true); }
 
 	NB_FUNC(_clone)						{ return push(v, self(v)->clone()); }
 
@@ -1189,7 +1187,6 @@ public:
 		FuncEntry funcs[] =
 		{
 			CONS_ENTRY_H(				"(array=null)"),
-			FUNC_ENTRY_H(toScript,		"(): array"),
 			FUNC_ENTRY_H(toJson,		"(compact=true): string"),
 			FUNC_ENTRY_H(append,		"(value)"),
 			FUNC_ENTRY_H(insert,		"(index: int, value)"),
@@ -1223,12 +1220,11 @@ public:
 		return SQ_OK;
 	}
 
-	NB_FUNC(toScript)					{ return ScriptDataValue::push(v, self(v), true); }
 	NB_FUNC(toJson)						{ return push(v, DataValue(self(v)).toJson(optBool(v, 2, true))); }
 
 	NB_FUNC(_clone)						{ return push(v, self(v)->clone()); }
 
-	NB_FUNC(_call)						{ return ScriptDataValue::push(v, self(v)); }
+	NB_FUNC(_call)						{ return ScriptDataValue::push(v, self(v), true); }
 
 	NB_FUNC(append)
 	{
@@ -1424,7 +1420,6 @@ public:
 		FuncEntry funcs[] =
 		{
 			CONS_ENTRY_H(				"(table=null)"),
-			FUNC_ENTRY_H(toScript,		"(): table"),
 			FUNC_ENTRY_H(toJson,		"(compact=true): string"),
 			FUNC_ENTRY_H(get,			"(key: string): DataValue"),
 			FUNC_ENTRY_H(set,			"(key: string, value: object)"),
@@ -1458,7 +1453,6 @@ public:
 		return SQ_OK;
 	}
 
-	NB_FUNC(toScript)					{ return ScriptDataValue::push(v, self(v), true); }
 	NB_FUNC(toJson)						{ return push(v, DataValue(self(v)).toJson(optBool(v, 2, true))); }
 
 	NB_FUNC(get)						
@@ -1488,7 +1482,7 @@ public:
 	NB_FUNC(delete)						{ self(v)->Delete(getString(v, 2)); return 0; }
 	NB_FUNC(clear)						{ self(v)->clear(); return 0; }
 
-	NB_FUNC(_call)						{ return ScriptDataValue::push(v, self(v)); }
+	NB_FUNC(_call)						{ return ScriptDataValue::push(v, self(v), true); }
 
 	NB_FUNC(_clone)						{ return push(v, self(v)->clone()); }
 
