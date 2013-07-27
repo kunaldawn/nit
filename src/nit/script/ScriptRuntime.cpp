@@ -1220,6 +1220,11 @@ public:
 		if (unit == NULL)
 			return sqx_throwfmt(v, "dofile() can't find: %s", filename);
 
+		// TODO: remember this unit somewhere
+		bool rememberAsRequired = true;
+		if (rememberAsRequired)
+			runtime->_units.insert(std::make_pair(unit->getId(), unit));
+
 		runtime->_unitStack.push_back(unit);
 
 		// push 'rootable'
@@ -2166,6 +2171,9 @@ bool ScriptRuntime::doFile(const String& unitName, StreamLocator* locator)
 
 	_unitStack.pop_back();
 	sq_settop(v, top); // ignore return value
+
+	// temp
+	_units.insert(std::make_pair(unit->getId(), unit));
 
 	return SQ_SUCCEEDED(r);
 }
