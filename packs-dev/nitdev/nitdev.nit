@@ -14,8 +14,8 @@ var function id_char(ch: int): bool
 
 debug.active = false
 
-//try app.runtime.debugServer.remote.shutdown()
-
+// reopen remote debug host on other port - to debug debugger itself
+app.runtime.debugServer.listen(null, 1234)
 //app.runtime.debugServer.remote.packetDump = true
 
 dofile("nitdebugwin")	// TODO: change dofile to require
