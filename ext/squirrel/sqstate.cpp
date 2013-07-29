@@ -518,6 +518,7 @@ SQString *SQStringTable::Add(const SQChar *news,SQInteger len)
 	memcpy(t->_val,news,rsl(len));
 	t->_val[len] = _SC('\0');
 	t->_len = len;
+	t->_utf8_len = -1; // will calculate later
 	t->_hash = ::_hashstr(news,len);
 	t->_next = _strings[h];
 	_strings[h] = t;

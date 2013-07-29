@@ -965,8 +965,10 @@ STRING_TOFUNCZ(toupper)
 static SQInteger string_utf8_len(HSQUIRRELVM v)
 {
 	SQObject self = stack_get(v, 1);
-	size_t utf8len = nit::Unicode::utf8Length(sqi_stringval(self));
-	v->Push((int)utf8len);
+	SQInteger utf8len = sqi_string(self)->_utf8_len;
+	if (utf8len < 0)
+		utf8len = sqi_string(self)->_utf8_len = (SQInteger)nit::Unicode::utf8Length(sqi_stringval(self));
+	v->Push(utf8len);
 	return 1;
 }
 
