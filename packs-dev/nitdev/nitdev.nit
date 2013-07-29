@@ -517,6 +517,9 @@ class NitEditFrame : wx.ScriptFrame
 		
 		AUTOCOMPLETE	= wx.newId()
 	
+		FIND_TEXT		= wx.ID.FIND
+		FIND_NEXT		= wx.newId()
+		FIND_PREV		= wx.newId()
 		GOTO_LINE		= wx.newId()
 		
 		CUT				= wx.ID.CUT
@@ -604,6 +607,9 @@ class NitEditFrame : wx.ScriptFrame
 		var editMenu = wx.Menu( [
 			[ ID.AUTOCOMPLETE, "&Auto Complete\tCtrl+Space",	"Popup an auto-complete window" ],
 			null,
+			[ ID.FIND_TEXT, "&Find...\tCtrl+F", "Find text"],
+			[ ID.FIND_NEXT, "&Find Next\tF3", "Find next position of last search"],
+			[ ID.FIND_PREV, "&Find Previous\tShift+F3", "Find previous position of last search"],
 			[ ID.GOTO_LINE, "&Go To...\tCtrl+G", "Go to specified line"],
 		] )
 		
@@ -611,6 +617,9 @@ class NitEditFrame : wx.ScriptFrame
 		
 		bind(EVT.MENU, ID.AUTOCOMPLETE, frame, onEditAutoComplete)
 		
+		bind(EVT.MENU, ID.FIND_TEXT, frame, onEditFindText)
+		bind(EVT.MENU, ID.FIND_NEXT, frame, onEditFindNext)
+		bind(EVT.MENU, ID.FIND_PREV, frame, onEditFindPrev)
 		bind(EVT.MENU, ID.GOTO_LINE, frame, onEditGotoLine)
 	
 		// Debug Menu ////////
@@ -1026,20 +1035,103 @@ class NitEditFrame : wx.ScriptFrame
 		var editor = currEditor
 		if (editor == null) return
 		
-		var begin = 1
-		var end = 10
 		var line = editor.currentLine + 1
 		
 		line = wx.getTextFromUser(
 			format("Line number (1 - %d):", editor.lineCount), 
 			"Go To Line", 
-			line.tostring())
+			line.tostring(), this)
+		
+		if (line == "")
+			return
 		
 		if (try (line = line.tointeger()) : null == null)
 			return
 			
 		editor.ensureVisibleEnforcePolicy(line - 1)
 		editor.gotoLine(line - 1)
+	}
+	
+	var _lastFindText = null
+	var _lastFindOpt = 0
+	
+	function onEditFindText(evt: wx.CommandEvent)
+	{
+		var editor = currEditor
+		if (editor == null) return
+		
+		var text = _lastFindText
+		
+		if (editor.selectedText.len())
+			text = editor.selectedText
+		
+		text = wx.getTextFromUser(
+			"Enter text to find:",
+			"Find Text", 
+			text, this)
+			
+		if (text == "")
+			return
+			
+		_lastFindText = text
+		
+		onEditFindNext(evt)
+	}
+	
+	function onEditFindNext(evt: wx.CommandEvent)
+	{
+		var editor = currEditor
+		if (editor == null) return
+		
+		var text = _lastFindText
+		var opt = _lastFindOpt
+		
+		if (text == null) return
+		
+		var start = editor.currentPos
+		
+		var pos = editor.findText(start, editor.lastPosition, text, opt)
+		
+		if (pos < 0)
+			pos = editor.findText(0, start, text)
+
+		showFoundTextPos(editor, pos, text)
+	}
+	
+	function onEditFindPrev(evt: wx.CommandEvent)
+	{
+		var editor = currEditor
+		if (editor == null) return
+		
+		var text = _lastFindText
+		var opt = _lastFindOpt
+		
+		if (text == null) return
+
+		var start = editor.currentPos - 1
+		
+		var pos = editor.findText(start, 0, text, opt)
+		
+		if (pos < 0)
+			pos = editor.findText(editor.lastPosition, start, text, opt)
+		
+		showFoundTextPos(editor, pos, text)
+	}
+	
+	function showFoundTextPos(editor, pos, text)
+	{
+		if (pos < 0)
+		{
+			wx.messageBox("Can't find text: " + text, "Find Text", wx.ICON.WARNING, this)
+			return
+		}
+		
+		var line = editor.lineFromPosition(pos)
+		
+		editor.ensureVisibleEnforcePolicy(line)
+		editor.gotoLine(line)
+		editor.gotoPos(pos)
+		editor.setSelection(pos, pos + text.len())
 	}
 	
 	function onEditorUserListSelection(evt: wx.StyledTextEvent)
