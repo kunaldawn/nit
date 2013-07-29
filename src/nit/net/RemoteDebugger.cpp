@@ -411,7 +411,62 @@ void DebugServer::onRequestPacks(const RemoteRequestEvent* evt)
 	if (_fileSystem == NULL)
 		return evt->response(RESPONSE_ERROR, DataValue("no filesystem"));
 
-	// TODO: define protocol
+	StreamLocatorList packs;
+	_fileSystem->getPacks(packs);
+
+	// This packs represent merely raw file structrure - no requires, no dynamic contents.
+
+	Ref<DataRecord> result = new DataRecord();
+	Ref<DataArray> packsArray = new DataArray();
+	result->set("packs", packsArray);
+
+	for (StreamLocatorList::iterator itr = packs.begin(), end = packs.end(); itr != end; ++itr)
+	{
+		Package* pack = dynamic_cast<Package*>(itr->get());
+		if (pack == NULL) continue;
+
+		Ref<DataRecord> packRec = new DataRecord();
+		packsArray->append(packRec);
+
+		packRec->set("name", pack->getName());
+
+		switch (pack->getType())
+		{
+		case Package::PK_PACKFILE:		packRec->set("type", "packfile"); break;
+		case Package::PK_PLUGIN:		packRec->set("type", "plugin"); break;
+		case Package::PK_FOLDER:		packRec->set("type", "folder"); break;
+		case Package::PK_ALIAS:			packRec->set("type", "alias"); break;
+		case Package::PK_CUSTOM:		packRec->set("type", "custom"); break;
+		case Package::PK_DELETED:		packRec->set("type", "deleted"); break;
+		default:						packRec->set("type", "unknown"); break;
+		}
+
+		Ref<StreamSource> cfg = pack->getSettingsSource();
+		if (cfg)
+			packRec->set("cfg", cfg->getName());
+
+		PackBundle* bundle = pack->getBundle();
+		if (bundle)
+			packRec->set("bundle_name", bundle->getName());
+
+		Ref<DataArray> filesArray = new DataArray();
+		packRec->set("files", filesArray);
+
+		StreamSourceMap files;
+		pack->findLocal("*", files);
+
+		for (StreamSourceMap::iterator fitr = files.begin(), fend = files.end(); fitr != fend; ++fitr)
+		{
+			StreamSource* file = fitr->second;
+			Ref<DataRecord> fileRec = new DataRecord();
+
+			fileRec->set("name", file->getName());
+			fileRec->set("mime", file->getContentType().getMimeType());
+			filesArray->append(fileRec);
+		}
+	}
+
+	evt->response(RESPONSE_OK, result);
 }
 
 void DebugServer::onRequestFile(const RemoteRequestEvent* evt)

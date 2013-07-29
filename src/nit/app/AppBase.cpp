@@ -280,15 +280,38 @@ public:
 	{
 	}
 
-public:									
+public:
 	// IDebuggerFileSystem Impl
+
+	virtual void getPacks(StreamLocatorList& outPacks)
+	{
+		// TODO: Do we need a app.Enter() ?
+
+		if (_packageService == NULL)
+			return;
+		
+		Ref<PackageService> pkgSvc = _packageService;
+
+		Database* db = pkgSvc->getLookupDB();
+		Database::Query* q = db->prepare("SELECT name, timestamp FROM packs");
+
+		// TODO: just return names?
+		while (q->step())
+		{
+			const char* packName = q->getText(0);
+			Package* tempPack = pkgSvc->getBundle()->link(packName);
+			outPacks.push_back(tempPack);
+		}
+	}
+
 	virtual Ref<StreamSource> getFile(const String& packname, const String& filename, uint32& outCRC32)
 	{
+		// TODO: Do we need a app.Enter() ?
+
 		if (_packageService == NULL)
 			return NULL;
 
-		// TODO: Do we need a app.Enter() ?
-		Package* pack = _packageService->load(packname.c_str());
+		Package* pack = _packageService->link(packname.c_str()); // TODO: link instead of load?
 
 		if (pack == NULL) return NULL;
 

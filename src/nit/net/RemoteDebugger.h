@@ -51,6 +51,7 @@ public:
 class NIT_API IDebuggerFileSystem
 {
 public:
+	virtual void						getPacks(StreamLocatorList& outPacks) = 0;
 	virtual Ref<StreamSource>			getFile(const String& pack, const String& file, uint32& outCRC32) = 0;
 };
 
