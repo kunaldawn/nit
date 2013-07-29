@@ -517,6 +517,8 @@ class NitEditFrame : wx.ScriptFrame
 		
 		AUTOCOMPLETE	= wx.newId()
 	
+		GOTO_LINE		= wx.newId()
+		
 		CUT				= wx.ID.CUT
 		COPY			= wx.ID.COPY
 		PASTE			= wx.ID.PASTE
@@ -601,11 +603,15 @@ class NitEditFrame : wx.ScriptFrame
 		
 		var editMenu = wx.Menu( [
 			[ ID.AUTOCOMPLETE, "&Auto Complete\tCtrl+Space",	"Popup an auto-complete window" ],
+			null,
+			[ ID.GOTO_LINE, "&Go To...\tCtrl+G", "Go to specified line"],
 		] )
 		
 		menuBar.append(editMenu, "&Edit")
 		
 		bind(EVT.MENU, ID.AUTOCOMPLETE, frame, onEditAutoComplete)
+		
+		bind(EVT.MENU, ID.GOTO_LINE, frame, onEditGotoLine)
 	
 		// Debug Menu ////////
 		
@@ -1013,6 +1019,27 @@ class NitEditFrame : wx.ScriptFrame
 			if (userList)
 				editor.userListShow(1, userList)
 		}
+	}
+	
+	function onEditGotoLine(evt: wx.CommandEvent)
+	{
+		var editor = currEditor
+		if (editor == null) return
+		
+		var begin = 1
+		var end = 10
+		var line = editor.currentLine + 1
+		
+		line = wx.getTextFromUser(
+			format("Line number (1 - %d):", editor.lineCount), 
+			"Go To Line", 
+			line.tostring())
+		
+		if (try (line = line.tointeger()) : null == null)
+			return
+			
+		editor.ensureVisibleEnforcePolicy(line - 1)
+		editor.gotoLine(line - 1)
 	}
 	
 	function onEditorUserListSelection(evt: wx.StyledTextEvent)
