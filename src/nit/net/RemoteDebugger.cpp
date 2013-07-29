@@ -406,64 +406,146 @@ void DebugServer::setDebugger(IDebugger* debugger)
 		_debugger->updateBreakpoints();
 }
 
+static void populatePackRecord(DataRecord* packRec, Package* pack, map<String, Package*>::type& packOfName)
+{
+	DataNamespace* ns = packRec->getNamespace();
+	packRec->set("name", ns->add(pack->getName()));
+
+	switch (pack->getType())
+	{
+	case Package::PK_PACKFILE:		packRec->set("type", ns->add("packfile")); break;
+	case Package::PK_PLUGIN:		packRec->set("type", ns->add("plugin")); break;
+	case Package::PK_FOLDER:		packRec->set("type", ns->add("folder")); break;
+	case Package::PK_ALIAS:			packRec->set("type", ns->add("alias")); break;
+	case Package::PK_CUSTOM:		packRec->set("type", ns->add("custom")); break;
+	case Package::PK_DELETED:		packRec->set("type", ns->add("deleted")); break;
+	default:						packRec->set("type", ns->add("unknown")); break;
+	}
+
+	Ref<StreamSource> cfgSrc = pack->getSettingsSource();
+	if (cfgSrc)
+	{
+		packRec->set("cfg", ns->add(cfgSrc->getName()));
+
+		Ref<DataArray> requireArray = new DataArray();
+		packRec->set("requires", requireArray);
+
+		Ref<Settings> cfg = Settings::load(cfgSrc);
+		if (cfg)
+		{
+			StringVector requires;
+			StringVector optionals;
+			StringVector excludes;
+
+			pack->parseRequireSection(cfg, requires, optionals, excludes);
+
+			for (uint i=0; i<requires.size(); ++i)
+			{
+				String& pack = requires[i];
+
+				if (std::find(excludes.begin(), excludes.end(), pack) != excludes.end())
+					continue;
+
+				requireArray->append(ns->add(pack)); // client should check if the pack exists
+			}
+
+			for (uint i=0; i<optionals.size(); ++i)
+			{
+				String& pack = optionals[i];
+				if (std::find(excludes.begin(), excludes.end(), pack) != excludes.end())
+					continue;
+
+				if (packOfName.find(pack) != packOfName.end()) // filter-out non existing packs
+					requireArray->append(ns->add(pack));
+			}
+		}
+	}
+
+	PackBundle* bundle = pack->getBundle();
+	if (bundle)
+		packRec->set("bundle_name", ns->add(bundle->getName()));
+
+	Ref<DataArray> filesArray = new DataArray();
+	packRec->set("files", filesArray);
+
+	StreamSourceMap files;
+	pack->findLocal("*", files);
+
+	for (StreamSourceMap::iterator fitr = files.begin(), fend = files.end(); fitr != fend; ++fitr)
+	{
+		StreamSource* file = fitr->second;
+		Ref<DataRecord> fileRec = new DataRecord();
+
+		fileRec->set("name", file->getName());
+		fileRec->set("mime", ns->add(file->getContentType().getMimeType()));
+		filesArray->append(fileRec);
+	}
+}
+
+static void collectBundles(DataRecord* bundles, PackBundle* bundle)
+{
+	DataNamespace* ns = bundles->getNamespace();
+	if (bundle && bundles->get(bundle->getName()).isVoid())
+	{
+		Ref<DataRecord> bundleRec = new DataRecord();
+		bundles->set(bundle->getName(), bundleRec);
+
+		bundleRec->set("name", ns->add(bundle->getName()));
+		bundleRec->set("uid", bundle->getUid());
+		bundleRec->set("base_uid", bundle->getBaseUid());
+		bundleRec->set("revision", bundle->getRevision());
+
+		PackBundle* base = bundle->getBase();
+		if (base)
+		{
+			bundleRec->set("base", ns->add(base->getName()));
+			collectBundles(bundles, base);
+		}
+
+		File* realFile = bundle->getRealFile();
+		if (realFile)
+			bundleRec->set("file_url", realFile->getUrl());
+	}
+}
+
 void DebugServer::onRequestPacks(const RemoteRequestEvent* evt)
 {
 	if (_fileSystem == NULL)
 		return evt->response(RESPONSE_ERROR, DataValue("no filesystem"));
 
-	StreamLocatorList packs;
-	_fileSystem->getPacks(packs);
+	StreamLocatorList packlist;
+	_fileSystem->getPacks(packlist);
 
 	// This packs represent merely raw file structrure - no requires, no dynamic contents.
 
 	Ref<DataRecord> result = new DataRecord();
-	Ref<DataArray> packsArray = new DataArray();
-	result->set("packs", packsArray);
 
-	for (StreamLocatorList::iterator itr = packs.begin(), end = packs.end(); itr != end; ++itr)
+	Ref<DataRecord> packs = new DataRecord();
+	result->set("packs", packs);
+
+	Ref<DataRecord> bundles = new DataRecord();
+	result->set("bundles", bundles);
+
+	map<String, Package*>::type packOfName;
+	for (StreamLocatorList::iterator itr = packlist.begin(), end = packlist.end(); itr != end; ++itr)
+	{
+		Package* pack = dynamic_cast<Package*>(itr->get());
+		if (pack == NULL) continue;
+
+		packOfName.insert(std::make_pair(pack->getName(), pack));
+	}	
+
+	for (StreamLocatorList::iterator itr = packlist.begin(), end = packlist.end(); itr != end; ++itr)
 	{
 		Package* pack = dynamic_cast<Package*>(itr->get());
 		if (pack == NULL) continue;
 
 		Ref<DataRecord> packRec = new DataRecord();
-		packsArray->append(packRec);
+		packs->set(pack->getName(), packRec);
 
-		packRec->set("name", pack->getName());
+		populatePackRecord(packRec, pack, packOfName);
 
-		switch (pack->getType())
-		{
-		case Package::PK_PACKFILE:		packRec->set("type", "packfile"); break;
-		case Package::PK_PLUGIN:		packRec->set("type", "plugin"); break;
-		case Package::PK_FOLDER:		packRec->set("type", "folder"); break;
-		case Package::PK_ALIAS:			packRec->set("type", "alias"); break;
-		case Package::PK_CUSTOM:		packRec->set("type", "custom"); break;
-		case Package::PK_DELETED:		packRec->set("type", "deleted"); break;
-		default:						packRec->set("type", "unknown"); break;
-		}
-
-		Ref<StreamSource> cfg = pack->getSettingsSource();
-		if (cfg)
-			packRec->set("cfg", cfg->getName());
-
-		PackBundle* bundle = pack->getBundle();
-		if (bundle)
-			packRec->set("bundle_name", bundle->getName());
-
-		Ref<DataArray> filesArray = new DataArray();
-		packRec->set("files", filesArray);
-
-		StreamSourceMap files;
-		pack->findLocal("*", files);
-
-		for (StreamSourceMap::iterator fitr = files.begin(), fend = files.end(); fitr != fend; ++fitr)
-		{
-			StreamSource* file = fitr->second;
-			Ref<DataRecord> fileRec = new DataRecord();
-
-			fileRec->set("name", file->getName());
-			fileRec->set("mime", file->getContentType().getMimeType());
-			filesArray->append(fileRec);
-		}
+		collectBundles(bundles, pack->getBundle());
 	}
 
 	evt->response(RESPONSE_OK, result);

@@ -75,6 +75,26 @@ Package::~Package()
 	LOG(0, ".. package '%s': destroyed\n", _name.c_str());
 }
 
+void Package::parseRequireSection(Settings* ss, StringVector& outRequires, StringVector& outOptionals, StringVector& outExcludes)
+{
+	NitRuntime* rt = NitRuntime::getSingleton();
+
+	ss->find("package/require", outRequires);
+	ss->find(rt->getConfig()->expand("package/require@$(platform)"), outRequires);
+	ss->find(rt->getConfig()->expand("package/require@$(platform)_$(build)"), outRequires);
+	ss->find(rt->getConfig()->expand("package/require@$(build)"), outRequires);
+
+	ss->find("package/optional", outOptionals);
+	ss->find(rt->getConfig()->expand("package/optional@$(platform)"), outOptionals);
+	ss->find(rt->getConfig()->expand("package/optional@$(platform)_$(build)"), outOptionals);
+	ss->find(rt->getConfig()->expand("package/optional@$(build)"), outOptionals);
+
+	ss->find("package/exclude", outExcludes);
+	ss->find(rt->getConfig()->expand("package/exclude@$(platform)"), outExcludes);
+	ss->find(rt->getConfig()->expand("package/exclude@$(platform)_$(build)"), outExcludes);
+	ss->find(rt->getConfig()->expand("package/exclude@$(build)"), outExcludes);
+}
+
 bool Package::link(Settings* ss)
 {
 	_linking = true;
@@ -86,22 +106,10 @@ bool Package::link(Settings* ss)
 	if (ss)
 	{
 		StringVector requires; 
-		ss->find("package/require", requires);
-		ss->find(rt->getConfig()->expand("package/require@$(platform)"), requires);
-		ss->find(rt->getConfig()->expand("package/require@$(platform)_$(build)"), requires);
-		ss->find(rt->getConfig()->expand("package/require@$(build)"), requires);
-
 		StringVector optionals; 
-		ss->find("package/optional", optionals);
-		ss->find(rt->getConfig()->expand("package/optional@$(platform)"), requires);
-		ss->find(rt->getConfig()->expand("package/optional@$(platform)_$(build)"), optionals);
-		ss->find(rt->getConfig()->expand("package/optional@$(build)"), optionals);
-
 		StringVector excludes; 
-		ss->find("package/exclude", excludes);
-		ss->find(rt->getConfig()->expand("package/exclude@$(platform)"), requires);
-		ss->find(rt->getConfig()->expand("package/exclude@$(platform)_$(build)"), excludes);
-		ss->find(rt->getConfig()->expand("package/exclude@$(build)"), excludes);
+
+		parseRequireSection(ss, requires, optionals, excludes);
 
 		for (uint i=0; i<requires.size(); ++i)
 		{

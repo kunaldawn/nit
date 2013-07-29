@@ -133,6 +133,7 @@ public:									// Async Support
 public:
 	virtual void						require(StreamLocator* req, bool first = false);
 
+	void								parseRequireSection(Settings* ss, StringVector& outRequires, StringVector& outOptionals, StringVector& outExcludes);
 public:
 	EventChannel*						channel()								{ return _channel ? _channel : _channel = new EventChannel(); }
 
