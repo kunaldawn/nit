@@ -698,6 +698,10 @@ class NitEditFrame : wx.ScriptFrame
 		_globalsWin = createGlobalsView(_consolePages, _globalsModel)
 		_consolePages.addPage(_globalsWin, "Globals")
 		
+		_packsModel = DataModel()
+		_packsWin = createPacksView(_consolePages, _packsModel)
+		_consolePages.addPage(_packsWin, "packs")
+		
 		_consolePages.visible = false
 		
 		_splitter.initialize(_docPanes)
@@ -786,6 +790,23 @@ class NitEditFrame : wx.ScriptFrame
 		}
 	}
 	
+	function onPacksViewItemActivated(evt: wx.DataViewEvent)
+	{
+		var item_id = evt.item
+		var obj = _packsModel.getItem(item_id)
+		
+		var addr = _currAttachedAddr
+		var pack = try obj.pack.name
+		var file = try obj.file.name
+		var url = ""
+		var line = 0
+		
+		if (addr && pack && file)
+		{
+			costart by showEditor(addr, pack, file, url, line)
+		}
+	}
+	
 	function createLocalsView(parent: wx.Widget, model: DataModel)
 	{
 		var view = wx.DataViewCtrl(parent)
@@ -808,6 +829,23 @@ class NitEditFrame : wx.ScriptFrame
 		// HACK: same with localsView
 		
 		return createLocalsView(parent, model)
+	}
+	
+	function createPacksView(parent: wx.Widget, model: DataModel)
+	{
+		var view = wx.DataViewCtrl(parent)
+		
+		view with
+		{
+			appendTextColumn("Type",		model.addColumn("string", "type")) with { width = 20 }
+			appendTextColumn("Name",		model.addColumn("string", "name")) with { width = 120; view.expanderColumn = this }
+			
+			associateModel(model.peer)
+		}
+
+		view.bind(view.EVT.ITEM_ACTIVATED, this, onPacksViewItemActivated)
+		
+		return view
 	}
 	
 	property currDocPane get
@@ -1258,6 +1296,44 @@ class NitEditFrame : wx.ScriptFrame
 		costart by { updateInspector(_globalsModel, params.globals) }
 	}
 	
+	function updatePacks()
+	{
+		costart by
+		{
+			var params = _debugClient :> request(CMD.RQ_PACKS)()
+			
+			var model = _packsModel
+			
+			model.clear()
+			
+			foreach (packname in params.packs.keys().sort())
+			{
+				var pack = params.packs[packname]
+				var packItem =
+				{
+					name = pack.name
+					type = pack.type
+					pack = pack
+				}
+				
+				var pack_id = model.addItem(packItem)
+				
+				foreach (file in pack.files.sort by (a, b) => a.name <=> b.name)
+				{
+					var fileItem =
+					{
+						name = file.name
+						type = ContentType.fromMimeType(file.mime).name
+						pack = pack
+						file = file
+					}
+					
+					var file_id = model.addItem(fileItem, pack_id)
+				}
+			}
+		}
+	}
+	
 	function updateCallstack(params)
 	{
 		var model = _callstackModel
@@ -1636,6 +1712,9 @@ class NitEditFrame : wx.ScriptFrame
 	
 	var _globalsWin : wx.DataViewCtrl 
 	var _globalsModel : DataModel
+	
+	var _packsWin : wx.DataViewCtrl
+	var _packsModel : DataModel
 }
 
 f := NitEditFrame()
