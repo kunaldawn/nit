@@ -477,6 +477,7 @@ static void populatePackRecord(DataRecord* packRec, Package* pack, map<String, P
 		Ref<DataRecord> fileRec = new DataRecord();
 
 		fileRec->set("name", file->getName());
+		fileRec->set("url", file->getUrl());
 		fileRec->set("mime", ns->add(file->getContentType().getMimeType()));
 		filesArray->append(fileRec);
 	}

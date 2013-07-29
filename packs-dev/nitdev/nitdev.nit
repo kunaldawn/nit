@@ -798,7 +798,7 @@ class NitEditFrame : wx.ScriptFrame
 		var addr = _currAttachedAddr
 		var pack = try obj.pack.name
 		var file = try obj.file.name
-		var url = ""
+		var url = try obj.file.url
 		var line = 0
 		
 		if (addr && pack && file)
@@ -1206,7 +1206,7 @@ class NitEditFrame : wx.ScriptFrame
 		updateDebugWindows(params)
 	}
 	
-	function showEditor(addr, pack, file, url, line) : DocumentPane
+	function showEditor(addr, pack, file, url, line=null) : DocumentPane
 	{
 		var id = format("%s> %s: %s", addr, pack, file)
 		print(id)
@@ -1274,13 +1274,16 @@ class NitEditFrame : wx.ScriptFrame
 			doc.readOnly = true
 		}
 		
-		if (_lastShowEditor)
+		if (_lastShowEditor && line != null)
 			_lastShowEditor.markerDeleteAll(MARKER.CURRENT_LINE)
 		
 		_lastShowEditor = editor
 		
-		editor.markerAdd(line - 1, MARKER.CURRENT_LINE)
-		editor.ensureVisibleEnforcePolicy(line - 1)
+		if (line != null)
+		{
+			editor.markerAdd(line - 1, MARKER.CURRENT_LINE)
+			editor.ensureVisibleEnforcePolicy(line - 1)
+		}
 		
 		var pane = editor.parent
 		
