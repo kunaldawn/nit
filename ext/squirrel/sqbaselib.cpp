@@ -1390,14 +1390,14 @@ static SQInteger class_setattributes(HSQUIRRELVM v)
 
 static SQInteger class_getgetter(HSQUIRRELVM v)
 {
-	if (SQ_FAILED(sq_getproperty(v, -2))) return SQ_ERROR;
+	if (SQ_FAILED(sq_getproperty(v, -2))) return 0;
 	v->Pop();
 	return 1;
 }
 
 static SQInteger class_getsetter(HSQUIRRELVM v)
 {
-	if (SQ_FAILED(sq_getproperty(v, -2))) return SQ_ERROR;
+	if (SQ_FAILED(sq_getproperty(v, -2))) return 0;
 	v->Replace(-2);
 	return 1;
 }

@@ -931,7 +931,7 @@ SQRESULT sq_getproperty(HSQUIRRELVM v, SQInteger idx)
 	bool hasProperty = sqi_class(self)->GetProperty(name, getter, setter);
 
 	v->Pop();
-	if (!hasProperty) return SQ_ERROR;
+	if (!hasProperty) return sq_throwerror(v, _SC("property not foud"));
 
 	v->Push(getter);
 	v->Push(setter);
