@@ -188,7 +188,7 @@ Package* PackBundle::linkLocal(const String& packName)
 	}
 
 	// find '<root>/name.pack'
-	type = Package::PK_GOLFPACK;
+	type = Package::PK_PACKFILE;
 	path = name + ".pack";
 	source = locateLocal(path);
 
@@ -233,7 +233,7 @@ found:
 
 	switch (type)
 	{
-	case Package::PK_GOLFPACK: // name.pack
+	case Package::PK_PACKFILE: // name.pack
 		StringUtil::splitFilename(fullpath, location, basepath); // this location is dummy and ignored 
 		archive = new PackArchive(packName, source);
 		location = fullpath;

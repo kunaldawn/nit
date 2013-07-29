@@ -49,7 +49,7 @@ class NIT_API Package : public Archive
 public:
 	enum Type
 	{
-		PK_GOLFPACK,
+		PK_PACKFILE,
 		PK_PLUGIN,
 		PK_FOLDER,
 		PK_ALIAS,
