@@ -807,10 +807,10 @@ public:
 // 			"(parent: Window=null, fontInit=NULL_FONT, caption=\"\")");
 
 		sq_register_h(v, "getTextFromUser", GetTextFromUser,
-			"(msg: string, caption=null, default_value=\"\", x=null, y=null, center=true): string");
+			"(msg: string, caption=null, default_value=\"\", parent: Window=null, x=null, y=null, center=true): string");
 
 		sq_register_h(v, "getPasswordFromUser", GetPasswordFromUser,
-			"(msg: string, caption=null, default_value=\"\", x=null, y=null, center=true): string");
+			"(msg: string, caption=null, default_value=\"\", parent: Window=null, x=null, y=null, center=true): string");
 
 		sq_register_h(v, "logMessage", LogMessage,
 			"(msg: string)\n(fmt: string, ...)");
