@@ -100,7 +100,7 @@ function dump(o=null, full=false)	"(obj, showhidden=false)\n(obj, filter: wildca
 			try v = o[k] catch(ex) v = "<ERROR: " + ex + ">"
 
 			if (type(v) == "string")
-				v = "\"" + v + "\""
+				v = '"' + v.slice(0, 100) + '"'
 			
 			var rw = ""
 			var prophelp = ""
