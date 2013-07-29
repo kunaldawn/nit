@@ -575,7 +575,12 @@ SQInteger ScriptDataValue::push(HSQUIRRELVM v, const DataValue& value, bool full
 
 	case DataValue::TYPE_BUFFER:		sr = NitBind::push(v, value.getRef<MemoryBuffer>()); break;
 
-	case DataValue::TYPE_KEY:			sr = NitBind::push(v, value.getRef<DataKey>()); break;
+	case DataValue::TYPE_KEY:
+		if (fullTransform)
+			sr = NitBind::push(v, value.getRef<DataKey>()->getName());
+		else
+			sr = NitBind::push(v, value.getRef<DataKey>()); 
+		break;
 
 	case DataValue::TYPE_ARRAY:			
 		if (fullTransform)
