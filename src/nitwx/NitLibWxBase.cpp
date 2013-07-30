@@ -1358,6 +1358,7 @@ public:
 
 			FUNC_ENTRY_H(hasFocus,		"(): bool"),
 			FUNC_ENTRY_H(setFocus,		"()"),
+			FUNC_ENTRY_H(raise,			"()"),
 
 			FUNC_ENTRY_H(freeze,		"()"),
 			FUNC_ENTRY_H(thaw,			"()"),
@@ -1537,6 +1538,7 @@ public:
 
 	NB_FUNC(hasFocus)					{ return push(v, self(v)->HasFocus()); }
 	NB_FUNC(setFocus)					{ self(v)->SetFocus(); return 0; }
+	NB_FUNC(raise)						{ self(v)->Raise(); return 0; }
 
 	NB_FUNC(freeze)						{ self(v)->Freeze(); return 0; }
 	NB_FUNC(thaw)						{ self(v)->Thaw(); return 0; }
@@ -1620,12 +1622,23 @@ public:
 	{
 		PropEntry props[] =
 		{
+			PROP_ENTRY_R(active),
+			PROP_ENTRY	(icon),
+			PROP_ENTRY	(iconized),
+			PROP_ENTRY_R(fullScreen),
+			PROP_ENTRY	(maximized),
+			PROP_ENTRY	(title),
 			NULL
 		};
 
 		FuncEntry funcs[] =
 		{
-			FUNC_ENTRY_H(close,			"(force=false): bool // returns true if event handler honoured our request"),
+			FUNC_ENTRY_H(close,					"(force=false): bool // returns true if event handler honoured our request"),
+			FUNC_ENTRY_H(centerOnScreen,		"(dir=wx.BOTH)"),
+			FUNC_ENTRY_H(requestUserAttention,	"(flags=USER_ATTENTION.INFO)"),
+			FUNC_ENTRY_H(showWithoutActivating,	"()"),
+			FUNC_ENTRY_H(showFullScreen,		"(show=true, style=FULLSCREEN.ALL)"),
+			FUNC_ENTRY_H(shouldPreventAppExit,	"(): bool"),
 			NULL
 		};
 
@@ -1640,9 +1653,40 @@ public:
 		newSlot(v, -1, "CLOSE",			(int)wxEVT_CLOSE_WINDOW);
 		newSlot(v, -1, "ICONIZE",		(int)wxEVT_ICONIZE);
 		sq_poptop(v);
+
+		addStaticTable(v, "USER_ATTENTION");
+		newSlot(v, -1, "INFO",			(int)wxUSER_ATTENTION_INFO);
+		newSlot(v, -1, "ERROR",			(int)wxUSER_ATTENTION_ERROR);
+		sq_poptop(v);
+
+		addStaticTable(v, "FULLSCREEN");
+		newSlot(v, -1, "NOMENUBAR",		(int)wxFULLSCREEN_NOMENUBAR);
+		newSlot(v, -1, "NOTOOLBAR",		(int)wxFULLSCREEN_NOTOOLBAR);
+		newSlot(v, -1, "NOSTATUSBAR",	(int)wxFULLSCREEN_NOSTATUSBAR);
+		newSlot(v, -1, "NOBORDER",		(int)wxFULLSCREEN_NOBORDER);
+		newSlot(v, -1, "NOCAPTION",		(int)wxFULLSCREEN_NOCAPTION);
+		newSlot(v, -1, "ALL",			(int)wxFULLSCREEN_ALL);
+		sq_poptop(v);
 	}
 
+	NB_PROP_GET(active)					{ return push(v, self(v)->IsActive()); }
+	NB_PROP_GET(icon)					{ return push(v, self(v)->GetIcon()); }
+	NB_PROP_GET(iconized)				{ return push(v, self(v)->IsIconized()); }
+	NB_PROP_GET(fullScreen)				{ return push(v, self(v)->IsFullScreen()); }
+	NB_PROP_GET(maximized)				{ return push(v, self(v)->IsMaximized()); }
+	NB_PROP_GET(title)					{ return push(v, self(v)->GetTitle()); }
+
+	NB_PROP_SET(icon)					{ self(v)->SetIcon(*opt<wxIcon>(v, 2, wxNullIcon)); return 0; }
+	NB_PROP_SET(iconized)				{ self(v)->Iconize(getBool(v, 2)); return 0; }
+	NB_PROP_SET(maximized)				{ self(v)->Maximize(getBool(v, 2)); return 0; }
+	NB_PROP_SET(title)					{ self(v)->SetTitle(getWxString(v, 2)); return 0; }
+
 	NB_FUNC(close)						{ return push(v, self(v)->Close(optBool(v, 2, false))); }
+	NB_FUNC(centerOnScreen)				{ self(v)->CenterOnScreen(optInt(v, 2, wxBOTH)); return 0; }
+	NB_FUNC(requestUserAttention)		{ self(v)->RequestUserAttention(optInt(v, 2, wxUSER_ATTENTION_INFO)); return 0; }
+	NB_FUNC(showWithoutActivating)		{ self(v)->ShowWithoutActivating(); return 0; }
+	NB_FUNC(showFullScreen)				{ self(v)->ShowFullScreen(optBool(v, 2, true), optInt(v, 3, wxFULLSCREEN_ALL)); return 0; }
+	NB_FUNC(shouldPreventAppExit)		{ return push(v, self(v)->ShouldPreventAppExit()); } 
 };
 
 ////////////////////////////////////////////////////////////////////////////////
