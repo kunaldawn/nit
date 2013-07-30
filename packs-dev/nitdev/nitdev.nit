@@ -1285,6 +1285,15 @@ class NitEditFrame : wx.ScriptFrame
 		var params = evt.param()
 		
 		::p := params // TODO: debug purpose
+		
+		if (iconized)
+			requestUserAttention()
+		
+		if (!iconized)
+		{
+			raise()
+			setFocus()
+		}
 
 //		printf("++ break: %s", params.toJson(false))
 	
