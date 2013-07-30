@@ -158,6 +158,19 @@ public:
 	~SQInstance();
 	enum AccessResult { IA_OK, IA_NO_INDEX, IA_ERROR };
 
+	enum Flags 
+	{ 
+		IS_INITIALIZING = 0x0001, 
+		IS_CONSTRUCTING = 0x0002, 
+		IS_DESTRUCTING = 0x0004
+	};
+
+	bool isValid() {
+		if (_class == NULL) return false;
+		if (_class->_typetag && _userpointer == NULL) return false;
+		return true;
+	}
+
 	AccessResult GetByIndex(SQVM* vm, SQInteger index, SQObjectPtr& val)
 	{
 		if (index & MEMBER_TYPE_FIELD) 
@@ -238,6 +251,7 @@ public:
 	SQUserPointer _userpointer;
 	SQRELEASEHOOK _hook;
 	SQInteger _memsize;
+	SQInteger _flags;
 	SQObjectPtr _values[1];
 };
 

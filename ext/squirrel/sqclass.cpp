@@ -23,6 +23,7 @@ SQClass::SQClass(SQSharedState *ss,SQClass *base)
 	_metamethods.resize(MT_LAST); //size it to max size
 	if(_base) {
 		_base->Lock();
+		_typetag = _base->_typetag;
 		// NOTE: initializer & destructor will be chained so no copy needed
 		_constructoridx = _base->_constructoridx;
 		_needinitializer = _base->_needinitializer;
@@ -254,6 +255,7 @@ void SQInstance::Init(SQSharedState *ss)
 	_hook = NULL;
 	__ObjAddRef(_class);
 	_delegate = _class->_members;
+	_flags = 0;
 	INIT_CHAIN();
 	ADD_TO_CHAIN(&_sharedstate->_gc_chain, this);
 }
@@ -296,9 +298,11 @@ void SQInstance::Finalize()
 		// Avoid the stack slot potentialy Null()ifying
 		SQInteger oldTop = v->_top++;
 
+		_flags |= IS_DESTRUCTING;
 		v->Push(this);
 		v->CallDestructorChain(this, _class); // TODO: Investigate side-effects occurred by this Call()
 		v->Pop();
+		_flags &= ~IS_DESTRUCTING;
 
 		v->_top = oldTop;
 	}
