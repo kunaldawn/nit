@@ -25,7 +25,7 @@
 #include "nit/script/ScriptDebugger.h"
 #include "nit/script/ScriptRuntime.h"
 
-#include "nit/net/RemoteDebugger.h"
+#include "nit/net/DebugServer.h"
 
 #include "squirrel/sqstate.h"
 #include "squirrel/sqobject.h"

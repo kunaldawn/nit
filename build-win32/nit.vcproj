@@ -1705,19 +1705,19 @@
 			Name="net"
 			>
 			<File
+				RelativePath="..\src\nit\net\DebugServer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\nit\net\DebugServer.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\nit\net\Remote.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\src\nit\net\Remote.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\nit\net\RemoteDebugger.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\nit\net\RemoteDebugger.h"
 				>
 			</File>
 			<File

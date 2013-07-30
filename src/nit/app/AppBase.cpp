@@ -44,7 +44,7 @@
 
 #include "nit/runtime/MemManager.h"
 #include "nit/data/Settings.h"
-#include "nit/net/RemoteDebugger.h"
+#include "nit/net/DebugServer.h"
 
 NS_NIT_BEGIN;
 

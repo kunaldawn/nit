@@ -28,7 +28,7 @@
 #include "squirrel/sqxapi.h"
 
 #include "nit/script/ScriptRuntime.h"
-#include "nit/net/RemoteDebugger.h"
+#include "nit/net/DebugServer.h"
 
 NS_NIT_BEGIN;
 

@@ -22,7 +22,7 @@
 
 #include "nit_pch.h"
 
-#include "nit/net/RemoteDebugger.h"
+#include "nit/net/DebugServer.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 

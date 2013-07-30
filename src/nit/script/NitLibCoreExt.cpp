@@ -31,7 +31,7 @@
 
 #include "nit/net/Remote.h"
 
-#include "nit/net/RemoteDebugger.h"
+#include "nit/net/DebugServer.h"
 
 NS_NIT_BEGIN;
 

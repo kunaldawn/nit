@@ -25,7 +25,7 @@
 #include "nit/runtime/NitRuntime.h"
 
 #include "nit/io/FileLocator.h"
-#include "nit/net/RemoteDebugger.h"
+#include "nit/net/DebugServer.h"
 
 NS_NIT_BEGIN;
 

@@ -24,7 +24,7 @@
 
 #include "nitwx/NitLibWxNit.h"
 
-#include "nit/net/RemoteDebugger.h"
+#include "nit/net/DebugServer.h"
 
 #ifdef NIT_WIN32
 #   include <wx/msw/private.h>

@@ -25,7 +25,7 @@
 #include "nit/io/Stream.h"
 #include "nit/runtime/MemManager.h"
 #include "nit/net/Remote.h"
-#include "nit/net/RemoteDebugger.h"
+#include "nit/net/DebugServer.h"
 
 #include "ConsoleWindow.h"
 
