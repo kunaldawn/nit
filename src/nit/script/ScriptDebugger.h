@@ -132,7 +132,7 @@ private:
 
 	void								resetTraps(HSQUIRRELVM v);
 	Ref<DataRecord>						createThreadInfo(HSQUIRRELVM th, ScriptRuntime* srt, int startLevel, int lineFix = -1);
-	Ref<DataRecord>						createObjInfo(HSQUIRRELVM v, int stackIdx, const char* kind, const char* varName, const char* func);
+	Ref<DataRecord>						createObjInfo(HSQUIRRELVM v, int stackIdx, const char* kind);
 	void								populateMemberInfo(HSQUIRRELVM v, int stackIdx, Ref<DataRecord> members);
 	friend class						NB_ScriptDebugger;
 };

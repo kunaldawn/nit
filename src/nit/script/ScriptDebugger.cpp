@@ -27,6 +27,13 @@
 
 #include "nit/net/RemoteDebugger.h"
 
+#include "squirrel/sqstate.h"
+#include "squirrel/sqobject.h"
+#include "squirrel/sqtable.h"
+#include "squirrel/sqvm.h"
+#include "squirrel/sqclass.h"
+#include "squirrel/sqstdblob.h"
+
 NS_NIT_BEGIN;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -390,71 +397,6 @@ static const char* TypeToStr(int sqtype)
 	}
 }
 
-static String toString(HSQUIRRELVM v, int stackIdx, const char* name, const char* func)
-{
-	int type = sq_gettype(v, stackIdx);
-
-	const char* str = "???";
-
-	if (type == OT_STRING)
-	{
-		sq_getstring(v, stackIdx, &str);
-		return str;
-	}
-
-	// HACK: It may be dangerous to call tostring() or to inspect unless a native-instance has instance-up assigned.
-	// This is common for trapping on initializer or constructor call
-	bool hazardCase = strcmp(name, "this") == 0 &&
-		(strcmp(func, "_initializer") == 0 || strcmp(func, "constructor") == 0);
-
-	// TODO: Investigate side-effect for failure of metamethod call to '_tostring()' at sqvm.ToString()
-
-	if (!hazardCase)
-	{
-		sq_tostring(v, stackIdx);
-		sq_getstring(v, -1, &str);
-		String value = str;
-		sq_poptop(v);
-		return value;
-	}
-
-	str = "[constructing]";
-
-	if (type != OT_INSTANCE)
-		return str;
-
-	SQUserPointer tag = NULL;
-
-	// Check if is a native instance descendant
-	sq_getclass(v, stackIdx);
-	while (tag == NULL)
-	{
-		if (SQ_FAILED(sq_getbase(v, -1)))
-		{
-			sq_poptop(v);
-			break;
-		}
-		sq_gettypetag(v, -1, &tag);
-		sq_replace(v, -2);
-	}
-	sq_poptop(v);
-
-	SQUserPointer up = NULL;
-	sq_getinstanceup(v, stackIdx, &up, NULL);
-
-	// Perform tostring() when pure-instance (tag==NULL) or instance-up assigned.
-	// (Native instances are mostly ok when instance-up assigned.)
-	if (tag == NULL || up)
-	{
-		sq_tostring(v, stackIdx);
-		sq_getstring(v, -1, &str);
-		String value = str;
-		sq_poptop(v);
-		return value;
-	}
-	return str;
-}
-
 static String getName(HSQUIRRELVM th, int stackIdx)
 {
 	String name;
@@ -491,6 +433,43 @@ static String getName(HSQUIRRELVM th, int stackIdx)
 	}
 
 	return name;
+}
+
+static String toString(HSQUIRRELVM v, int stackIdx)
+{
+	int type = sq_gettype(v, stackIdx);
+
+	const char* str = "???";
+
+	if (type == OT_STRING)
+	{
+		sq_getstring(v, stackIdx, &str);
+		return str;
+	}
+
+	if (type == OT_INSTANCE)
+	{
+		HSQOBJECT o;
+		sq_getstackobj(v, stackIdx, &o);
+		SQInstance* inst = sqi_instance(o);
+
+		if (inst->_flags & SQInstance::IS_INITIALIZING)
+			return String("<") + getName(v, stackIdx) + ": init>";
+
+		if (!inst->isValid())
+		{
+			if (inst->_class && (inst->_flags & SQInstance::IS_CONSTRUCTING))
+				return String("<") + getName(v, stackIdx) + ": cons>";
+			else
+				return "<invalid>";
+		}
+	}
+
+	sq_tostring(v, stackIdx);
+	sq_getstring(v, -1, &str);
+	String value = str;
+	sq_poptop(v);
+	return value;
 }
 
 Ref<DataRecord> ScriptDebugger::createThreadInfo(HSQUIRRELVM th, ScriptRuntime* srt, int startLevel, int lineFix)
@@ -549,7 +528,7 @@ Ref<DataRecord> ScriptDebugger::createThreadInfo(HSQUIRRELVM th, ScriptRuntime* 
 		{
 			int type = sq_gettype(th, -1);
 
-			locals->set(varName, createObjInfo(th, -1, "local", varName, func));
+			locals->set(varName, createObjInfo(th, -1, "local"));
 
 			if (strcmp(varName, "this") == 0)
 			{
@@ -567,7 +546,7 @@ Ref<DataRecord> ScriptDebugger::createThreadInfo(HSQUIRRELVM th, ScriptRuntime* 
 }
 
 // TODO: remove varName & func
-Ref<DataRecord> ScriptDebugger::createObjInfo(HSQUIRRELVM v, int stackIdx, const char* kind, const char* varName, const char* func)
+Ref<DataRecord> ScriptDebugger::createObjInfo(HSQUIRRELVM v, int stackIdx, const char* kind)
 {
 	int objIdx = NitBind::toAbsIdx(v, stackIdx);
 
@@ -584,10 +563,18 @@ Ref<DataRecord> ScriptDebugger::createObjInfo(HSQUIRRELVM v, int stackIdx, const
 	case OT_USERDATA:
 	case OT_THREAD:
 	case OT_CLASS:
-	case OT_INSTANCE:
 	case OT_WEAKREF:
 	case OT_NATIVEWEAKREF:
 		inspectable = true; 
+		break;
+
+	case OT_INSTANCE:
+		{
+			HSQOBJECT o;
+			sq_getstackobj(v, objIdx, &o);
+			SQInstance* inst = sqi_instance(o);
+			inspectable = !(inst->_flags & SQInstance::IS_INITIALIZING) && inst->isValid();
+		}
 		break;
 
 	case OT_CLOSURE:
@@ -611,7 +598,7 @@ Ref<DataRecord> ScriptDebugger::createObjInfo(HSQUIRRELVM v, int stackIdx, const
 
 	// Represent the value by tostring()
 
-	String value = toString(v, stackIdx, varName, func);
+	String value = toString(v, stackIdx);
 
 	if (value.size() > 100)
 	{
@@ -667,7 +654,7 @@ void ScriptDebugger::populateMemberInfo(HSQUIRRELVM v, int stackidx, Ref<DataRec
 	case OT_USERDATA:
 		sq_getdelegate(v, objIdx);
 		if (sq_gettype(v, -1) != OT_NULL)
-			members->set("$delegate", createObjInfo(v, -1, "internal", varName, func));
+			members->set("$delegate", createObjInfo(v, -1, "internal"));
 		sq_poptop(v);
 		metaIdx = objIdx;
 		break;
@@ -675,14 +662,14 @@ void ScriptDebugger::populateMemberInfo(HSQUIRRELVM v, int stackidx, Ref<DataRec
 	case OT_INSTANCE:
 		sq_getclass(v, objIdx);
 		if (sq_gettype(v, -1) != OT_NULL)
-			members->set("$class", createObjInfo(v, -1, "internal", varName, func));
+			members->set("$class", createObjInfo(v, -1, "internal"));
 		metaIdx = NitBind::toAbsIdx(v, -1);
 		break;
 
 	case OT_CLASS:
 		sq_getbase(v, objIdx);
 		if (sq_gettype(v, -1) != OT_NULL)
-			members->set("$base", createObjInfo(v, -1, "internal", varName, func));
+			members->set("$base", createObjInfo(v, -1, "internal"));
 		sq_poptop(v);
 		metaIdx = objIdx;
 		break;
@@ -723,7 +710,7 @@ void ScriptDebugger::populateMemberInfo(HSQUIRRELVM v, int stackidx, Ref<DataRec
 
 		if (type != OT_INSTANCE)
 		{
-			objInfo = createObjInfo(v, itr.valueIndex(), "item", varName, func);
+			objInfo = createObjInfo(v, itr.valueIndex(), "item");
 			if (objInfo)
 			{
 				members->set(key, objInfo);
@@ -744,7 +731,7 @@ void ScriptDebugger::populateMemberInfo(HSQUIRRELVM v, int stackidx, Ref<DataRec
 
 		if (SQ_SUCCEEDED(sq_get(v, objIdx)))
 		{
-			objInfo = createObjInfo(v, -1, kind, varName, func);
+			objInfo = createObjInfo(v, -1, kind);
 			if (objInfo)
 				members->set(key, objInfo);
 			sq_poptop(v);
@@ -819,31 +806,31 @@ void ScriptDebugger::breakExecution(HSQUIRRELVM v, Ref<DataRecord> breakInfo, in
 	breakInfo->set("globals", globals);
 
 	sq_pushroottable(v);
-	globals->set("$root", createObjInfo(v, -1, "system", "", ""));
+	globals->set("$root", createObjInfo(v, -1, "system"));
 	sq_poptop(v);
 
 	sq_pushconsttable(v);
-	globals->set("$consts", createObjInfo(v, -1, "system", "", ""));
+	globals->set("$consts", createObjInfo(v, -1, "system"));
 	sq_poptop(v);
 
 	sq_pushregistrytable(v);
-	globals->set("$registry", createObjInfo(v, -1, "system", "", ""));
+	globals->set("$registry", createObjInfo(v, -1, "system"));
 	sq_poptop(v);
 
 	NitBind::push(v, g_App);
-	globals->set("app", createObjInfo(v, -1, "nit", "", ""));
+	globals->set("app", createObjInfo(v, -1, "nit"));
 	sq_poptop(v);
 
 	NitBind::push(v, srt);
-	globals->set("script", createObjInfo(v, -1, "nit", "", ""));
+	globals->set("script", createObjInfo(v, -1, "nit"));
 	sq_poptop(v);
 
 	NitBind::push(v, g_Package);
-	globals->set("package", createObjInfo(v, -1, "nit", "", ""));
+	globals->set("package", createObjInfo(v, -1, "nit"));
 	sq_poptop(v);
 
 	NitBind::push(v, g_Session);
-	globals->set("session", createObjInfo(v, -1, "nit", "", ""));
+	globals->set("session", createObjInfo(v, -1, "nit"));
 	sq_poptop(v);
 
 	// Dive into the trap!
