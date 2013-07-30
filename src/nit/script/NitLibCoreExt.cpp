@@ -148,7 +148,7 @@ public:
 	{
 		PropEntry props[] =
 		{
-			PROP_ENTRY	(listening),
+			PROP_ENTRY_R(listening),
 			PROP_ENTRY_R(numPeers),
 			PROP_ENTRY_R(hostPeer),
 			PROP_ENTRY_R(guestPeers),
@@ -255,7 +255,6 @@ public:
 
 	NB_CONS()							{ setSelf(v, new Remote()); return SQ_OK; }
 
-	NB_PROP_SET(listening)				{ self(v)->setListening(getBool(v, 2)); return 0; }
 	NB_PROP_SET(packetDump)				{ self(v)->setPacketDump(getBool(v, 2)); return 0; }
 
 	NB_FUNC(listen)						{ return push(v, self(v)->listen(getString(v, 2), optInt(v, 3, type::PORT_DEFAULT_TCP))); }

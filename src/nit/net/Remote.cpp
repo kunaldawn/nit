@@ -34,7 +34,7 @@ NS_NIT_BEGIN;
 ////////////////////////////////////////////////////////////////////////////////
 
 NIT_EVENT_DEFINE(REMOTE_CONNECT,		RemoteEvent);
-NIT_EVENT_DEFINE(REMOTE_DISCONNECT,	RemoteEvent);
+NIT_EVENT_DEFINE(REMOTE_DISCONNECT,		RemoteEvent);
 NIT_EVENT_DEFINE(REMOTE_ERROR,			RemoteErrorEvent);
 
 NIT_EVENT_DEFINE(REMOTE_HELLO,			RemoteHelloEvent);
@@ -43,7 +43,7 @@ NIT_EVENT_DEFINE(REMOTE_USER_PACKET,	RemoteUserPacketEvent);
 
 NIT_EVENT_DEFINE(REMOTE_CHANNEL_CLOSE,	RemoteChannelEvent);
 
-NIT_EVENT_DEFINE(REMOTE_NOTIFY,		RemoteNotifyEvent);
+NIT_EVENT_DEFINE(REMOTE_NOTIFY,			RemoteNotifyEvent);
 
 NIT_EVENT_DEFINE(REMOTE_REQUEST,		RemoteRequestEvent);
 NIT_EVENT_DEFINE(REMOTE_REQUEST_CANCEL,	RemoteRequestCancelEvent);
@@ -1029,7 +1029,9 @@ void Remote::onDisconnect(RemotePeer* peer)
 
 	cancelEntries(Predicates::OnDisconnect(peer));
 
-	// Notify disconnection only to channel 0 - management purpose
+	// TODO: notify disconnection to the associated channels
+
+	// Notify disconnection to channel 0 - management purpose
 	_channel0->send(EVT::REMOTE_DISCONNECT, new RemoteEvent(this, peer));
 }
 
@@ -1972,25 +1974,14 @@ void Remote::closeChannel(ChannelId channelId)
 	Channels::iterator itr = _channels.find(channelId);
 	if (itr == _channels.end()) return;
 
+	cancelEntries(Predicates::CloseChannel(channelId));
+
 	if (_broadcastPeer)
 		_broadcastPeer->sendPacket(HDR_CHANNEL_CLOSE, &channelId, sizeof(channelId), NULL, 0);
 
 	ChannelEntry e = itr->second;
 
 	_channels.erase(itr); // delete first, then notify
-
-	cancelEntries(Predicates::CloseChannel(channelId));
-}
-
-void Remote::setListening(bool flag)
-{
-	ASSERT_THROW(_server, EX_INVALID_STATE);
-
-	if (_server->isListening() != flag)
-	{
-		// TODO: implement this (control TcpSocketServer's listen)
-		NIT_THROW(EX_NOT_IMPLEMENTED);
-	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////

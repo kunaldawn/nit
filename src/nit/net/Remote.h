@@ -137,7 +137,6 @@ public:
 	void								shutdown();
 
 	bool								isListening()							{ return _server && _server->isListening(); }
-	void								setListening(bool flag);
 
 	uint								getNumPeers()							{ return _guestPeers.size() + (_hostPeer ? 1 : 0); }
 
