@@ -795,9 +795,9 @@ class NitEditFrame : wx.ScriptFrame
 		if (si && _currAttachedAddr)
 		{
 			var addr 	= _currAttachedAddr
-			var pack 	= try si.pack.name
-			var file 	= try si.file.name
-			var url 	= try si.url.name
+			var pack 	= try si.pack
+			var file 	= try si.file
+			var url 	= try si.url
 			var line 	= si.line
 			
 			costart by { showEditor(addr, pack, file, url, line) }
@@ -1298,9 +1298,9 @@ class NitEditFrame : wx.ScriptFrame
 		costart by
 		{
 			var addr = _currAttachedAddr
-			var pack = try params.pack.name
-			var file = try params.file.name
-			var url  = try params.url.name : try params.src
+			var pack = try params.pack
+			var file = try params.file
+			var url  = try params.url : try params.src
 			var func = try params.func
 			var line = try params.line
 			
@@ -1482,7 +1482,7 @@ class NitEditFrame : wx.ScriptFrame
 					stackinfo = si
 					status = ""
 					name = format("%s.%s()", si.this_name, si.func)
-					location = try format("%s: %s #%d", si.pack.name, si.file.name, si.line) : "(unknown)"
+					location = try format("%s: %s #%d", si.pack, si.file, si.line) : "(unknown)"
 				}
 				
 				var st_id = model.addItem(stackItem, th_id)
