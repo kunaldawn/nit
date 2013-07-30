@@ -287,7 +287,7 @@ void DebugServer::onRemoteRequest(const RemoteRequestEvent* evt)
 	if (evt->command == RQ_ATTACH)
 	{
 		if (_peer != NULL)
-			return evt->response(RESPONSE_ERROR, DataValue("another debug client already attached"));
+			return evt->response(RESPONSE_ERROR, "another debug client already attached");
 
 		// TODO: check client version from the param
 		attach(evt->peer, evt->param);
@@ -295,7 +295,7 @@ void DebugServer::onRemoteRequest(const RemoteRequestEvent* evt)
 	}
 
 	if (_peer != evt->peer)
-		return evt->response(RESPONSE_ERROR, DataValue("invalid peer"));
+		return evt->response(RESPONSE_ERROR, "invalid peer");
 
 	// TODO: Consider 'delay' to following
 
@@ -310,13 +310,13 @@ void DebugServer::onRemoteRequest(const RemoteRequestEvent* evt)
 	// Following requests are handled only when a debugger presents
 
 	if (_debugger == NULL)
-		return evt->response(RESPONSE_ERROR, DataValue("no debugger"));
+		return evt->response(RESPONSE_ERROR, "no debugger");
 
 	////////////////////////////////////
 
 	// Following requests are handled only when active state
 	if (!isActive())
-		return evt->response(RESPONSE_ERROR, DataValue("debugger inactive"));
+		return evt->response(RESPONSE_ERROR, "debugger inactive");
 
 	switch (evt->command)
 	{
@@ -327,7 +327,7 @@ void DebugServer::onRemoteRequest(const RemoteRequestEvent* evt)
 
 	// Following requests are handled only when debugging state
  	if (!isDebugging())
- 		return evt->response(RESPONSE_ERROR, DataValue("not debugging"));
+ 		return evt->response(RESPONSE_ERROR, "not debugging");
 
 	switch (evt->command)
 	{
@@ -512,7 +512,7 @@ static void collectBundles(DataRecord* bundles, PackBundle* bundle)
 void DebugServer::onRequestPacks(const RemoteRequestEvent* evt)
 {
 	if (_fileSystem == NULL)
-		return evt->response(RESPONSE_ERROR, DataValue("no filesystem"));
+		return evt->response(RESPONSE_ERROR, "no filesystem");
 
 	StreamLocatorList packlist;
 	_fileSystem->getPacks(packlist);
@@ -555,7 +555,7 @@ void DebugServer::onRequestPacks(const RemoteRequestEvent* evt)
 void DebugServer::onRequestFile(const RemoteRequestEvent* evt)
 {
 	if (_fileSystem == NULL)
-		return evt->response(RESPONSE_ERROR, DataValue("no filesystem"));
+		return evt->response(RESPONSE_ERROR, "no filesystem");
 
 	Ref<DataRecord> rec = evt->param.toRecord();
 	if (rec == NULL) 
