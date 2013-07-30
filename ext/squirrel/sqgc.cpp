@@ -477,6 +477,7 @@ void SQSharedState::MarkRootSet(SQGC* gc)
 void SQVM::Mark(SQGC* gc)
 {
 	gc->mark(_lasterror);
+	gc->mark(_traperror);
 	gc->mark(_errorhandler);
 	gc->mark(_debughook_closure);
 	gc->mark(_threadlocal);
