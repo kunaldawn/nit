@@ -33,10 +33,12 @@ function dump(o=null, full=false)	"(obj, showhidden=false)\n(obj, filter: wildca
 	case "integer":
 	case "float":
 	case "string":
-		printf("++ %s: %s", type(o), o)
-		return
+		return printf("++ %s: %s", type(o), o)
 		
 	case "instance":
+		if (o == null) // purged
+			return printf("++ %s: %s", type(o), o)
+		
 		meta = o.getclass()
 		name = meta._classname + " " + o.tostring()
 		break
