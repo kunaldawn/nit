@@ -174,6 +174,7 @@ bool SQGenerator::Resume(SQVM *v,SQObjectPtr &dest)
 	v->ci->_ncalls      = _ci._ncalls;
 	v->ci->_etraps      = _ci._etraps;
 	v->ci->_root        = _ci._root;
+	v->ci->_imports		= _ci._imports;
 
 
 	for(SQInteger i=0;i<_ci._etraps;i++) {
