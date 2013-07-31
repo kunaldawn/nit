@@ -865,12 +865,14 @@ bool EventChannel::sendLocal(const Event* evt)
 
 void EventChannel::doUnbind(EventId id, EventHandler* handler)
 {
-	_impl->unbind(id, handler);
+	if (_impl)
+		_impl->unbind(id, handler);
 }
 
 void EventChannel::doUnbind(EventId id, IEventSink* sink)
 {
-	_impl->unbind(id, sink);
+	if (_impl)
+		_impl->unbind(id, sink);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
