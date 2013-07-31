@@ -208,7 +208,7 @@ SQInteger SQLexer::Lex()
 			Error(_SC("error parsing the string"));
 			}
 		case _SC('{'): case _SC('}'): case _SC('('): case _SC(')'): case _SC('['): case _SC(']'):
-		case _SC(';'): case _SC(','): case _SC('?'): case _SC('^'): case _SC('~'):
+		case _SC(';'): case _SC(','): case _SC('?'): case _SC('^'): case _SC('~'): case _SC('$'):
 			{SQInteger ret = CUR_CHAR;
 			NEXT(); RETURN_TOKEN(ret); }
 		case _SC('.'):
@@ -364,18 +364,6 @@ SQInteger SQLexer::ReadString(SQInteger ndelim,bool verbatim)
 		APPEND_CHAR(ndelim);
 	}
 	TERMINATE_BUFFER();
-
-	bool useCharIntConstant = false; // Forfeits this feature.. replace with char() keyword
-	if (useCharIntConstant)
-	{
-		SQInteger len = _longstr.size()-1;
-		if(ndelim == _SC('\'')) {
-			if(len == 0) Error(_SC("empty constant"));
-			if(len > 1) Error(_SC("constant too long"));
-			_nvalue = _longstr[0];
-			return TK_INTEGER;
-		}
-	}
 
 	_svalue = &_longstr[0];
 	return TK_STRING_LITERAL;

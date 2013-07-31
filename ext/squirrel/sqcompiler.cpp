@@ -907,7 +907,9 @@ public:
 		case _SC('$'):
 			{
 				Lex();
-				Expect(TK_STRING_LITERAL);
+				if (_token != TK_STRING_LITERAL)
+					Error("invalid character literal");
+
 				const char* utf8 = _lex._svalue;
 				int charValue = 0;
 				if (*utf8 != 0)
@@ -917,6 +919,7 @@ public:
 						Error("too long char literal");
 				}
 				EmitLoadConstInt(charValue);
+				Lex();
 			}
 			break;
 
