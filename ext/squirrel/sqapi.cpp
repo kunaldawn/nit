@@ -1112,6 +1112,14 @@ const SQChar *sq_getlocal(HSQUIRRELVM v,SQUnsignedInteger level,SQUnsignedIntege
 			stackbase-=ci._prevstkbase;
 		}
 		SQVM::CallInfo &ci=v->_callsstack[lvl];
+		if(sqi_type(ci._closure)==OT_NATIVECLOSURE)
+		{
+			if (idx == 0)
+			{
+				v->Push(v->_stack[stackbase]);
+				return "this";
+			}
+		}
 		if(sqi_type(ci._closure)!=OT_CLOSURE)
 			return NULL;
 		SQClosure *c=sqi_closure(ci._closure);
