@@ -775,6 +775,7 @@ class NitEditFrame : wx.ScriptFrame
 			appendTextColumn("",			model.addColumn("wxIcon", "status")) with { width = 20 }
 			appendTextColumn("Name",		model.addColumn("string", "name")) with { width = 120; view.expanderColumn = this }
 			appendTextColumn("Location",	model.addColumn("string", "location")) with { width = 180 }
+			appendTextColumn("Line",		model.addColumn("string", "line")) with { width = 70 }
 
 			associateModel(model.peer)
 		}
@@ -1355,7 +1356,6 @@ class NitEditFrame : wx.ScriptFrame
 	function showEditor(addr, pack, file, url, line=null) : DocumentPane
 	{
 		var id = format("%s> %s: %s", addr, pack, file)
-		print(id)
 		
 		var doc = getDocument(id)
 		var editor
@@ -1496,8 +1496,9 @@ class NitEditFrame : wx.ScriptFrame
 			{
 				thread = th
 				status = current ? "active" : "suspended"
-				name = format("thread: %s", th.name)
+				name = th.name
 				location = ""
+				line = ""
 			}
 			
 			var th_id = model.addItem(threadItem)
@@ -1509,7 +1510,8 @@ class NitEditFrame : wx.ScriptFrame
 					stackinfo = si
 					status = ""
 					name = format("%s.%s()", si.this_name, si.func)
-					location = try format("%s: %s #%d", si.pack, si.file, si.line) : "(unknown)"
+					location = try format("%s: %s", si.pack, si.file) : try si.url : "(unknown)"
+					line = si.line > 0 ? si.line : ""
 				}
 				
 				var st_id = model.addItem(stackItem, th_id)

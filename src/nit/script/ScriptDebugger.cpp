@@ -518,9 +518,27 @@ Ref<DataRecord> ScriptDebugger::createThreadInfo(HSQUIRRELVM th, ScriptRuntime* 
 			stackInfo->set("file", ns->add(unit->getSource()->getName()));
 			stackInfo->set("url", ns->add(unit->getSource()->getUrl()));
 		}
+		else
+		{
+			String file, path;
+			StringUtil::splitFilename(si.source, file, path);
+
+			if (Wildcard::match("*.c", file) ||
+				Wildcard::match("*.cpp", file) ||
+				Wildcard::match("*.h", file) ||
+				Wildcard::match("*.m", file) ||
+				Wildcard::match("*.h", file))
+				path = "<native>";
+
+			stackInfo->set("pack", path);
+			stackInfo->set("file", file);
+			stackInfo->set("url", si.source);
+		}
 
 		Ref<DataRecord> locals = new DataRecord();
 		stackInfo->set("locals", locals);
+
+		String thisName = "<no_this>";
 
 		const char* varName = NULL;
 		int seq = 0;
@@ -532,13 +550,14 @@ Ref<DataRecord> ScriptDebugger::createThreadInfo(HSQUIRRELVM th, ScriptRuntime* 
 
 			if (strcmp(varName, "this") == 0)
 			{
-				String thisName = getName(th, -1);
-				stackInfo->set("this_name", thisName);
+				thisName = getName(th, -1);
 			}
 
 			sq_poptop(th);
 			++seq;
 		}
+
+		stackInfo->set("this_name", thisName);
 		++level;
 	}
 
@@ -583,7 +602,8 @@ Ref<DataRecord> ScriptDebugger::createObjInfo(HSQUIRRELVM v, int stackIdx, const
 		// TODO: for instance: if the closure is same with one of instance's class (class inherited methods)
 		// do not show. (class will show them)
 		// otherwise show them
-		return NULL;
+//		return NULL;
+		break;
 	}
 
 	Ref<DataRecord> object = new DataRecord();

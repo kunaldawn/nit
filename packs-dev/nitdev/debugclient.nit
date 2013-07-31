@@ -92,7 +92,6 @@ class DebugClient
 		remote.closeChannel(_channelId)
 		remote.getChannel(0).unbind(remote.EVT.DISCONNECT, this)
 		
-		dump(_peer)
 		_peer.disconnect()
 		
 		_peer = null
