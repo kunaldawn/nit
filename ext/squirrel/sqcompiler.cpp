@@ -516,11 +516,12 @@ public:
 
 		MoveIfCurrentTargetIsLocal();
 
-		_fs->AddInstruction(_OP_SWAP, _fs->TopTarget(), 0);
+		SQInteger top = _fs->TopTarget();
+		_fs->AddInstruction(_OP_SWAP, top, 0);
 		++_fs->_within_count;
 
 		Statement();
-		_fs->AddInstruction(_OP_SWAP, _fs->TopTarget(), 0);
+		_fs->AddInstruction(_OP_SWAP, top, 0);
 
 		--_fs->_within_count;
 
