@@ -1976,12 +1976,12 @@ void Remote::closeChannel(ChannelId channelId)
 
 	cancelEntries(Predicates::CloseChannel(channelId));
 
-	if (_broadcastPeer)
-		_broadcastPeer->sendPacket(HDR_CHANNEL_CLOSE, &channelId, sizeof(channelId), NULL, 0);
-
 	ChannelEntry e = itr->second;
 
 	_channels.erase(itr); // delete first, then notify
+
+	if (_broadcastPeer)
+		_broadcastPeer->sendPacket(HDR_CHANNEL_CLOSE, &channelId, sizeof(channelId), NULL, 0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

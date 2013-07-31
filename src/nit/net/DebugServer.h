@@ -35,6 +35,9 @@ NS_NIT_BEGIN;
 class NIT_API IDebugger
 {
 public:
+	virtual bool						isActive() = 0;
+	virtual void						setActive(bool flag) = 0;
+
 	virtual bool						Break() = 0;
 	virtual bool						go() = 0;
 	virtual bool						stepInto() = 0;
@@ -133,6 +136,8 @@ public:
 	bool								isActive()								{ return _active; }
 	bool								isDebugging()							{ return _debugging; }
 
+	void								setActive(bool flag);
+
 	Remote*								getRemote()								{ return _remote; }
 
 	IDebugger*							getDebugger()							{ return _debugger; }
@@ -208,7 +213,6 @@ private:
 	void								onRequestLocals(const RemoteRequestEvent* evt);
 	void								onRequestInspect(const RemoteRequestEvent* evt);
 	void								onRequestEvaluate(const RemoteRequestEvent* evt);
-
 };
 
 ////////////////////////////////////////////////////////////////////////////////

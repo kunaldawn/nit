@@ -205,7 +205,8 @@ DebugServer::DebugServer(Remote::ChannelId channelID /*= 0xdeb6*/)
 
 	_channelID = channelID;
 
-	_active	= true;
+	_active	= true; // controlled by session manager, etc.
+
 	_debugging = false;
 
 	_breakpointsUpdated = false;
@@ -297,7 +298,7 @@ void DebugServer::onRemoteRequest(const RemoteRequestEvent* evt)
 	if (_peer != evt->peer)
 		return evt->response(RESPONSE_ERROR, "invalid peer");
 
-	// TODO: Consider 'delay' to following
+	////////////////////////////////////
 
 	switch (evt->command)
 	{
@@ -362,7 +363,20 @@ void DebugServer::onRemoteDisconnect(const RemoteEvent* evt)
 {
 	if (_peer != evt->peer) return;
 
-	detach();
+	_peer = NULL;
+
+	// clear debugging states
+	_debugging = false;
+
+	_breakpoints.clear();
+
+	if (_debugger)
+	{
+		_debugger->setActive(false);
+		_debugger->updateBreakpoints();
+	}
+
+	LOG(0, "++ [DBGSVR] DebugClient detached\n");
 }
 
 void DebugServer::onNotifyCommand(const RemoteNotifyEvent* evt)
@@ -383,18 +397,46 @@ void DebugServer::attach(RemotePeer* peer, DataValue params)
 
 	_peer = peer;
 
-	if (_debugger && _active)
-		_remote->notify(_peer, _channelID, NT_SVR_ACTIVE);
+	LOG(0, "++ [DBGSVR] DebugClient attached\n");
+
+	if (_debugger)
+		_debugger->setActive(_active);
+
+	if (_peer)
+	{
+		if (_active)
+			_remote->notify(_peer, _channelID, NT_SVR_ACTIVE);
+		else
+			_remote->notify(_peer, _channelID, NT_SVR_INACTIVE);
+	}
+}
+
+void DebugServer::setActive(bool flag)
+{
+	if (_active == flag) return;
+
+	_active = flag;
+
+	if (_debugger)
+		_debugger->setActive(_active && _peer);
+
+	if (_peer)
+	{
+		if (_active)
+			_remote->notify(_peer, _channelID, NT_SVR_ACTIVE);
+		else
+			_remote->notify(_peer, _channelID, NT_SVR_INACTIVE);
+	}
 }
 
 void DebugServer::detach()
 {
-	_peer = NULL;
+	if (_peer == NULL)
+		return;
 
-	if (_debugger)
-	{
-		// TODO: un-break if now breaking, etc..
-	}
+	_peer->disconnect();
+
+	// actual detaching will occur at onRemoteDisconnect()
 }
 
 void DebugServer::setDebugger(IDebugger* debugger)
@@ -402,8 +444,14 @@ void DebugServer::setDebugger(IDebugger* debugger)
 	ASSERT_THROW(_debugger == NULL || debugger == NULL, EX_INVALID_STATE);
 
 	_debugger = debugger;
+
 	if (_debugger)
-		_debugger->updateBreakpoints();
+	{
+		_debugger->setActive(_peer && _active);
+
+		if (_active)
+			_debugger->updateBreakpoints();
+	}
 }
 
 static void populatePackRecord(DataRecord* packRec, Package* pack, map<String, Package*>::type& packOfName)
@@ -638,9 +686,15 @@ void DebugServer::onRequestBreak(const RemoteRequestEvent* evt)
 	bool ok = _debugger->Break();
 
 	if (ok)
+	{
 		evt->response(RESPONSE_OK);
+		LOG(0, "++ [DBGSVR] Break accepted - breaking...\n");
+	}
 	else
+	{
 		evt->response(RESPONSE_ERROR);
+		LOG(0, "++ [DBGSVR] Break denied\n");
+	}
 }
 
 void DebugServer::onRequestGo(const RemoteRequestEvent* evt)
@@ -712,18 +766,30 @@ void DebugServer::breakTrap(const DataValue& params)
 
 	ASSERT_THROW(!_debugging, EX_INVALID_STATE);
 
+//	LOG(0, ".. [DBGSVR] Entering break trap\n");
+
 	_debugging = true;
 	_remote->notify(_peer, _channelID, NT_SVR_BREAK, params);
 
 	NitRuntime* rt = NitRuntime::getSingleton();
 
 	while (_active && _peer && _debugging)
-		rt->debuggerLoop();
+	{
+		bool alive = rt->debuggerLoop();
+		if (!alive) break;
+	}
 
 	if (_peer)
-		_remote->notify(_peer, _channelID, NT_SVR_RESUME);
+	{
+		if (_active)
+			_remote->notify(_peer, _channelID, NT_SVR_RESUME);
+		else
+			_remote->notify(_peer, _channelID, NT_SVR_INACTIVE);
+	}
 
 	_debugging = false;
+
+//	LOG(0, ".. [DBGSVR] Leaving break trap\n");
 }
 
 void DebugServer::Continue()

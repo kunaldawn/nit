@@ -939,7 +939,7 @@ public:
 	{
 		PropEntry props[] =
 		{
-			PROP_ENTRY	(active),
+			PROP_ENTRY_R(active),
 			PROP_ENTRY_R(root),
 			PROP_ENTRY_R(worker),
 			PROP_ENTRY_R(threads),
@@ -992,7 +992,6 @@ public:
 	}
 
 	NB_PROP_GET(active)					{ return push(v, self(v)->isActive()); }
-	NB_PROP_SET(active)					{ self(v)->setActive(getBool(v, 2)); return 0; }
 
 	NB_PROP_GET(root)					{ sq_pushthread(v, ScriptRuntime::getRuntime(v)->getRoot()); return 1; }
 	NB_PROP_GET(worker)					{ sq_pushthread(v, ScriptRuntime::getRuntime(v)->getWorker()); return 1; }

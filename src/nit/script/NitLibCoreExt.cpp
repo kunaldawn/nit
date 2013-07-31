@@ -392,14 +392,15 @@ public:
 			PROP_ENTRY_R(dataContext),
 			PROP_ENTRY_R(connected),
 			PROP_ENTRY	(sendCompressed),
+			PROP_ENTRY_R(host),
+			PROP_ENTRY_R(guest),
+			PROP_ENTRY_R(broadcast),
 			NULL
 		};
 
 		FuncEntry funcs[] =
 		{
-			FUNC_ENTRY_H(isHost,	"(): bool"),
-			FUNC_ENTRY_H(isGuest,	"(): bool"),
-			FUNC_ENTRY_H(isBroadcast,"(): bool"),
+			FUNC_ENTRY_H(disconnect,"()"),
 			NULL
 		};
 
@@ -412,12 +413,13 @@ public:
 	NB_PROP_GET(dataContext)			{ return push(v, self(v)->getDataContext()); }
 	NB_PROP_GET(connected)				{ return push(v, self(v)->isConnected()); }
 	NB_PROP_GET(sendCompressed)			{ return push(v, self(v)->isSendCompressed()); }
+	NB_PROP_GET(host)					{ return push(v, self(v)->isHost()); }
+	NB_PROP_GET(guest)					{ return push(v, self(v)->isGuest()); }
+	NB_PROP_GET(broadcast)				{ return push(v, self(v)->isBroadcast()); }
 
 	NB_PROP_SET(sendCompressed)			{ self(v)->setSendCompressed(getBool(v, 2)); return 0; }
 
-	NB_FUNC(isHost)						{ return push(v, self(v)->isHost()); }
-	NB_FUNC(isGuest)					{ return push(v, self(v)->isGuest()); }
-	NB_FUNC(isBroadcast)				{ return push(v, self(v)->isBroadcast()); }
+	NB_FUNC(disconnect)					{ self(v)->disconnect(); return 0; }
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -728,7 +730,11 @@ public:
 	{
 		PropEntry props[] =
 		{
+			PROP_ENTRY	(active),
+			PROP_ENTRY_R(debugging),
 			PROP_ENTRY_R(remote),
+			PROP_ENTRY_R(channelId),
+			PROP_ENTRY_R(attached),
 			NULL
 		};
 
@@ -743,7 +749,13 @@ public:
 		addStatic(v, "PORT_DEFAULT",	(int)DebugServer::PORT_DEFAULT);
 	}
 
+	NB_PROP_GET(active)					{ return push(v, self(v)->isActive()); }
+	NB_PROP_GET(debugging)				{ return push(v, self(v)->isDebugging()); }
 	NB_PROP_GET(remote)					{ return push(v, self(v)->getRemote()); }
+	NB_PROP_GET(channelId)				{ return push(v, self(v)->getChannelID()); }
+	NB_PROP_GET(attached)				{ return push(v, self(v)->getAttached()); }
+
+	NB_PROP_SET(active)					{ self(v)->setActive(getBool(v, 2)); return 0; }
 
 	NB_FUNC(listen)						{ self(v)->listen(optString(v, 2, ""), optInt(v, 3, DebugServer::PORT_DEFAULT)); return 0; }
 };

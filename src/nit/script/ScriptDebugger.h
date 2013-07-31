@@ -75,9 +75,6 @@ public:
 	void								reset();
 	void								disable()								{ _state = DBG_DISABLED; }
 
-	bool								isActive()								{ return _active; }
-	void								setActive(bool flag);
-
 	void								attach(HSQUIRRELVM v);
 	void								detach(HSQUIRRELVM v);
 
@@ -89,6 +86,9 @@ public:
 	static void							dumpStack(HSQUIRRELVM v)				{ sqx_dump(v); }
 
 public:									// IDebugger Impl
+	virtual bool						isActive()								{ return _active; }
+	virtual void						setActive(bool flag);
+
 	virtual bool						Break();
 	virtual bool						go();
 	virtual bool						stepInto();

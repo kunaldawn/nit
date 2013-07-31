@@ -12,8 +12,6 @@ var function id_char(ch: int): bool
 
 //dump(script.unit)
 
-debug.active = false
-
 app.runtime.debugServer.remote.shutdown()
 
 // reopen remote debug host on other port - to debug debugger itself
@@ -571,7 +569,7 @@ class NitEditFrame : wx.ScriptFrame
 
 		var fileMenu = wx.Menu( [
 			[ ID.RESTART,	"&Restart\tCtrl+F7",	"Restart Debugger" ],
-			[ ID.SELF_DEBUG, "Self &Debug",			"Enable Self Debug" ],
+			[ ID.SELF_DEBUG, "Allow &Debug Client",	"Enable Self Debug" ],
 			null,
 			[ ID.NEW, 		"&New\tCtrl+N",			"Create an empty document" ],
 			[ ID.OPEN, 		"&Open...\tCtrl+O",		"Open an existing document" ],
@@ -591,8 +589,8 @@ class NitEditFrame : wx.ScriptFrame
 		
 		bind(EVT.MENU, ID.SELF_DEBUG, frame) by (evt)
 		{
-			app.runtime.debugServer.listen(null, 1234)
-			debug.active = true
+			var port = wx.getTextFromUser("DebugServer port:", "Allow Debug Client", "1234")
+			app.runtime.debugServer.listen(null, port.tointeger())
 		}
 		
 		bind(EVT.MENU, ID.OPEN, frame, onFileOpen)
@@ -654,6 +652,7 @@ class NitEditFrame : wx.ScriptFrame
 		bind(EVT.MENU, ID.SHOW_CONSOLE, frame, onShowConsole)
 		
 		bind(EVT.MENU, ID.ATTACH, frame, onDebugAttach)
+		bind(EVT.MENU, ID.DETACH, frame, onDebugDetach)
 		
 		bind(EVT.MENU, ID.STEP_INTO, frame, onDebugStepInto)
 		bind(EVT.MENU, ID.STEP_OVER, frame, onDebugStepOver)
@@ -1180,7 +1179,7 @@ class NitEditFrame : wx.ScriptFrame
 	{
 		if (_debugClient)
 		{
-			// TODO: DETACH
+			_debugClient.detach()
 			_debugClient = null
 		}
 		
@@ -1190,12 +1189,11 @@ class NitEditFrame : wx.ScriptFrame
 		{
 			costart by
 			{
-				var debugClient = DebugClient(this, _remote.hostPeer)
+				_debugClient = DebugClient(this, _remote.hostPeer)
 
 				try 
 				{
-					debugClient.requestAttach()
-					_debugClient = debugClient
+					_debugClient.requestAttach()
 				
 					_currAttachedAddr = addr
 					_lastAttachedAddr = addr
@@ -1208,6 +1206,24 @@ class NitEditFrame : wx.ScriptFrame
 				}
 			}
 		}
+	}
+	
+	function onDebugDetach(evt: wx.CommandEvent)
+	{
+		if (_debugClient)
+		{
+			_debugClient.detach()
+			_debugClient = null
+		}
+
+		menuBar.enable(ID.STEP_INTO, false)
+		menuBar.enable(ID.STEP_OVER, false)
+		menuBar.enable(ID.STEP_OUT, false)
+		menuBar.enable(ID.CONTINUE, false)
+		
+		menuBar.enable(ID.BREAK, false)
+		
+		resetDebugPaneState()
 	}
 
 	function onRemoteConsoleCommand(evt: wx.GoalConsoleEvent)
@@ -1243,7 +1259,7 @@ class NitEditFrame : wx.ScriptFrame
 		costart by _debugClient ? _debugClient :> request(CMD.RQ_GO) : print("*** not connected")
 	}
 	
-	function onServerActive(evt: RemoteNotifyEvent)
+	function onServerActive()
 	{
 		menuBar.enable(ID.BREAK, true)
 		
@@ -1254,6 +1270,7 @@ class NitEditFrame : wx.ScriptFrame
 			{
 				_debugClient.addBreakpoint(bp)
 			}
+			updatePacks()
 		}
 	}
 	
@@ -1280,12 +1297,8 @@ class NitEditFrame : wx.ScriptFrame
 		}
 	}
 	
-	function onServerBreak(evt: RemoteNotifyEvent)
+	function attention()
 	{
-		var params = evt.param()
-		
-		::p := params // TODO: debug purpose
-		
 		if (iconized)
 			requestUserAttention()
 		
@@ -1294,9 +1307,14 @@ class NitEditFrame : wx.ScriptFrame
 			raise()
 			setFocus()
 		}
-
-//		printf("++ break: %s", params.toJson(false))
+	}
 	
+	function onServerBreak(params)
+	{
+		::p := params // TODO: debug purpose
+		
+		attention()
+		
 		menuBar.enable(ID.STEP_INTO, true)
 		menuBar.enable(ID.STEP_OVER, true)
 		menuBar.enable(ID.STEP_OUT, true)
@@ -1560,7 +1578,7 @@ class NitEditFrame : wx.ScriptFrame
 		}
 	}
 
-	function onServerResume(evt: RemoteNotifyEvent)
+	function onServerResume()
 	{
 		menuBar.enable(ID.STEP_INTO, false)
 		menuBar.enable(ID.STEP_OVER, false)
@@ -1572,13 +1590,30 @@ class NitEditFrame : wx.ScriptFrame
 		resetDebugPaneState()
 	}
 	
-	function onServerInactive(evt: RemoteNotifyEvent)
+	function onServerInactive()
 	{
+		menuBar.enable(ID.STEP_INTO, false)
+		menuBar.enable(ID.STEP_OVER, false)
+		menuBar.enable(ID.STEP_OUT, false)
+		menuBar.enable(ID.CONTINUE, false)
+		
 		menuBar.enable(ID.BREAK, false)
+		
+		resetDebugPaneState()
 	}
 	
-	function onServerShutdown(evt: RemoteNotifyEvent)
+	function onServerShutdown()
 	{
+		attention()
+
+		menuBar.enable(ID.STEP_INTO, false)
+		menuBar.enable(ID.STEP_OVER, false)
+		menuBar.enable(ID.STEP_OUT, false)
+		menuBar.enable(ID.CONTINUE, false)
+		
+		menuBar.enable(ID.BREAK, false)
+		
+		resetDebugPaneState()
 	}
 	
 	static MARKER =

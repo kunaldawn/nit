@@ -72,34 +72,60 @@ class DebugClient
 		ch.bind(remote.EVT.RESPONSE, this, onResponse)
 		ch.bind(remote.EVT.UPLOAD_START, this, onUploadStart)
 		
-		_notifyHandlers =
-		{
-			[CMD.NT_SVR_ACTIVE] 	= _client.onServerActive
-			[CMD.NT_SVR_LOG_ENTRY] 	= _client.onServerLogEntry
-			[CMD.NT_SVR_BREAK] 		= _client.onServerBreak
-			[CMD.NT_SVR_RESUME] 	= _client.onServerResume
-			[CMD.NT_SVR_INACTIVE] 	= _client.onServerInactive
-			[CMD.NT_SVR_SHUTDOWN] 	= _client.onServerShutdown
-		}
+		var ch0 = remote.getChannel(0)
+		
+		ch0.bind(remote.EVT.DISCONNECT, this, onDisconnect)
 	}
 	
 	destructor()
 	{
-		try _peer.remote.closeChannel(_channelId)
+		try detach()
 	}
 
-	var _notifyHandlers = { }
+	function detach()
+	{
+		if (_peer == null) return
+		
+		var remote = _peer.remote
+
+		remote.notify(_peer, _channelId, CMD.NT_DETACH)
+		remote.closeChannel(_channelId)
+		remote.getChannel(0).unbind(remote.EVT.DISCONNECT, this)
+		
+		dump(_peer)
+		_peer.disconnect()
+		
+		_peer = null
+		
+		if (_client)
+			_client.onServerShutdown()
+	}
 	
+	function onDisconnect(evt: RemoteEvent)
+	{
+		printf(".. [dbgcli] disconnect")
+		
+		if (_client)
+			_client.onServerShutdown()
+		
+		detach()
+	}
+
 	function onNotify(evt: RemoteNotifyEvent)
 	{
 		if (_packetLog)
 			printf(".. [dbgcli] nt cmd 0x%04X", evt.command)
-		
-		var handler = try _notifyHandlers[evt.command]
-		if (handler)
-			handler.call(_client, evt)
-		else
+			
+		switch (evt.command)
 		{
+		case CMD.NT_SVR_ACTIVE:			_client.onServerActive(); break
+		case CMD.NT_SVR_LOG_ENTRY:		_client.onServerLogEntry(evt); break
+		case CMD.NT_SVR_BREAK:			_client.onServerBreak(evt.param()); break
+		case CMD.NT_SVR_RESUME:			_client.onServerResume(); break
+		case CMD.NT_SVR_INACTIVE:		_client.onServerInactive(); break
+		case CMD.NT_SVR_SHUTDOWN:		_client.onServerShutdown(); break
+		
+		default: 
 			throw format("can't find notify handler for cmd 0x%04X", evt.command)
 		}
 	}
@@ -165,7 +191,7 @@ class DebugClient
 	
 	function requestAttach()
 	{
-		return request(CMD.RQ_ATTACH, { client = "SolEdit", version = "1.0", log = true }) by (code, ret)
+		return request(CMD.RQ_ATTACH, { client = "nitdebug", version = "1.0", log = true }) by (code, ret)
 		{ 
 			if (code < 0) throw
 				format("can't attach (code: %d): %s", code, ret())
@@ -190,7 +216,7 @@ class DebugClient
 	{
 		var params =
 		{
-			type	= DataKey.global("sol")
+			type	= DataKey.global("nit")
 			id		= bp.id
 			file 	= bp.document.file
 			pack 	= bp.document.pack
@@ -205,7 +231,7 @@ class DebugClient
 	{
 		var params =
 		{
-			type	= DataKey.global("sol")
+			type	= DataKey.global("nit")
 			id 		= bp.id
 		}
 		
@@ -216,7 +242,7 @@ class DebugClient
 	{
 		var params =
 		{
-			type	= DataKey.global("sol")
+			type	= DataKey.global("nit")
 		}
 		
 		_peer.remote.notify(_peer, _channelId, CMD.NT_CLEAR_BP, params)
