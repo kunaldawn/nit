@@ -1020,8 +1020,11 @@ public:
 	{
 		switch(_token) {
 		case _SC('='): case _SC('('): case TK_BY: case TK_NEWSLOT: case TK_MODEQ: case TK_MULEQ:
-	    case TK_DIVEQ: case TK_MINUSEQ: case TK_PLUSEQ: case TK_PLUSPLUS: case TK_MINUSMINUS:
+	    case TK_DIVEQ: case TK_MINUSEQ: case TK_PLUSEQ: 
 			return false;
+		case TK_PLUSPLUS: case TK_MINUSMINUS:
+			if (!IsEndOfStatement())
+				return false;
 		}
 		return (!_es.donot_get || ( _es.donot_get && (_token == _SC('.') || _token == _SC('['))));
 	}
