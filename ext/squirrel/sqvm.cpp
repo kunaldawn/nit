@@ -1893,34 +1893,7 @@ SQInteger prevstackbase = _stackbase;
 						  }
 		break;
 	case OT_CLASS: 
-		{
-			SQClass* cls = sqi_class(closure);
-			SQInstance* inst = cls->CreateInstance();
-			outres = inst;
-			_stack[stackbase] = outres;
-			SQObjectPtr fn;
-			SQObjectPtr temp;
-
-			bool ok = true;
-			if (cls->_needinitializer)
-			{
-				inst->_flags |= SQInstance::IS_INITIALIZING;
-				assert(_top + 1 <= (SQInteger)_stack.size());
-				Push(outres);
-				ok = CallInitializerChain(cls, _top-1, raiseerror);
-				Pop();
-				inst->_flags &= ~SQInstance::IS_INITIALIZING; // TODO: catch native-ex needed
-			}
-			
-			if (ok && cls->GetConstructor(fn))
-			{
-				inst->_flags |= SQInstance::IS_CONSTRUCTING;
-				ok = Call(fn, nparams, stackbase, temp, raiseerror);
-				inst->_flags &= ~SQInstance::IS_CONSTRUCTING; // TODO: catch native-ex needed
-			}
-
-			return ok;
-		}
+		return CallNew(sqi_class(closure), nparams, stackbase, outres, raiseerror);
 		break;
 	default:
 		return false;
@@ -1931,6 +1904,35 @@ SQInteger prevstackbase = _stackbase;
 	}
 #endif
 	return true;
+}
+
+bool SQVM::CallNew(SQClass* cls, SQInteger nparams,SQInteger stackbase,SQObjectPtr &outres,SQBool raiseerror)
+{
+	SQInstance* inst = cls->CreateInstance();
+	outres = inst;
+	_stack[stackbase] = outres;
+	SQObjectPtr fn;
+	SQObjectPtr temp;
+
+	bool ok = true;
+	if (cls->_needinitializer)
+	{
+		inst->_flags |= SQInstance::IS_INITIALIZING;
+		assert(_top + 1 <= (SQInteger)_stack.size());
+		Push(outres);
+		ok = CallInitializerChain(cls, _top-1, raiseerror);
+		Pop();
+		inst->_flags &= ~SQInstance::IS_INITIALIZING; // TODO: catch native-ex needed
+	}
+
+	if (ok && cls->GetConstructor(fn))
+	{
+		inst->_flags |= SQInstance::IS_CONSTRUCTING;
+		ok = Call(fn, nparams, stackbase, temp, raiseerror);
+		inst->_flags &= ~SQInstance::IS_CONSTRUCTING; // TODO: catch native-ex needed
+	}
+
+	return ok;
 }
 
 SQVM::MetaMethodResult SQVM::CallMetaMethod(SQDelegable *del,SQMetaMethod mm,SQInteger nparams,SQObjectPtr &outres)

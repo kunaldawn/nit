@@ -1414,7 +1414,24 @@ static SQInteger class_getbase(HSQUIRRELVM v)
 	return SQ_SUCCEEDED(sq_getbase(v,-1))?1:SQ_ERROR;
 }
 
+static SQInteger class_new(HSQUIRRELVM v)
+{
+	SQObjectPtr o = stack_get(v, 1);
+	SQClass* cls = sqi_class(o);
+
+	SQInteger params = sq_gettop(v);
+
+	SQObjectPtr inst;
+	bool ok = v->CallNew(cls, params, v->_top-params, inst, true);
+
+	if (!ok) return SQ_ERROR;
+
+	v->Push(inst);
+	return 1;
+}
+
 SQRegFunction SQSharedState::_class_default_delegate_funcz[] = {
+	{_SC("new"), class_new, -1, _SC("y"),						__FILE__, _SC("(...): instance // same with <class>(...)")},
 	{_SC("getattributes"), class_getattributes, 2, _SC("y."),	__FILE__, _SC("(member: string): obj // if member==null, returns class level attr")},
 	{_SC("setattributes"), class_setattributes, 3, _SC("y.."),	__FILE__, _SC("(member: string, attr: obj): obj // returns old attr")},
 	{_SC("getgetter"), class_getgetter, 2, _SC("y."),			__FILE__, _SC("(property: string): closure")},

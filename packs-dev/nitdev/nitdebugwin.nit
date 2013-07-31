@@ -8,7 +8,7 @@ class DocumentPane : DocumentPane_Form
 	property editor: wx.StyledTextCtrl	get _editor
 	property infoBar: wx.InfoBar		get _infobar
 	
-	static EDITOR_FONT = wx.Font with this(10,
+	static EDITOR_FONT = wx.Font :> new(10,
 		FAMILY.TELETYPE, STYLE.NORMAL, WEIGHT.NORMAL, false, "Consolas")
 	
 	constructor(parent: wx.Window, id=wx.ID.ANY)

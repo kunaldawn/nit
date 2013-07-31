@@ -60,11 +60,13 @@ public:
 	bool CallNative(SQNativeClosure *nclosure, SQInteger nargs, SQInteger newbase, SQObjectPtr &retval,bool &suspend);
 	//starts a SQUIRREL call in the same "Execution loop"
 	bool StartCall(SQClosure *closure, SQInteger target, SQInteger nargs, SQInteger stackbase, bool tailcall);
-	bool CallInitializerChain(SQClass* cls, SQInteger stackbase, SQBool raiseerror);
-	void CallDestructorChain(SQInstance* instance, SQClass* cls);
 	//call a generic closure pure SQUIRREL or NATIVE
 	bool Call(SQObjectPtr &closure, SQInteger nparams, SQInteger stackbase, SQObjectPtr &outres,SQBool raiseerror);
 	SQRESULT Suspend();
+
+	bool CallNew(SQClass* cls, SQInteger nparams,SQInteger stackbase,SQObjectPtr &outres,SQBool raiseerror);
+	bool CallInitializerChain(SQClass* cls, SQInteger stackbase, SQBool raiseerror);
+	void CallDestructorChain(SQInstance* instance, SQClass* cls);
 
 	void CallDebugHook(SQInteger type,SQInteger forcedline=0);
 	void CallErrorHandler(SQObjectPtr &e);
