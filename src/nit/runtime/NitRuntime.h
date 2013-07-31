@@ -138,7 +138,7 @@ protected:
 protected:
 	DebugServer*						_debugServer;
 	friend class DebugServer;
-	void								debuggerLoop();
+	bool								debuggerLoop();
 
 protected:
 	Ref<EventChannel>					_channel;

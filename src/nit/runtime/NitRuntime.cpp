@@ -189,7 +189,7 @@ bool NitRuntimeBase::mainLoop()
 	return false;
 }
 
-void NitRuntimeBase::debuggerLoop()
+bool NitRuntimeBase::debuggerLoop()
 {
 	try
 	{
@@ -199,6 +199,7 @@ void NitRuntimeBase::debuggerLoop()
 		bool alive = onSystemLoop();
 
 		// TODO: handle alive
+		return alive;
 	}
 	catch (Exception& ex)
 	{
@@ -212,6 +213,8 @@ void NitRuntimeBase::debuggerLoop()
 	{
 		onUnknownException();
 	}
+
+	return false;
 }
 
 int NitRuntimeBase::finish()
