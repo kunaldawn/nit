@@ -1,6 +1,7 @@
-import nit
+require "nitdebugwin"
+require "debugclient"
 
-try f.destroy()
+import nit
 
 var function id_char(ch: int): bool
 {
@@ -10,17 +11,8 @@ var function id_char(ch: int): bool
 		|| ($'0' <= ch && ch <= $'9') )
 }
 
-//dump(script.unit)
-
 app.runtime.debugServer with
 	if (!active) remote.shutdown()
-
-// reopen remote debug host on other port - to debug debugger itself
-//app.runtime.debugServer.listen(null, 1234)
-//app.runtime.debugServer.remote.packetDump = true
-
-dofile("nitdebugwin")	// TODO: change dofile to require
-dofile("debugclient")	// TODO: change dofile to require
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -503,11 +495,12 @@ class NitEditFrame : wx.ScriptFrame
 {
 	static ID =
 	{
-		RESTART			= wx.newId()
+		SELF_RESTART	= wx.newId()
 		SELF_DEBUG		= wx.newId()
 		
 		NEW				= wx.ID.NEW
 		OPEN			= wx.ID.OPEN
+		QUICK_OPEN		= wx.newId()
 		CLOSE			= wx.newId()
 		SAVE			= wx.ID.SAVE
 		SAVEAS			= wx.ID.SAVEAS
@@ -538,6 +531,9 @@ class NitEditFrame : wx.ScriptFrame
 		STEP_OUT		= wx.newId()
 		CONTINUE		= wx.newId()
 		BREAK			= wx.newId()
+		
+		SESSION_RESTART = wx.newId()
+		APP_RESTART		= wx.newId()
 
 		TOGGLE_BP		= wx.newId()
 		BREAKPOINTS		= wx.newId()
@@ -569,8 +565,8 @@ class NitEditFrame : wx.ScriptFrame
 		// File menu /////
 
 		var fileMenu = wx.Menu( [
-			[ ID.RESTART,	"&Restart\tCtrl+F7",	"Restart Debugger" ],
-			[ ID.SELF_DEBUG, "Allow &Debug Client",	"Enable Self Debug" ],
+			[ ID.SELF_RESTART,	"&Restart Debugger\tCtrl+F7",	"Restart Debugger to reflect debugger code change" ],
+			[ ID.SELF_DEBUG, "Allow &Debug Client",	"Allows other debugger attach to this debugger" ],
 			null,
 			[ ID.NEW, 		"&New\tCtrl+N",			"Create an empty document" ],
 			[ ID.OPEN, 		"&Open...\tCtrl+O",		"Open an existing document" ],
@@ -586,7 +582,7 @@ class NitEditFrame : wx.ScriptFrame
 		menuBar.append(fileMenu, "&File")
 		
 		var fileSource = script.unit.source
-		bind(EVT.MENU, ID.RESTART, getroottable()) by (evt) => dofile(fileSource.name, fileSource.locator)
+		bind(EVT.MENU, ID.SELF_RESTART, getroottable()) by (evt) => session.restart()
 		
 		bind(EVT.MENU, ID.SELF_DEBUG, frame) by (evt)
 		{
@@ -628,6 +624,7 @@ class NitEditFrame : wx.ScriptFrame
 			null,
 			[ ID.ATTACH,		"&Attach To...",			"Attach to remote" ],
 			[ ID.DETACH,		"&Detach Debugger",			"Detach debugger from current remote" ],
+			[ ID.SESSION_RESTART, "&Restart Remote Session\tF7","Restart remote session to apply code change, etc." ],
 			null,
 			[ ID.STEP_INTO,		"Step &Into\tF11",			"Step Into" ],
 			[ ID.STEP_OVER,		"Step &Over\tF10",			"Step Over" ],
@@ -654,6 +651,7 @@ class NitEditFrame : wx.ScriptFrame
 		
 		bind(EVT.MENU, ID.ATTACH, frame, onDebugAttach)
 		bind(EVT.MENU, ID.DETACH, frame, onDebugDetach)
+		bind(EVT.MENU, ID.SESSION_RESTART, frame, onDebugSessionRestart)
 		
 		bind(EVT.MENU, ID.STEP_INTO, frame, onDebugStepInto)
 		bind(EVT.MENU, ID.STEP_OVER, frame, onDebugStepOver)
@@ -1226,6 +1224,12 @@ class NitEditFrame : wx.ScriptFrame
 		menuBar.enable(ID.BREAK, false)
 		
 		resetDebugPaneState()
+	}
+	
+	function onDebugSessionRestart(evt: wx.CommandEvent)
+	{
+		if (_debugClient)
+			_debugClient.notifyCommand("session.restart()")
 	}
 
 	function onRemoteConsoleCommand(evt: wx.GoalConsoleEvent)
@@ -1886,8 +1890,13 @@ class NitEditFrame : wx.ScriptFrame
 	var _packsModel : DataModel
 }
 
-f := NitEditFrame()
-//f.newDocument({ title = "untitled.nit" })
-f.size = wx.Size(960, 720)
-f.center()
-f.show()
+var f = NitEditFrame() with
+{
+	size = wx.Size(960, 720)
+	center()
+	show()
+}
+
+session.channel().bind(::EVT.SESSION_STOP, this) by f.destroy()
+
+::f := f
