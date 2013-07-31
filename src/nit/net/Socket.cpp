@@ -576,6 +576,14 @@ bool TcpSocketServer::listen(uint16 port)
 	return true;
 }
 
+void TcpSocketServer::shutdown()
+{
+	if (_listening)
+		LOG(0, "++ ServerSocket: Shutdown %s:%d\n", _bindAddr.c_str(), (int)_bindPort);
+
+	disconnect();
+}
+
 bool TcpSocketServer::update()
 {
 	if (!isValid())

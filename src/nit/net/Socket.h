@@ -380,7 +380,7 @@ public:
 
 public:
 	bool								listen(uint16 port);
-	void								shutdown()								{ disconnect(); }
+	void								shutdown();
 
 	virtual bool						error(const char* msg, int err);
 
