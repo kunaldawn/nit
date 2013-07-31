@@ -12,7 +12,8 @@ var function id_char(ch: int): bool
 
 //dump(script.unit)
 
-app.runtime.debugServer.remote.shutdown()
+app.runtime.debugServer with
+	if (!active) remote.shutdown()
 
 // reopen remote debug host on other port - to debug debugger itself
 //app.runtime.debugServer.listen(null, 1234)
