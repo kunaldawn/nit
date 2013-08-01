@@ -1,4 +1,3 @@
-
 ::nitdev := try ::nitdev : {}
 
 import nitdev
@@ -143,7 +142,7 @@ class nitdev.Lexer
 	
 	property line: int 		get _line
 	property column: int	get _column
-	property token: TOKEN 	get _token
+	property token: TOKEN	get _token set { _prevToken = _token; _token = value }
 	property value 			get _value
 	
 	var _line: int
@@ -194,8 +193,6 @@ class nitdev.Lexer
 		++_column
 	}
 	
-	property token get _token set { _prevToken = _token; _token = value }
-	
 	function isdigit(ch: int)
 	{
 		return $'0' <= ch && ch <= $'9'
@@ -228,6 +225,8 @@ class nitdev.Lexer
 		{
 			switch (_ch)
 			{
+				case 65279 : next(); continue // UTF-8 BOM
+				
 				case $'\t': case $'\r': case $' ': next(); continue
 				
 				case $'\n':
@@ -266,11 +265,12 @@ class nitdev.Lexer
 					{
 						case $'=':
 							next(); 
-							if (_ch == '>') { next(); return token = TOKEN.THREEWAYSCMP }
+							if (_ch == $'>') { next(); return token = TOKEN.THREEWAYSCMP }
 							return token = TOKEN.LE
 						case $'<':
 							next(); return token = TOKEN.SHIFTL
 					}
+					return token = $'<'
 				
 				case $'>':
 					next()
@@ -313,12 +313,12 @@ class nitdev.Lexer
 				case $'&':
 					next()
 					if (_ch != $'&') return token = $'&'
-					return token = TOKEN.AND
+					next(); return token = TOKEN.AND
 				
 				case $'|':
 					next()
 					if (_ch != $'|') return token = $'|'
-					return token = TOKEN.OR
+					next(); return token = TOKEN.OR
 					
 				case $':':
 					next()
@@ -354,16 +354,42 @@ class nitdev.Lexer
 					
 				default:
 					if (isdigit(_ch))
-						return readNumber()
+						return token = readNumber()
 						
 					if (isalpha(_ch) || _ch == $'_')
-						return readIdentifier()
+						return token = readIdentifier()
 					
 					if (_ch < $' ')
 						throw "unexpected character(control)"
 
-					token = ch; next()
+					token = _ch; next()
 					return token
+			}
+		}
+	}
+	
+	function lexBlockComment()
+	{
+		var done = false
+		while (!done)
+		{
+			switch (_ch)
+			{
+				case $'*': 
+					next()
+					if (_ch == $'/') { done = true; next() }
+					continue
+					
+				case $'\n':
+					++_line
+					next()
+					continue
+					
+				case null:
+					throw 'missing "*/" in coment'
+				
+				default:
+					next()
 			}
 		}
 	}
@@ -521,7 +547,7 @@ class nitdev.Lexer
 		var type = NUMTYPE.INT
 		var temp = ""
 		next()
-		if (first == $'0' && (_ch == $'X' || _ch == $'x') || isodigit(_ch))
+		if (first == $'0' && (_ch == $'X' || _ch == $'x' || isodigit(_ch)))
 		{
 			if (isodigit(_ch))
 			{
@@ -533,7 +559,7 @@ class nitdev.Lexer
 				}
 				
 				if (isdigit(_ch))
-					throw "invalid octal number"
+					error("invalid octal number")
 			}
 			else
 			{
@@ -545,7 +571,7 @@ class nitdev.Lexer
 					next()
 				}
 				if (temp.len() > 8)
-					throw "too many digits for an hex number"
+					error("too many digits for an hex number")
 			}
 		}
 		else
@@ -557,7 +583,7 @@ class nitdev.Lexer
 				else if (isexponent(_ch))
 				{
 					if (type == NUMTYPE.INT) type = NUMTYPE.FLOAT
-					if (type != NUMTYPE.FLOAT) throw "invalid numeric format"
+					if (type != NUMTYPE.FLOAT) error("invalid numeric format")
 					type = NUMTYPE.SCIENTIIC
 					temp += format("%c", _ch)
 					next()
@@ -566,7 +592,7 @@ class nitdev.Lexer
 						temp += format("%c", _ch)
 						next()
 					}
-					if (!isdigit(_ch)) throw "exponent expected"
+					if (!isdigit(_ch)) error("exponent expected")
 				}
 				
 				temp += format("%c", _ch)
@@ -600,6 +626,8 @@ nitdev.Lexer._keywords with
 {
 	foreach (key in keys()) this[this[key]] := key
 }
+
+import nitdev
 	
 class nitdev.Parser
 {
@@ -608,12 +636,49 @@ class nitdev.Parser
 		_lexer = Lexer(source)
 	}
 
+	var _lexer: Lexer
 	var _token: TOKEN
+
+	var _stepTimeLimit: float = null
+	var _stepTime: float = null
 	
-	function compile()
+	function compile(stepTimeLimit = 0.001)
 	{
+		_stepTimeLimit = stepTimeLimit
+		
+		if (_stepTimeLimit != null)
+			_stepTime = system.clock() + _stepTimeLimit
+	
 		lex()
 		while (_token != null)
+		{
+			statement()
+			if (_lexer._prevToken != $'}' && _lexer._prevToken != $';')
+				optionalSemicolon()
+		}
+	}
+
+	function lex()
+	{
+		if (_stepTimeLimit != null && system.clock() > _stepTime)
+		{
+//			print("++ sleeping parser")
+			sleep()
+			_stepTime = system.clock() + _stepTimeLimit
+		}
+		
+		_token = _lexer.lex()
+		
+		// if (_token)
+			// printf("#%d (%d): %s", _lexer.line, _lexer.column, _token < 500 ? TOKEN[_token] : _token)
+		// else
+			// print("<end>")
+	}
+	
+	
+	function statements()
+	{
+		while (_token != $'}' && _token != TOKEN.DEFAULT && _token != TOKEN.CASE)
 		{
 			statement()
 			if (_lexer._prevToken != $'}' && _lexer._prevToken != $';')
@@ -631,7 +696,7 @@ class nitdev.Parser
 			case TOKEN.IMPORT:			importStmt(); break
 			case TOKEN.IF:				ifStmt(); break
 			case TOKEN.WHILE:			whileStmt(); break
-			case TOKEN.DO:				doStmt(); break
+			case TOKEN.DO:				doWhileStmt(); break
 			case TOKEN.FOR:				forStmt(); break
 			case TOKEN.FOREACH:			foreachStmt(); break
 			case TOKEN.SWITCH:			switchStmt(); break
@@ -639,10 +704,11 @@ class nitdev.Parser
 			case TOKEN.FUNCTION:		functionStmt(); break
 			case TOKEN.CLASS:			classStmt(); break
 			case TOKEN.ENUM:			enumStmt(); break
-			case TOKEN.TRY:				tryStmt(); break
-			case TOKEN.THROW:			throwStmt(); break
+			case TOKEN.TRY:				tryCatchFinallyStmt(); break
 
-			case TOKEN.CONST:			throw "deprecated 'const' keyword"
+			case TOKEN.THROW:			lex(); commaExpr(); break
+
+			case TOKEN.CONST:			error("deprecated 'const' keyword")
 			
 			case TOKEN.RETURN:
 			case TOKEN.YIELD:
@@ -683,7 +749,7 @@ class nitdev.Parser
 	
 	function commaExpr()
 	{
-		Expression()
+		expression()
 		
 		while (_token == $',')
 		{
@@ -717,7 +783,7 @@ class nitdev.Parser
 	}
 	
 	function withRefExpr()
-	[
+	{
 		lex()
 		expression()
 	}
@@ -725,27 +791,31 @@ class nitdev.Parser
 	function withExpr()
 	{
 		lex()
-		stmt()
+		statement()
 	}
 	
 	function logicalOrExpr()
 	{
 		logicalAndExpr()
-
-		if (_token != TOKEN.OR) return
-			
-		lex()
-		logicalOrExpr()
+		
+		while (true)
+		{
+			if (_token != TOKEN.OR) return
+			lex()
+			logicalOrExpr()
+		}
 	}
 	
 	function logicalAndExpr()
 	{
 		bitwiseOrExpr()
 		
-		if (_token != TOKEN.AND) return
-			
-		lex()
-		logicalAndExpr()
+		while (true)
+		{
+			if (_token != TOKEN.AND) return
+			lex()
+			logicalAndExpr()
+		}
 	}
 	
 	function binaryExpr(exprFunc: closure)
@@ -796,7 +866,7 @@ class nitdev.Parser
 			switch (_token)
 			{
 				case TOKEN.EQ:
-				case TOKEN.THREEWAYCOMP:
+				case TOKEN.THREEWAYSCMP:
 				case $'>':
 				case $'<':
 				case TOKEN.GE:
@@ -887,11 +957,11 @@ class nitdev.Parser
 				
 				case $'.':
 					lex()
+					expect(TOKEN.IDENTIFIER, true)
 					break
 					
 				case $'[':
-					if (isEndOfStmt()) return
-						return // "a = b \n [10] = 20"
+					if (isEndOfStmt()) return // "a = b \n [10] = 20"
 					lex()
 					expression()
 					expect($']')
@@ -911,7 +981,11 @@ class nitdev.Parser
 					break
 					
 				case TOKEN.WITHREF:
-					withRefExpression()
+					withRefExpr()
+					break
+					
+				case TOKEN.WITH:
+					withExpr()
 					break
 				
 				default:
@@ -939,6 +1013,7 @@ class nitdev.Parser
 				break
 				
 			case TOKEN.DOUBLE_COLON:
+				_token = $'.' // HACK: drop into prefixExpr, case $'.'
 				return
 				
 			case TOKEN.NULL: lex(); break
@@ -952,21 +1027,24 @@ class nitdev.Parser
 			case $'$':
 				lex()
 				if (_token != TOKEN.STRING_LITERAL)
-					throw "invalid character literal"
+					error("invalid character literal")
 				lex()
 				break
 				
 			case $'[':
 				lex()
-				while (_token != ']')
+				while (_token != $']')
+				{
 					expression()
+					if (_token == $',') lex()
+				}
 				lex()
 				break
 				
 			case $'{':
 				lex()
 				parseTable()
-				if (_token == ':') // delegate shortcut
+				if (_token == $':') // delegate shortcut
 				{
 					lex()
 					expression()
@@ -986,40 +1064,40 @@ class nitdev.Parser
 				{
 					case TOKEN.INTEGER: lex(); break
 					case TOKEN.FLOAT: lex(); break
-					default: unaryOp(OP.NEG)
+					default: unaryOp('-')
 				}
 				break
 				
-			case $'!': lex(); unaryOp(OP.NOT); break
+			case $'!': lex(); unaryOp('!'); break
 			
 			case TOKEN.TRY: tryExpr(); break
 			case $'~': 
 				lex()
 				if (_token == TOKEN.INTEGER) lex()
-				else unaryOp(OP.BWNOT)
+				else unaryOp('~')
 				break
 				
-			case TOKEN.TYPEOF: lex(); unaryOp(OP.TYPEOF); break
-			case TOKEN.RESUME: lex(); unaryOp(OP.RESUME); break
-			case TOKEN.CLONE: lex(); unaryOp(OP.CLOSE); break
+			case TOKEN.TYPEOF: lex(); unaryOp('typeof'); break
+			case TOKEN.RESUME: lex(); unaryOp('resume'); break
+			case TOKEN.CLONE: lex(); unaryOp('close'); break
 			
-			case TOKEN.MINUSMINUS:
-			case TOKEN.PLUSPLUS: prefixIncDec(_token); break
+			case TOKEN.MINUSMINUS: lex(); unaryOp('--'); break
+			case TOKEN.PLUSPLUS: lex(); unaryOp('++'); break
 			
 			case $'(':
 				lex()
 				commaExpr()
-				expect(')')
+				expect($')')
 				break
 				
 			default:
-				throw "expression expected"
+				error("expression expected")
 		}
 		
 		return -1
 	}
 	
-	function unaryOp()
+	function unaryOp(op: string)
 	{
 		prefixedExpr()
 	}
@@ -1054,8 +1132,8 @@ class nitdev.Parser
 				if (_token == $')')
 					break
 				expect($',')
-				if (_token == ')')
-					throw "expression expected, found ')'"
+				if (_token == $')')
+					error("expression expected, found ')'")
 			}
 			lex()
 		}
@@ -1067,12 +1145,12 @@ class nitdev.Parser
 		}
 	}
 	
-	function byFunctionExp()
+	function byFunctionExpr()
 	{
-		functionExp()
+		functionExpr()
 	}
 	
-	function parseTable(var terminator = $'}')
+	function parseTable(terminator = $'}')
 	{
 		var enumValue = 0
 		var typeTag = {}
@@ -1096,6 +1174,7 @@ class nitdev.Parser
 					break
 					
 				case TOKEN.STRING_LITERAL: // JSON
+					var id = expect(TOKEN.STRING_LITERAL)
 					if (_token == $'=')
 						lex()
 					else
@@ -1104,6 +1183,8 @@ class nitdev.Parser
 					break
 					
 				default:
+					var tid = typedId(true)
+					
 					if (_token == $'=')
 					{
 						lex()
@@ -1119,9 +1200,69 @@ class nitdev.Parser
 		lex()
 	}
 	
+	class TypedId
+	{
+		var type
+		var id
+	}
+	
+	function addTagStr(tid: TypedId, delim: int, st: string)
+	{
+		if (tid == null) return
+		
+		if (tid.type == null)
+			tid.type = ""
+			
+		if (delim)
+			tid.type += format("c", delim) + st
+		else
+			tid.type + st
+	}
+	
+	function typeTag(tid: TypedId, delim: int = 0)
+	{
+		if (_token == $':') lex()
+		
+		var id = expect(TOKEN.IDENTIFIER)
+		addTagStr(tid, delim, id)
+		
+		while (_token == $'.')
+		{
+			lex()
+			id = expect(TOKEN.IDENTIFIER)
+			addTagStr(tid, $'.', id)
+		}
+		
+		if (_token == $'<')
+		{
+			lex()
+			typeTag(tid, $'<')
+			
+			while (_token == $',' || _token == $'.')
+			{
+				var delim = _token
+				lex()
+				typeTag(tid, delim)
+			}
+			expect($'>')
+			addTagStr(tid, $'>', "")
+		}
+	}
+	
+	function typedId(treatKeywordAsIdentifier = false): TypedId
+	{
+		var tid = TypedId()
+		tid.id = expect(TOKEN.IDENTIFIER, treatKeywordAsIdentifier)
+		
+		if (_token == $':')
+			typeTag(tid)
+			
+		return tid
+	}
+	
 	function parseClass()
 	{
-		var propOrder = 1000.0f
+		var propOrder = 1000.0
 		
 		while (_token != $'}')
 		{
@@ -1147,8 +1288,15 @@ class nitdev.Parser
 				case TOKEN.FUNCTION:
 				case TOKEN.CONSTRUCTOR:
 				case TOKEN.DESTRUCTOR:
+					var tk = _token
 					lex()
-					id = expect(TOKEN.IDENTIFIER, true)
+					var id
+					if (tk == TOKEN.CONSTRUCTOR)
+						id = "constructor"
+					else if (tk == TOKEN.DESTRUCTOR)
+						id = "destructor"
+					else
+						id = expect(TOKEN.IDENTIFIER, true)
 					expect($'(')
 					createFunction(id)
 					break
@@ -1168,10 +1316,10 @@ class nitdev.Parser
 						lex()
 					}
 					
-					var id = typedId(typeTag, true)
+					var tid = typedId(true)
 					
-					var hasGetter = propertyGetSet(id, "get")
-					var hasSetter = propertyGetSet(id, "set")
+					var hasGetter = propertyGetSet(tid.id, "get")
+					var hasSetter = propertyGetSet(tid.id, "set")
 					
 					if (!hasGetter && !hasSetter) warning("expected 'get' or 'set'")
 					isProperty = true
@@ -1188,7 +1336,7 @@ class nitdev.Parser
 					if (isStatic) warning("'var' can't be static")
 					
 					lex()
-					var id = typedId(null, true)
+					var tid = typedId(true)
 					
 					if (_token == $'=')
 					{
@@ -1198,7 +1346,7 @@ class nitdev.Parser
 					break
 					
 				default:
-					var id = typedId(null, true)
+					var tid = typedId(true)
 					
 					if (isStatic)
 					{
@@ -1244,20 +1392,20 @@ class nitdev.Parser
 	
 	function localDeclStmt()
 	{
-		var varname
 		lex()
 		if (_token == TOKEN.FUNCTION)
 		{
 			lex()
-			varname = expect(TOKEN.IDENTIFIER)
+			var id = expect(TOKEN.IDENTIFIER)
 			expect($'(')
-			createFunction(varname, true)
+			createFunction(id, true)
 			return
 		}
 		
 		while (true)
 		{
-			varname = typedID()
+			var tid = typedId()
+			
 			if (_token == $'=')
 			{
 				lex(); expression()
@@ -1281,7 +1429,7 @@ class nitdev.Parser
 		beginScope()
 		statement()
 		if (_token != $'}' && _token != TOKEN.ELSE)
-			optionalSemiColon()
+			optionalSemicolon()
 		endScope()
 		
 		if (_token == TOKEN.ELSE)
@@ -1331,12 +1479,13 @@ class nitdev.Parser
 		beginScope()
 		expect($'(')
 		if (_token == TOKEN.VAR)
-			localDeclstmt()
+			localDeclStmt()
 		else if (_token != $';')
 			commaExpr()
 		expect($';')
 		if (_token != $';')
 			commaExpr()
+		expect($';')
 		if (_token != $')')
 			commaExpr()
 		expect($')')
@@ -1348,18 +1497,21 @@ class nitdev.Parser
 	
 	function foreachStmt()
 	{
-		var idxname
+		var idxName
 		
 		lex()
 		expect($'(')
-		var valname = typedId()
+		
+		var tid = typedId()
+		
 		if (_token == $',')
 		{
-			idxname = valname
-			lex(); valname = typedId()
+			idxName = tid.id
+			lex(); tid = typedId()
 		}
 		else
-			idxname = "@INDEX@"
+			idxName = "@INDEX@"
+			
 		expect(TOKEN.IN)
 		
 		beginScope()
@@ -1374,15 +1526,8 @@ class nitdev.Parser
 	function switchStmt()
 	{
 		lex()
-		expect($'(') commaExpr() expect($')')
-		var hasBraceOpen = false
-		var noMoreCase = false
-		
-		if (_token == $'{') 
-		{
-			hasBraceOpen = true
-			lex()
-		}
+		expect($'('); commaExpr(); expect($')')
+		expect($'{')
 		
 		while (_token == TOKEN.CASE)
 		{
@@ -1400,13 +1545,225 @@ class nitdev.Parser
 			endScope()
 		}
 
-		if (hasBraceOpen)
-			expect($'}')
+		expect($'}')
 	}
 	
-	function lex()
+	function functionStmt()
 	{
-		_token = _lexer.lex()
+		lex()
+		var id = expect(TOKEN.IDENTIFIER)
+		
+		while (_token == $'.' || _token == TOKEN.DOUBLE_COLON)
+		{
+			if (_token == TOKEN.DOUBLE_COLON)
+				warning('function definition via :: is deprecated')
+			
+			lex()
+			id = expect(TOKEN.IDENTIFIER)
+		}
+		expect($'(')
+		createFunction(id)
+	}
+	
+	function classStmt()
+	{
+		lex()
+		
+		while (true)
+		{
+			var clsname = expect(TOKEN.IDENTIFIER)
+			if (_token != $'.')
+				break
+			lex()
+		}
+		
+		classExp()
+	}
+	
+	function tryCatchFinallyStmt()
+	{
+		lex()
+		beginScope()
+		statement()
+		endScope()
+		
+		if (_token == TOKEN.CATCH)
+		{
+			lex(); expect($'('); 
+			var exid = expect(TOKEN.IDENTIFIER); 
+			expect($')')
+			
+			beginScope()
+			statement()
+			endScope()
+		}
+		
+		if (_token == TOKEN.FINALLY)
+		{
+			lex()
+			beginScope()
+			statement()
+			endScope()
+		}
+	}
+	
+	function tryExpr()
+	{
+		lex()
+		prefixedExpr()
+		if (_token == $':')
+		{
+			lex()
+			prefixedExpr()
+		}
+	}
+	
+	function functionExpr()
+	{
+		if (_token == $'@' || _token == TOKEN.BY)
+		{
+			lex()
+			if (_token == $'(')
+			{
+				lex()
+				createFunction(null, true, true)
+			}
+			else if (_token == $'{')
+			{
+				createFunction(null, false, false)
+			}
+			else
+			{
+				createLambdaReturnExpr()
+			}
+		}
+		else
+		{
+			expect(TOKEN.FUNCTION)
+			expect($'(')
+			createFunction(null, true, false)
+		}
+	}
+	
+	function classExp()
+	{
+		if (_token == $':')
+		{
+			lex()
+			expression()
+		}
+		
+		if (_token == $'[')
+		{
+			lex()
+			parseTable($']')
+		}
+		
+		expect($'{')
+		parseClass()
+	}
+	
+	function createFunction(name: string, hasParams=true, lambda=false, isSetter=false)
+	{
+		var defParams = 0
+		var params = [ ]
+		params.push({ name = "this" })
+		
+		if (isSetter)
+			params.push({ name = "value" })
+		
+		if (hasParams)
+		{
+			while (_token != $')')
+			{
+				if (_token == TOKEN.VARPARAMS)
+				{
+					if (defParams > 0)
+						warning("function with default parameters cannot have variable number of parameters")
+					params.push({ name = "..." })
+					lex()
+					if (_token != $')') error("expected ')')")
+					break
+				}
+		
+				var tid = typedId()
+				params.push({ name = tid.id, type = tid.type })
+				if (_token == $'=')
+				{
+					lex()
+					expression()
+					++defParams
+				}
+				else if (defParams > 0) warning("expected '='")
+				
+				if (_token == $',') lex()
+				else if (_token != $')') warning("expected ')' or ','")
+			}
+			expect($')')
+			
+			if (_token == $':')
+				typeTag(null)
+				
+			if (_token == TOKEN.STRING_LITERAL)
+			{
+				var help = expect(TOKEN.STRING_LITERAL)
+			}
+		}
+		
+		if (lambda)
+		{
+			if (_token == $'{')
+				statement(false)
+			else
+			{
+				expect(TOKEN.LAMBDA)
+				expression()
+			}
+		}
+		else
+		{
+			statement(false)
+		}
+	}
+	
+	function createLambdaReturnExpr()
+	{
+		if (_token == TOKEN.LAMBDA) lex()
+		expression()
+	}
+	
+	function isEndOfStmt() : bool
+	{
+		return (_lexer._prevToken == $'\n' || _token == null || _token == $'}' || _token == $';' )
+	}
+	
+	function optionalSemicolon()
+	{
+		if (_token == $';') { lex(); return }
+		if (!isEndOfStmt())
+			error("end of statement expected (; or lf)")
+	}
+	
+	function beginScope()
+	{
+	}
+	
+	function endScope()
+	{
+	}
+	
+	function endScopeNoClose()
+	{
+	}
+	
+	function error(msg)
+	{
+		throw msg + format(" at line %d, column %d", _lexer.line, _lexer.column)
+	}
+	
+	function warning(msg)
+	{
+		throw msg + format(" at line %d, column %d", _lexer.line, _lexer.column)
 	}
 	
 	function expect(token: TOKEN, treatKeywordAsIdentifier = false): value
@@ -1425,9 +1782,11 @@ class nitdev.Parser
 	}
 }
 
-function lexTest()
+function lexTest(text: string=null)
 {
-	text := session.package.open("*.nit").buffer().toString()
+	if (text == null)
+		text = session.package.open("*.nit").buffer().toString()
+		
 	l := nitdev.Lexer(text)
 	
 	var token
@@ -1442,12 +1801,37 @@ function lexTest()
 	}
 }
 
-function parserTest()
+function parserTest(text: string=null)
 {
-	text := session.package.open("*.nit").buffer().toString()
+	if (text == null)
+		text = session.package.open("nitdev.parser.nit").buffer().toString()
+		
 	a := nitdev.Parser(text)
 	
-	
+	try
+		a.compile()
+	catch (ex)
+		printf("*** %s at line %d column %d", ex, a._lexer.line, a._lexer.column)
 }
+
+function parserTests()
+{
+	session.require("test/cocos")
+	
+	costart by
+	{
+		foreach (nitfile in session.package.find("*.nit"))
+		{
+			var tw = TimeWatch(nitfile.tostring())
+			var text = nitfile.open().buffer().toString()
+			parserTest(text)
+		}
+	}
+}
+
+
+
+
+
 
 
