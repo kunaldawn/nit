@@ -376,6 +376,8 @@ public:
 	void								retain(IScriptRef* obj);
 
 public:
+	int									getOpLimit()							{ return _oplimit; }
+	void								setOpLimit(int oplimit)					{ _oplimit = oplimit; }
 	void								stepGC();
 
 public:
@@ -423,6 +425,8 @@ private:
 	bool								_paused;
 	bool								_debugPaused;
 	bool								_stepGcPaused;
+
+	int									_oplimit;
 
 	typedef list<HSQOBJECT>::type SQObjList;
 	SQObjList							_threadList;

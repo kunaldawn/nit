@@ -294,6 +294,7 @@ public:
 			PROP_ENTRY_R(allRequired),
 
 			PROP_ENTRY	(defaultLocator),
+			PROP_ENTRY	(oplimit),
 			NULL,
 		};
 
@@ -311,8 +312,10 @@ public:
 	NB_PROP_GET(unit)					{ return push(v, self(v)->getUnit()); }
 	NB_PROP_GET(locator)				{ return push(v, self(v)->getLocator()); }
 	NB_PROP_GET(defaultLocator)			{ return push(v, self(v)->getDefaultLocator()); }
+	NB_PROP_GET(oplimit)				{ return push(v, self(v)->getOpLimit()); }
 
 	NB_PROP_SET(defaultLocator)			{ self(v)->setDefaultLocator(opt<StreamLocator>(v, 2, NULL)); return 0; }
+	NB_PROP_SET(oplimit)				{ self(v)->setOpLimit(getInt(v, 2)); return 0; }
 
 	NB_PROP_GET(allLoaded)
 	{

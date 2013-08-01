@@ -1583,6 +1583,8 @@ ScriptRuntime::ScriptRuntime()
 
 	_debugger = NULL;
 
+	_oplimit = 1024 * 1024;
+
 	_wxWeakTracker = NULL;
 }
 
@@ -2397,6 +2399,8 @@ void ScriptRuntime::onClock(const TimeEvent* evt)
 	if (!_started) return;
 	if (_paused) return;
 
+	sq_setoplimit(_root, _oplimit);
+
 	_clockTime = evt->getTime();
 	_timeWait->signal(0x01);
 	updateTimeout(_clockTimeoutHeap, evt->getTime());
@@ -2406,6 +2410,8 @@ void ScriptRuntime::onTick(const TimeEvent* evt)
 {
 	if (!_started) return;
 	if (_paused) return;
+
+	sq_setoplimit(_root, _oplimit);
 
 	_tickTime = evt->getTime();
 	_timeWait->signal(0x02);
@@ -2545,7 +2551,6 @@ SQInteger ScriptRuntime::thread_Call(HSQUIRRELVM v)
 	for (SQInteger i = 2; i < nparams+1; ++i)
 		sq_move(th, v, i);
 
-//	sq_setoplimit(th, 64 * 1024);
 	if (SQ_FAILED(sq_call(th, nparams, true, true)))
 	{
 		// error : v->_lasterror = th->_lasterror;
