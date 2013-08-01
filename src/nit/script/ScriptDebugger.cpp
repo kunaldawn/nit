@@ -308,38 +308,47 @@ void ScriptDebugger::onBreak(HSQUIRRELVM v, int level, int line, const SQChar* s
 
 	String indicator;
 
+	bool dumpLog = false;
+
 	static char buf[256];
-	if (!error)
+
+	if (dumpLog)
 	{
-		sprintf(buf, "++ [SQDBG] %s: %s%s\n", type, threadprefix, threadname);
-		indicator += buf;
-		sprintf(buf, "  - >>>> %s() at %s line %d\n", func, src, line);
-		indicator += buf;
-	}
-	else
-	{
-		sprintf(buf, "*** [SQDBG] error '%s': %s%s\n", error, threadprefix, threadname);
-		indicator += buf;
-		sprintf(buf, "  - >>>> %s() at %s line %d\n", func, src, line);
-		indicator += buf;
+		if (!error)
+		{
+			sprintf(buf, "++ [SQDBG] %s: %s%s\n", type, threadprefix, threadname);
+			indicator += buf;
+			sprintf(buf, "  - >>>> %s() at %s line %d\n", func, src, line);
+			indicator += buf;
+		}
+		else
+		{
+			sprintf(buf, "*** [SQDBG] error '%s': %s%s\n", error, threadprefix, threadname);
+			indicator += buf;
+			sprintf(buf, "  - >>>> %s() at %s line %d\n", func, src, line);
+			indicator += buf;
+		}
 	}
 
 	sq_settop(v, top);
 
 	SQStackInfos si;
 
-	while(SQ_SUCCEEDED(sq_stackinfos(v,level,&si)))
+	if (dumpLog)
 	{
-		const SQChar *fn=_SC("unknown");
-		const SQChar *src=_SC("unknown");
-		if(si.funcname)fn=si.funcname;
-		if(si.source)src=si.source;
-		sprintf(buf, _SC("  - [%02d] %s() at %s line %d\n"), level, fn, src, si.line);
-		indicator += buf;
-		level++;
-	}
+		while(SQ_SUCCEEDED(sq_stackinfos(v,level,&si)))
+		{
+			const SQChar *fn=_SC("unknown");
+			const SQChar *src=_SC("unknown");
+			if(si.funcname)fn=si.funcname;
+			if(si.source)src=si.source;
+			sprintf(buf, _SC("  - [%02d] %s() at %s line %d\n"), level, fn, src, si.line);
+			indicator += buf;
+			level++;
+		}
 
-	LOG(0, indicator.c_str());
+		LOG(0, indicator.c_str());
+	}
 
 	Ref<DataRecord> breakInfo = new DataRecord();
 	breakInfo->set("reason", type);
@@ -424,6 +433,7 @@ static String getName(HSQUIRRELVM th, int stackIdx)
 			sq_poptop(th); // _classname
 		}
 		else name = "<purged>";
+		sq_poptop(th); // class
 	}
 	else
 	{
