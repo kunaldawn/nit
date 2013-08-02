@@ -377,7 +377,7 @@ public:
 
 public:
 	int									getOpLimit()							{ return _oplimit; }
-	void								setOpLimit(int oplimit)					{ _oplimit = oplimit; }
+	void								setOpLimit(int oplimit);
 	void								stepGC();
 
 public:

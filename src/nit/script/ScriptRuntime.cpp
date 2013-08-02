@@ -1583,7 +1583,7 @@ ScriptRuntime::ScriptRuntime()
 
 	_debugger = NULL;
 
-	_oplimit = 1024 * 1024;
+	_oplimit = 10 * 1024 * 1024;
 
 	_wxWeakTracker = NULL;
 }
@@ -2392,6 +2392,22 @@ void ScriptRuntime::onGcLoop(const Event* evt)
 
 	updateThreadList();
 	stepGC();
+}
+
+void ScriptRuntime::setOpLimit(int oplimit)
+{
+	if (oplimit == 0)
+	{
+		_oplimit = oplimit;
+		sq_setoplimit(_root, _oplimit);
+		return;
+	}
+
+	// Ensure minimum oplimit at least run some code
+	if (oplimit < 1024) oplimit = 1024;
+
+	_oplimit = oplimit;
+	sq_setoplimit(_root, _oplimit);
 }
 
 void ScriptRuntime::onClock(const TimeEvent* evt)
