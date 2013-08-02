@@ -1119,8 +1119,9 @@ public:
 			FUNC_ENTRY_H(readI8,		"(): int"),
 			FUNC_ENTRY_H(readU8,		"(): int"),
 			FUNC_ENTRY_H(readF32,		"(): float"),
-			FUNC_ENTRY_H(readChars,		"(numChars: int): string"),
-			FUNC_ENTRY_H(readWChars,	"(numChars: int): string"),
+			FUNC_ENTRY_H(readChar,		"(): int // reads utf-8"),
+			FUNC_ENTRY_H(readAsciiChars,"(numChars: int): string"),
+			FUNC_ENTRY_H(readU16Chars,	"(numChars: int): string"),
 			FUNC_ENTRY_H(readCStr,		"(): string"),
 			FUNC_ENTRY_H(readWCStr,		"(): string"),
 			NULL
@@ -1154,7 +1155,9 @@ public:
 	NB_FUNC(readU8)						{ uint8 value; self(v)->read(&value, sizeof(value)); return push(v, (int)value); }
 	NB_FUNC(readF32)					{ float value; self(v)->read(&value, sizeof(value)); return push(v, value); }
 
-	NB_FUNC(readChars)					
+	NB_FUNC(readChar)					{ return push(v, Unicode::utf8ReadChar(self(v))); }
+
+	NB_FUNC(readAsciiChars)					
 	{ 
 		size_t len = getInt(v, 2);
 		if (len == 0) return push(v, "");
@@ -1165,7 +1168,7 @@ public:
 		return 1; 
 	}
 
-	NB_FUNC(readWChars)				
+	NB_FUNC(readU16Chars)				
 	{ 
 		size_t len = getInt(v, 2);
 		if (len == 0) return push(v, "");
@@ -1246,6 +1249,13 @@ public:
 			FUNC_ENTRY_H(flush,			"(): bool"),
 			FUNC_ENTRY_H(copy,			"(reader: StreamReader, offset=0, len=0, bufSize=4096): int"),
 
+			FUNC_ENTRY_H(writeI32,		"(value: int)"),
+			FUNC_ENTRY_H(writeI16,		"(value: int)"),
+			FUNC_ENTRY_H(writeI8,		"(value: int)"),
+			FUNC_ENTRY_H(writeF32,		"(value: float)"),
+			FUNC_ENTRY_H(writeChar,		"(unichar: int): int // writes utf-8, returns written length"),
+
+
 			// print support
 			FUNC_ENTRY_H(writef,		"(fmt, ...): int // no auto linefeed"),
 			FUNC_ENTRY_H(print,			"(str): int // auto linefeed, returns written length"),
@@ -1272,6 +1282,12 @@ public:
 	NB_FUNC(tell)						{ return push(v, self(v)->tell()); }
 	NB_FUNC(flush)						{ return push(v, self(v)->flush()); }
 	NB_FUNC(copy)						{ return push(v, self(v)->copy(get<StreamReader>(v, 2), optInt(v, 3, 0), optInt(v, 4, 0), optInt(v, 5, 4096))); }
+
+	NB_FUNC(writeI32)					{ int32 value = (int32)getInt(v, 2); self(v)->write(&value, sizeof(value)); return 0; }
+	NB_FUNC(writeI16)					{ int16 value = (int16)getInt(v, 2); self(v)->write(&value, sizeof(value)); return 0; }
+	NB_FUNC(writeI8)					{ int8 value = (int8)getInt(v, 2); self(v)->write(&value, sizeof(value)); return 0; }
+	NB_FUNC(writeF32)					{ float value = getFloat(v, 2); self(v)->write(&value, sizeof(value)); return 0; }
+	NB_FUNC(writeChar)					{ int unichar = (int)getInt(v, 2); return push(v, (int)Unicode::utf8WriteChar(self(v), unichar)); }
 
 	NB_FUNC(writef)
 	{

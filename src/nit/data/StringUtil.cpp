@@ -91,8 +91,9 @@ static const uint32 halfBase = 0x0010000UL;
 static const uint32 halfMask = 0x3FFUL; 
 static const uint8	firstByteMark[7] = { 0x00, 0x00, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC }; 
 
-size_t Unicode::toUtf8Char(uint32 ch, char utf8Seq[4])
+size_t Unicode::toUtf8Char(int c, char utf8Seq[4])
 {
+	uint32 ch = (uint32)c;
 	const uint32 byteMask = 0xBF;
 	const uint32 byteMark = 0x80;
 
@@ -124,6 +125,15 @@ size_t Unicode::toUtf8Char(uint32 ch, char utf8Seq[4])
 	}
 
 	return bytesToWrite;
+}
+
+size_t Unicode::utf8WriteChar(StreamWriter* w, int unichar)
+{
+	char buf[4];
+	size_t sz = toUtf8Char(unichar, buf);
+	if (sz > 0)
+		w->write(buf, sz);
+	return sz;
 }
 
 String Unicode::toUtf8(const UniChar* utf16str, int len)
@@ -299,6 +309,29 @@ int Unicode::utf8Advance(const char*& utf8)
 		{
 			c <<= 6;
 			c |= *(uint8*)utf8++ & 0x3f;
+		}
+	}
+	return c;
+}
+
+int Unicode::utf8ReadChar(StreamReader* r)
+{
+	if (r->isEof()) return -1;
+
+	uint8 ch;
+
+	r->read(&ch, sizeof(ch));
+	int c = ch;
+
+	if (c & 0x80)
+	{
+		int codelen = utf8_codelen[c >> 4];
+		c = c & utf8_bytemasks[codelen];
+		for (int i = 1; i < codelen; ++i)
+		{
+			c <<= 6;
+			r->read(&ch, sizeof(ch));
+			c |= ch & 0x3f;
 		}
 	}
 	return c;

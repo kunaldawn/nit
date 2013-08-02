@@ -42,6 +42,9 @@ typedef std::basic_string<UniChar, std::char_traits<UniChar>, STLAllocator<UniCh
 
 typedef _UniStringBase					UniString;
 
+class StreamReader;
+class StreamWriter;
+
 class NIT_API Unicode
 {
 public:
@@ -84,7 +87,7 @@ public:									// Unicode conversion routines
 	static int							toUniChar(const char* utf8Char);
 	inline static int					uniCharAt(const char* utf8str, int pos)	{ return toUniChar(utf8str + utf8ByteCount(utf8str, pos)); }
 
-	static size_t						toUtf8Char(uint32 uniChar, char outUtf8Char[4]);
+	static size_t						toUtf8Char(int uniChar, char outUtf8Char[4]);
 
 	static uint32						getUniReplacementChar()					{ return UNI_REPLACEMENT_CHAR; }
 	static void							setUniReplacementChar(uint32 ch);
@@ -99,6 +102,8 @@ public:									// UTF8 utility
 	static const char*					utf8Prev(const char* utf8);
 	static const char*					utf8Prev(const char* utf8, const char* start);
 	static const char*					utf8Prev(const char* utf8, const char* start, size_t count);
+	static int							utf8ReadChar(StreamReader* r);
+	static size_t						utf8WriteChar(StreamWriter* w, int unichar);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
