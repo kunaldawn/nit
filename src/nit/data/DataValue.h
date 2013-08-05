@@ -569,6 +569,9 @@ public:
 	inline const Matrix3&				toMatrix3()								{ if (_type == TYPE_FLOAT3X3) return getData<Matrix3>(); convertToFloat3x3(); return getData<Matrix3>(); }
 	inline const Matrix4&				toMatrix4()								{ if (_type == TYPE_FLOAT4X4) return getData<Matrix4>(); convertToFloat3x3(); return getData<Matrix4>(); }
 
+	inline void							setString(const String& str)			{ setString(str.c_str(), str.length()); }
+	inline void							setString(const char* str, int len = -1);
+
 public:
 	inline DataValue&					convertTo(Type type)					{ return (type != TYPE_ANY && _type != type) ? doConvert(type) : *this; }
 
@@ -713,8 +716,6 @@ private:
 	template <typename TValue>
 	inline void							setData(Type type, const TValue& value);
 
-	inline void							setString(const String& str)			{ setString(str.c_str(), str.length()); }
-	inline void							setString(const char* str, int len = -1);
 	inline void							setBlob(const void* blob, size_t size);
 	inline void							setRef(Type type, RefCounted* obj);
 	inline void							setChunk(Type type, DataChunk* chunk, int offset, int size);

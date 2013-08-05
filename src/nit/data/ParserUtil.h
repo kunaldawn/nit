@@ -146,30 +146,41 @@ public:
 public:
 	enum
 	{ 
-		TK_NONE = -1, TK_EOS = 0, CHAR_EOS = 0,
+		TK_NONE = -1, TK_EOS = 0, CHAR_EOS = 0, TK_EOL = 10,
 		TK_ERROR = 512, TK_ID, TK_STRING, TK_FLOAT, TK_INT 
+	};
+
+	struct TokenInfo
+	{
+		Token							token;
+		String							stringValue;
+		int								intValue;
+		float							floatValue;
+
+		int								startLine;
+		int								startColumn;
+		int								endLine;
+		int								endColumn;
 	};
 
 	virtual void						start(LexerSource* source);
 
-	virtual Token						lex() = 0;
-	inline const CharType*				getTokenString()						{ return _stringValue; }
-	inline float						getTokenFloat()							{ return _floatValue; }
-	inline int							getTokenInt()							{ return _intValue; }
+	virtual Token						lex();
+	const TokenInfo&					getToken()								{ return _token; }
 
 	void								setKeywords(Keywords* keywords)			{ _keywords = keywords; }
 
 	inline int							getLine()								{ return _line; }
 	inline int							getColumn()								{ return _column; }
 
-	void								error(const char* fmt, ...);
-	void								warning(const char* fmt, ...);
+	Token								error(const char* fmt, ...);
+	Token								warning(const char* fmt, ...);
 
 protected:
-	inline Char							current()								{ return _currCh; }
-	inline bool							isEos()									{ return _currCh == 0; }
-	inline void							next()									{ _currCh = _source->read(); ++_column; }
-	inline void							newLine()								{ _line++; next(); _column = 1; }
+	inline Char							current()								{ return _ch; }
+	inline bool							isEos()									{ return _ch == 0; }
+	inline void							next()									{ _ch = _source->read(); ++_column; }
+	inline void							newLine()								{ token(TK_EOL); ++_line; next(); _column = 1; }
 
 	Token								readNumber();
 	Token								readId();
@@ -177,18 +188,19 @@ protected:
 
 	void								blockComment();
 	void								lineComment();
+	void								whitespace();
 
 	inline bool							isId(Char ch)							{ return isalnum(ch) || ch == '_'; }
+	Token								token(int tok);
 
 protected:
-	Char								_currCh;
+	Char								_ch;
 	int									_column;
 	int									_line;
 	vector<CharType>::type				_stringBuf;
 
-	const CharType*						_stringValue;
-	float								_floatValue;
-	int									_intValue;
+	TokenInfo							_prevToken;
+	TokenInfo							_token;
 
 	Keywords*							_keywords;
 

@@ -658,12 +658,20 @@ void CmdLineParser::addSection(Ref<Settings> shellSection)
 
 LexerBase::LexerBase()
 {
-	_source							= NULL;
+	_source								= NULL;
 
-	_currCh							= TK_NONE;
-	_stringValue						= NULL;
-	_floatValue						= 0.0f;
-	_intValue							= 0;
+	_ch									= CHAR_EOS;
+
+	_token.token						= TK_NONE;
+	_token.startLine					= 1;
+	_token.startColumn					= 1;
+	_token.endLine						= 1;
+	_token.endColumn					= 1;
+	_token.intValue						= 0;
+	_token.floatValue					= 0.0f;
+	_token.stringValue.clear();
+
+	_prevToken = _token;
 
 	_line = 1;
 	_column = 0;
@@ -727,30 +735,30 @@ static int ParseHex(const char* s, int radix = 16)
 LexerBase::Token LexerBase::readNumber()
 {
 	int type = NT_INT;
-	int firstChar = _currCh;
+	int firstChar = _ch;
 	_stringBuf.resize(0);
 	next();
 
-	if (firstChar == '0' && (toupper(_currCh) == 'X' || isoctdigit(_currCh)))
+	if (firstChar == '0' && (toupper(_ch) == 'X' || isoctdigit(_ch)))
 	{
-		if (isoctdigit(_currCh))
+		if (isoctdigit(_ch))
 		{
 			type = NT_OCTAL;
-			while (isoctdigit(_currCh))
+			while (isoctdigit(_ch))
 			{
-				_stringBuf.push_back(_currCh);
+				_stringBuf.push_back(_ch);
 				next();
 			}
-			if (isdigit(_currCh))
+			if (isdigit(_ch))
 				error("invalid octal number");
 		}
 		else
 		{
 			next();
 			type = NT_HEX;
-			while (isxdigit(_currCh))
+			while (isxdigit(_ch))
 			{
-				_stringBuf.push_back(_currCh);
+				_stringBuf.push_back(_ch);
 				next();
 			}
 			if (_stringBuf.size() > MAX_HEX_DIGITS)
@@ -760,50 +768,123 @@ LexerBase::Token LexerBase::readNumber()
 	else
 	{
 		_stringBuf.push_back(firstChar);
-		while (_currCh == '.' || isdigit(_currCh) || isexponent(_currCh))
+		while (_ch == '.' || isdigit(_ch) || isexponent(_ch))
 		{
-			if (_currCh == '.')
+			if (_ch == '.')
 				type = NT_FLOAT;
-			if (isexponent(_currCh))
+			if (isexponent(_ch))
 			{
 				if (type == NT_INT) type = NT_FLOAT;
 				if (type != NT_FLOAT) error("invalid numeric format");
 				type = NT_SCIENTIFIC;
-				_stringBuf.push_back(_currCh);
+				_stringBuf.push_back(_ch);
 				next();
-				if (_currCh == '+' || _currCh == '-')
+				if (_ch == '+' || _ch == '-')
 				{
-					_stringBuf.push_back(_currCh);
+					_stringBuf.push_back(_ch);
 					next();
 				}
-				if (!isdigit(_currCh))
+				if (!isdigit(_ch))
 					error("exponent expected");
 			}
-			_stringBuf.push_back(_currCh);
+			_stringBuf.push_back(_ch);
 			next();
 		}
 	}
 
 	char* sTemp;
 
+	_token.stringValue.assign(_stringBuf.begin(), _stringBuf.end());
+
 	_stringBuf.push_back(0);
+
 	switch (type)
 	{
 	case NT_SCIENTIFIC:
 	case NT_FLOAT:
-		_floatValue = (float)strtod(&_stringBuf[0], &sTemp);
+		_token.floatValue = (float)strtod(&_stringBuf[0], &sTemp);
 		return TK_FLOAT;
 	case NT_INT:
-		_intValue = ParseDec(&_stringBuf[0], 10);
+		_token.intValue = ParseDec(&_stringBuf[0], 10);
 		return TK_INT;
 	case NT_HEX:
-		_intValue = ParseHex(&_stringBuf[0]);
+		_token.intValue = ParseHex(&_stringBuf[0]);
 		return TK_INT;
 	case NT_OCTAL:
-		_intValue = ParseDec(&_stringBuf[0], 8);
+		_token.intValue = ParseDec(&_stringBuf[0], 8);
 		return TK_INT;
 	}
 	return 0;
+}
+
+void LexerBase::whitespace()
+{
+	// reset token
+	_token.startLine	= _line;
+	_token.startColumn	= _column;
+	_token.intValue		= 0;
+	_token.floatValue	= 0.0f;
+	_token.stringValue.resize(0);
+
+	bool ws = true;
+
+	while (ws)
+	{
+		switch (_ch)
+		{
+		case '\t': case '\r': case ' ': next(); continue;
+		case '\n': newLine(); continue;
+		default: 
+			ws = false;
+			break;
+		}
+	}
+
+	_token.startLine = _line;
+	_token.startColumn = _column;
+}
+
+LexerBase::Token LexerBase::lex()
+{
+	while (_ch != CHAR_EOS)
+	{
+		whitespace();
+
+		switch (_ch)
+		{
+		case '"':
+		case '\'':
+			if (readString(_ch) != -1)
+				return token(TK_STRING);
+			return error("error parsing the string");
+			break;
+
+		default:
+			if (isdigit(_ch))
+				return token(readNumber());
+			else if (isId(_ch))
+				return token(readId());
+			else
+			{
+				int tk = _ch;
+				next();
+				return token(tk);
+			}
+		}
+	}
+
+	return token(TK_EOS);
+}
+
+LexerBase::Token LexerBase::token(int tok)
+{
+	_prevToken = _token;
+
+	_token.token = (Token)tok;
+	_token.endLine = _line;
+	_token.endColumn = _column;
+
+	return _token.token;
 }
 
 LexerBase::Token LexerBase::readId()
@@ -811,19 +892,17 @@ LexerBase::Token LexerBase::readId()
 	_stringBuf.resize(0);
 	do
 	{
-		_stringBuf.push_back(_currCh);
+		_stringBuf.push_back(_ch);
 		next();
 	}
-	while (isId(_currCh));
+	while (isId(_ch));
 
-	_stringBuf.push_back(0);
-
-	_stringValue = &_stringBuf[0];
+	_token.stringValue.assign(_stringBuf.begin(), _stringBuf.end());
 
 	if (_keywords == NULL)
 		return TK_ID;
 
-	Keywords::iterator itr = _keywords->find(_stringValue);
+	Keywords::iterator itr = _keywords->find(_token.stringValue);
 
 	if (itr == _keywords->end())
 		return TK_ID;
@@ -840,9 +919,9 @@ LexerBase::Token LexerBase::readString(CharType delim, bool verbatim)
 
 	while (true)
 	{
-		while (_currCh != delim)
+		while (_ch != delim)
 		{
-			switch (_currCh)
+			switch (_ch)
 			{
 			case CHAR_EOS:
 				error("unfinished string");
@@ -850,20 +929,20 @@ LexerBase::Token LexerBase::readString(CharType delim, bool verbatim)
 
 			case '\n':
 				if (!verbatim) error("newline in a constant");
-				_stringBuf.push_back(_currCh);
+				_stringBuf.push_back(_ch);
 				newLine();
 				break;
 
 			case '\\':
 				if (verbatim)
 				{
-					_stringBuf.push_back(_currCh);
+					_stringBuf.push_back(_ch);
 					next();
 				}
 				else
 				{
 					next();
-					switch (_currCh)
+					switch (_ch)
 					{
 					case '"': _stringBuf.push_back('\"'); next(); break;
 					case '\\': _stringBuf.push_back('\\'); next(); break;
@@ -876,13 +955,13 @@ LexerBase::Token LexerBase::readString(CharType delim, bool verbatim)
 					case 'x': case 'u':
 						{
 							next();
-							if (!isxdigit(_currCh)) error("hexadecimal number expected");
+							if (!isxdigit(_ch)) error("hexadecimal number expected");
 							const int maxDigits = 4;
 							char temp[maxDigits+1];
 							int n = 0;
-							while (isxdigit(_currCh) && n < maxDigits)
+							while (isxdigit(_ch) && n < maxDigits)
 							{
-								temp[n] = _currCh;
+								temp[n] = _ch;
 								++n;
 								next();
 							}
@@ -906,14 +985,14 @@ LexerBase::Token LexerBase::readString(CharType delim, bool verbatim)
 				}
 				break;
 			default:
-				_stringBuf.push_back(_currCh);
+				_stringBuf.push_back(_ch);
 				next();
 			}
 		}
 		next();
-		if (verbatim && _currCh == '"')
+		if (verbatim && _ch == '"')
 		{
-			_stringBuf.push_back(_currCh);
+			_stringBuf.push_back(_ch);
 			next();
 		}
 		else
@@ -922,8 +1001,7 @@ LexerBase::Token LexerBase::readString(CharType delim, bool verbatim)
 		}
 	}
 
-	_stringBuf.push_back(0);
-	_stringValue = &_stringBuf[0];
+	_token.stringValue.assign(_stringBuf.begin(), _stringBuf.end());
 	return TK_STRING;
 }
 
@@ -932,11 +1010,11 @@ void LexerBase::blockComment()
 	bool done = false;
 	while (!done)
 	{
-		switch (_currCh)
+		switch (_ch)
 		{
 		case '*': 
 			next(); 
-			if (_currCh == '/')
+			if (_ch == '/')
 			{
 				done = true;
 				next();
@@ -956,10 +1034,10 @@ void LexerBase::blockComment()
 
 void LexerBase::lineComment()
 {
-	do { next(); } while (_currCh != '\n' && !isEos());
+	do { next(); } while (_ch != '\n' && !isEos());
 }
 
-void LexerBase::error(const char* fmt, ...)
+LexerBase::Token LexerBase::error(const char* fmt, ...)
 {
 	va_list args; 
 	va_start(args, fmt);
@@ -967,11 +1045,14 @@ void LexerBase::error(const char* fmt, ...)
 	va_end(args);
 
 	desc += StringUtil::format(" at line %d, column %d", _line, _column);
+	_token.stringValue = desc;
 
 	throw SyntaxException(desc);
+
+	return token(TK_ERROR);
 }
 
-void LexerBase::warning(const char* fmt, ...)
+LexerBase::Token LexerBase::warning(const char* fmt, ...)
 {
 	bool _treatWarningAsError = true;
 
@@ -983,9 +1064,12 @@ void LexerBase::warning(const char* fmt, ...)
 		va_end(args);
 
 		desc += StringUtil::format(" at line %d, column %d", _line, _column);
+		_token.stringValue = desc;
 
 		throw SyntaxException(desc);
 	}
+
+	return token(TK_ERROR);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1255,15 +1339,15 @@ public:
 
 	virtual Token lex()
 	{
-		while (_currCh != CHAR_EOS)
+		while (_ch != CHAR_EOS)
 		{
-			switch (_currCh)
+			whitespace();
+
+			switch (_ch)
 			{
-			case '\t': case '\r': case ' ': next(); continue;
-			case '\n': newLine(); continue;
 			case '/':
 				next();
-				switch (_currCh)
+				switch (_ch)
 				{
 				case '*':
 					next();
@@ -1273,9 +1357,10 @@ public:
 					lineComment();
 					continue;
 				default:
-					return Token('/');
-
+					return token('/');
 				}
+				break;
+
 			case ':':
 			case '=':
 			case '{':
@@ -1284,22 +1369,24 @@ public:
 			case ']':
 			case ',':
 				{
-					int token = _currCh;
+					int tk = _ch;
 					next();
-					return Token(token);
+					return token(tk);
 				}
+				break;
+
 			case '"':
 			case '\'':
-				if (readString(_currCh) != -1)
-					return Token(TK_STRING);
+				if (readString(_ch) != -1)
+					return token(TK_STRING);
 				error("error parsing the string");
 				break;
 
 			default:
-				if (isdigit(_currCh))
-					return Token(readNumber());
-				else if (isId(_currCh))
-					return Token(readId());
+				if (isdigit(_ch))
+					return token(readNumber());
+				else if (isId(_ch))
+					return token(readId());
 				else
 					error("unexpected character");
 			}
@@ -1378,7 +1465,7 @@ public:
 		if (_token != TK_STRING && _token != LexerBase::TK_ID)
 			error("key string expected");
 
-		String key = _lexer->getTokenString();
+		String key = _lexer->getToken().stringValue;
 
 		lex();
 
@@ -1389,9 +1476,9 @@ public:
 
 		switch (_token)
 		{
-		case TK_STRING:					_handler->pair(key, _lexer->getTokenString()); lex(); break;
-		case TK_INT:					_handler->pair(key, _lexer->getTokenInt()); lex(); break;
-		case TK_FLOAT:					_handler->pair(key, _lexer->getTokenFloat()); lex(); break;
+		case TK_STRING:					_handler->pair(key, _lexer->getToken().stringValue.c_str()); lex(); break;
+		case TK_INT:					_handler->pair(key, _lexer->getToken().intValue); lex(); break;
+		case TK_FLOAT:					_handler->pair(key, _lexer->getToken().floatValue); lex(); break;
 		case TK_NULL:					_handler->pairNull(key); lex(); break;
 		case TK_TRUE:					_handler->pair(key, true); lex(); break;
 		case TK_FALSE:					_handler->pair(key, false); lex(); break;
@@ -1400,7 +1487,7 @@ public:
 		case '[':						_handler->pairArrayBegin(key); Array(); _handler->pairArrayEnd(key); break;
 
 		// Non-quoted literal is not a standard JSON, added as a syntax sugar
-		case LexerBase::TK_ID:			_handler->pair(key, _lexer->getTokenString()); lex(); break;
+		case LexerBase::TK_ID:			_handler->pair(key, _lexer->getToken().stringValue.c_str()); lex(); break;
 
 		default:						error("value expected");
 		}
@@ -1427,9 +1514,9 @@ public:
 	{
 		switch (_token)
 		{
-		case TK_STRING:					_handler->element(_lexer->getTokenString()); lex(); break;
-		case TK_INT:					_handler->element(_lexer->getTokenInt()); lex(); break;
-		case TK_FLOAT:					_handler->element(_lexer->getTokenFloat()); lex(); break;
+		case TK_STRING:					_handler->element(_lexer->getToken().stringValue.c_str()); lex(); break;
+		case TK_INT:					_handler->element(_lexer->getToken().intValue); lex(); break;
+		case TK_FLOAT:					_handler->element(_lexer->getToken().floatValue); lex(); break;
 		case TK_NULL:					_handler->elementNull(); lex(); break;
 		case TK_TRUE:					_handler->element(true); lex(); break;
 		case TK_FALSE:					_handler->element(false); lex(); break;
@@ -1438,7 +1525,7 @@ public:
 		case '[':						_handler->elementArrayBegin(); Array(); _handler->elementArrayEnd(); break;
 
 		// Non-quoted literal is not a standard JSON, added as a syntax sugar
-		case LexerBase::TK_ID:			_handler->element(_lexer->getTokenString()); lex(); break;
+		case LexerBase::TK_ID:			_handler->element(_lexer->getToken().stringValue.c_str()); lex(); break;
 
 		default:						error("value expected");
 		}
