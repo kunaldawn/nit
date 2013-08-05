@@ -58,6 +58,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nit-win", "nit-win.vcproj",
 		{281FA1AE-1D5C-47D2-AC3C-E49DA8011590} = {281FA1AE-1D5C-47D2-AC3C-E49DA8011590}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nitdevkit", "nitdevkit.vcproj", "{CF5298E1-975C-4D95-81B8-CBCC8B8D8A44}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8E1A3513-E849-4608-9D6F-207826BFAA19} = {8E1A3513-E849-4608-9D6F-207826BFAA19}
+		{281FA1AE-1D5C-47D2-AC3C-E49DA8011590} = {281FA1AE-1D5C-47D2-AC3C-E49DA8011590}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -137,6 +143,12 @@ Global
 		{00F28EF1-4EB9-4E91-B817-AF75A65D9312}.Release|Win32.Build.0 = Release|Win32
 		{00F28EF1-4EB9-4E91-B817-AF75A65D9312}.Static|Win32.ActiveCfg = Release|Win32
 		{00F28EF1-4EB9-4E91-B817-AF75A65D9312}.Static|Win32.Build.0 = Release|Win32
+		{CF5298E1-975C-4D95-81B8-CBCC8B8D8A44}.Debug|Win32.ActiveCfg = Debug|Win32
+		{CF5298E1-975C-4D95-81B8-CBCC8B8D8A44}.Debug|Win32.Build.0 = Debug|Win32
+		{CF5298E1-975C-4D95-81B8-CBCC8B8D8A44}.Release|Win32.ActiveCfg = Release|Win32
+		{CF5298E1-975C-4D95-81B8-CBCC8B8D8A44}.Release|Win32.Build.0 = Release|Win32
+		{CF5298E1-975C-4D95-81B8-CBCC8B8D8A44}.Static|Win32.ActiveCfg = Release|Win32
+		{CF5298E1-975C-4D95-81B8-CBCC8B8D8A44}.Static|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
