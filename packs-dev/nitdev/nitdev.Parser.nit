@@ -1,5 +1,7 @@
 ::nitdev := try ::nitdev : {}
 
+////////////////////////////////////////////////////////////////////////////////
+
 import nitdev
 
 nitdev.TOKEN :=
@@ -83,7 +85,6 @@ nitdev.TOKEN :=
 	BY				= 342
 }
 
-
 nitdev.TOKEN with 
 {
 	foreach (key in keys()) this[this[key]] := key
@@ -92,6 +93,8 @@ nitdev.TOKEN with
 nitdev.TOKEN with
 	for (var i=32; i<=127; ++i) this[i] := format("'%c'", i)
 
+////////////////////////////////////////////////////////////////////////////////
+	
 import nitdev
 
 class nitdev.Lexer
@@ -142,7 +145,15 @@ class nitdev.Lexer
 	
 	property line: int 		get _line
 	property column: int	get _column
-	property token: TOKEN	get _token set { _prevToken = _token; _token = value }
+
+	property token: TOKEN	
+		get _token 
+		set 
+		{ 
+			_endLine = _line; _endColumn = _column; 
+			_prevToken = _token; _token = value 
+		}
+		
 	property value 			get _value
 	
 	var _line: int
@@ -150,9 +161,13 @@ class nitdev.Lexer
 	var _ch: int
 	var _token: TOKEN
 	var _value
+	
+	var _startLine: int
+	var _startColumn: int
+	var _endLine: int
+	var _endColumn: int
 
 	var _prevToken: TOKEN
-	var _lastTokenLine: int
 	
 	var _reader: generator
 	
@@ -181,7 +196,6 @@ class nitdev.Lexer
 		_token = null
 		_value = null
 
-		_lastTokenLine = 1
 		_prevToken = null
 		
 		next()
@@ -193,35 +207,36 @@ class nitdev.Lexer
 		++_column
 	}
 	
-	function isdigit(ch: int)
+	function isdigit(ch: int): bool
 	{
 		return $'0' <= ch && ch <= $'9'
 	}
 	
-	function isodigit(ch: int)
+	function isodigit(ch: int): bool
 	{
 		return $'0' <= ch && ch <= $'7'
 	}
 	
-	function isxdigit(ch: int)
+	function isxdigit(ch: int): bool
 	{
 		return $'0' <= ch && ch <= $'9' || $'a' <= ch && ch <= $'f' || $'A' <= ch && ch <= $'F'
 	}
 	
-	function isalpha(ch: int)
+	function isalpha(ch: int): bool
 	{
 		return $'a' <= ch && ch <= $'z' || $'A' <= ch && ch <= $'Z'
 	}
 	
-	function isalnum(ch: int)
+	function isalnum(ch: int): bool
 	{
 		return $'0' <= ch && ch <= $'9' || $'a' <= ch && ch <= $'z' || $'A' <= ch && ch <= $'Z'
 	}
 	
-	function lex() : TOKEN
+	function ws()
 	{
-		_lastTokenLine = _line
-		while (_ch != null)
+		var whitespace = true
+		
+		while (whitespace)
 		{
 			switch (_ch)
 			{
@@ -235,6 +250,23 @@ class nitdev.Lexer
 					++_line; _column = 1
 					continue
 					
+				default:
+					whitespace = false
+			}
+		}
+		
+		_startLine = _line
+		_startColumn = _column
+	}
+	
+	function lex() : TOKEN
+	{
+		while (_ch != null)
+		{
+			ws()
+			
+			switch (_ch)
+			{
 				case $'/':
 					next()
 					switch (_ch)
@@ -394,7 +426,7 @@ class nitdev.Lexer
 		}
 	}
 	
-	function hexToInt(hex: string)
+	function hexToInt(hex: string): int
 	{
 		var value = 0
 		
@@ -414,7 +446,7 @@ class nitdev.Lexer
 		return value
 	}
 
-	function octToInt(oct: string)
+	function octToInt(oct: string): int
 	{
 		var value = 0
 		
@@ -430,7 +462,7 @@ class nitdev.Lexer
 		return value
 	}
 	
-	function readString(delim: int, verbatim: bool)
+	function readString(delim: int, verbatim: bool) : TOKEN
 	{
 		next()
 		if (_ch == null) return -1
@@ -509,7 +541,7 @@ class nitdev.Lexer
 		return TOKEN.STRING_LITERAL
 	}
 
-	function readIdentifier()
+	function readIdentifier(): TOKEN
 	{
 		var id = ""
 		do
@@ -523,7 +555,7 @@ class nitdev.Lexer
 		return getIdentifierType(_value)
 	}
 	
-	function getIdentifierType(value)
+	function getIdentifierType(value): TOKEN
 	{
 		var tk = try _keywords.rawget(value)
 		
@@ -539,9 +571,9 @@ class nitdev.Lexer
 		OCTAL = 5
 	}
 	
-	function isexponent(ch: int) { return ch == 'e' || ch == 'E' }
+	function isexponent(ch: int): bool { return ch == 'e' || ch == 'E' }
 	
-	function readNumber()
+	function readNumber(): TOKEN
 	{
 		var first = _ch
 		var type = NUMTYPE.INT
@@ -627,6 +659,8 @@ nitdev.Lexer._keywords with
 	foreach (key in keys()) this[this[key]] := key
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 import nitdev
 	
 class nitdev.Parser
@@ -642,12 +676,23 @@ class nitdev.Parser
 	var _stepTimeLimit: float = null
 	var _stepTime: float = null
 	
+	var _prevEndLine: int
+	var _prevEndColumn: int
+	
+	var root: SyntaxNode
+
 	function compile(stepTimeLimit = 0.001)
 	{
 		_stepTimeLimit = stepTimeLimit
 		
 		if (_stepTimeLimit != null)
 			_stepTime = system.clock() + _stepTimeLimit
+			
+		root = beginNode('root') with
+		{
+			startLine = 1
+			startColumn = 1
+		}
 	
 		lex()
 		while (_token != null)
@@ -656,6 +701,8 @@ class nitdev.Parser
 			if (_lexer._prevToken != $'}' && _lexer._prevToken != $';')
 				optionalSemicolon()
 		}
+		
+		endNode(root)
 	}
 
 	function lex()
@@ -666,6 +713,9 @@ class nitdev.Parser
 			sleep()
 			_stepTime = system.clock() + _stepTimeLimit
 		}
+	
+		_prevEndLine = _lexer._endLine
+		_prevEndColumn = _lexer._endColumn
 		
 		_token = _lexer.lex()
 		
@@ -675,7 +725,191 @@ class nitdev.Parser
 			// print("<end>")
 	}
 	
+	class SyntaxNode
+	{
+		var parent: weak<SyntaxNode>
+		
+		var kind: string
+		var namespace: string
+		var name: string
+		
+		var type: TypeTag
+		var params: string
+		
+		var startLine: int
+		var startColumn: int
+
+		var endLine: int
+		var endColumn: int
+		
+		var children: array<SyntaxNode> = null
+		
+		function qualifiedName(): string
+		{
+			var qn = name
+			if (namespace)
+				qn = namespace + "." + qn
+			if (parent && parent.name)
+				qn = parent.qualifiedName() + "." + qn
+			return qn
+		}
+		
+		function _tostring()
+		{
+			var paramsStr = null
+			
+			if (params)
+			{
+				if (params.len())
+					paramsStr = (params.reduce by (r, p) => r + ", " + p)
+				else
+					paramsStr = ""
+			}
+			
+			
+			return format("[%s] %s%s%s (%d:%d - %d:%d)",
+				kind,
+				qualifiedName(),
+				paramsStr ? "(" + paramsStr + ")" : "",
+				type ? ": " + type : "",
+				startLine, startColumn,
+				endLine, endColumn)
+		}
+	}
 	
+	var _nodeStack: array<SyntaxNode> = [ ]
+	var _nodes: table<string, array<SyntaxNode> > = { }
+	
+	function beginNode(kind: string): SyntaxNode
+	{
+		var startLine = _lexer._startLine
+		var startColumn = _lexer._startColumn
+		var parent = currNode()
+		
+		var node = SyntaxNode() with
+		{
+			this.parent = parent.weak()
+			this.kind = kind
+			
+			this.startLine = startLine
+			this.startColumn = startColumn
+		}
+		
+		_nodeStack.push(node)
+		
+		if (parent)
+		{
+			var children = parent.children ? parent.children : (parent.children = [])
+			children.push(node)
+		}
+		
+		var nodesOfKind = kind in _nodes ? _nodes[kind] : _nodes[kind] := [ ]
+		nodesOfKind.push(node)
+		
+		return node
+	}
+	
+	function currNode(): SyntaxNode
+	{
+		return _nodeStack.len() ? _nodeStack.top() : null
+	}
+	
+	function endNode(node: SyntaxNode)
+	{
+		if (currNode() != node)
+			throw "Invalid node stack state"
+			
+		_nodeStack.pop()
+		
+		var endLine = _prevEndLine
+		var endColumn = _prevEndColumn
+		
+		node with
+		{
+			this.endLine = endLine
+			this.endColumn = endColumn
+		}
+	}
+	
+	class TypeTag
+	{
+		var namespace : string
+		var type : string
+		var params : array<TypedId>
+		
+		function _tostring()
+		{
+			var str = namespace
+			str = str ? str + "." + type : type
+			
+			if (params != null)
+			{
+				str += "<"
+				str +=  params.reduce by (s, p) => s + ", " + p.tostring()
+				str += ">"
+			}
+			
+			return str
+		}
+	}
+	
+	function typeTag(): TypeTag
+	{
+		var tag = TypeTag()
+		
+		if (_token == $':') lex()
+		
+		var ns = null
+		var id = expect(TOKEN.IDENTIFIER)
+		
+		while (_token == $'.')
+		{
+			lex()
+			ns = ns ? (ns + "." + id) : id
+			id = expect(TOKEN.IDENTIFIER)
+		}
+
+		tag.namespace = ns
+		tag.type = id
+		
+		if (_token == $'<')
+		{
+			lex()
+			tag.params = []
+			
+			var param = typeTag()
+			tag.params.push(param)
+			
+			while (_token == $',')
+			{
+				lex()
+				param = typeTag()
+				tag.params.push(param)
+			}
+			
+			expect($'>')
+		}
+		
+		return tag
+	}
+	
+	class TypedId
+	{
+		var type: TypeTag
+		var id : string
+	}
+	
+	function typedId(treatKeywordAsIdentifier = false): TypedId
+	{
+		var tid = TypedId()
+		tid.id = expect(TOKEN.IDENTIFIER, treatKeywordAsIdentifier)
+		
+		if (_token == $':')
+			tid.type = typeTag()
+			
+		return tid
+	}
+
 	function statements()
 	{
 		while (_token != $'}' && _token != TOKEN.DEFAULT && _token != TOKEN.CASE)
@@ -1102,7 +1336,7 @@ class nitdev.Parser
 		prefixedExpr()
 	}
 	
-	function needGet()
+	function needGet(): bool
 	{
 		switch (_token)
 		{
@@ -1200,67 +1434,7 @@ class nitdev.Parser
 		lex()
 	}
 	
-	class TypedId
-	{
-		var type
-		var id
-	}
-	
-	function addTagStr(tid: TypedId, delim: int, st: string)
-	{
-		if (tid == null) return
-		
-		if (tid.type == null)
-			tid.type = ""
-			
-		if (delim)
-			tid.type += format("c", delim) + st
-		else
-			tid.type + st
-	}
-	
-	function typeTag(tid: TypedId, delim: int = 0)
-	{
-		if (_token == $':') lex()
-		
-		var id = expect(TOKEN.IDENTIFIER)
-		addTagStr(tid, delim, id)
-		
-		while (_token == $'.')
-		{
-			lex()
-			id = expect(TOKEN.IDENTIFIER)
-			addTagStr(tid, $'.', id)
-		}
-		
-		if (_token == $'<')
-		{
-			lex()
-			typeTag(tid, $'<')
-			
-			while (_token == $',' || _token == $'.')
-			{
-				var delim = _token
-				lex()
-				typeTag(tid, delim)
-			}
-			expect($'>')
-			addTagStr(tid, $'>', "")
-		}
-	}
-	
-	function typedId(treatKeywordAsIdentifier = false): TypedId
-	{
-		var tid = TypedId()
-		tid.id = expect(TOKEN.IDENTIFIER, treatKeywordAsIdentifier)
-		
-		if (_token == $':')
-			typeTag(tid)
-			
-		return tid
-	}
-	
-	function parseClass()
+	function parseClass(info: ClassInfo = null)
 	{
 		var propOrder = 1000.0
 		
@@ -1288,6 +1462,7 @@ class nitdev.Parser
 				case TOKEN.FUNCTION:
 				case TOKEN.CONSTRUCTOR:
 				case TOKEN.DESTRUCTOR:
+					var node = beginNode('function')
 					var tk = _token
 					lex()
 					var id
@@ -1297,12 +1472,17 @@ class nitdev.Parser
 						id = "destructor"
 					else
 						id = expect(TOKEN.IDENTIFIER, true)
+					node.name = id
 					expect($'(')
-					createFunction(id)
+					var funcInfo = createFunction(id)
+					node.type = funcInfo.type
+					node.params = funcInfo.params
+					endNode(node)
 					break
 					
 				case TOKEN.PROPERTY:
 					if (isStatic) warning("'property' can't be static")
+					var node = beginNode('property')
 					lex()
 					
 					if (_token == $'#')
@@ -1317,36 +1497,49 @@ class nitdev.Parser
 					}
 					
 					var tid = typedId(true)
+					node.name = tid.id
+					node.type = tid.type
 					
 					var hasGetter = propertyGetSet(tid.id, "get")
 					var hasSetter = propertyGetSet(tid.id, "set")
 					
 					if (!hasGetter && !hasSetter) warning("expected 'get' or 'set'")
 					isProperty = true
+					endNode(node)
 					break
 					
 				case TOKEN.CLASS:
 					isStatic = true
+					var node = beginNode('class')
 					lex()
-					expect(TOKEN.IDENTIFIER)
-					classExp()
+					var id = expect(TOKEN.IDENTIFIER)
+					node.name = id
+					classExpr()
+					endNode(node)
 					break
 					
 				case TOKEN.VAR:
 					if (isStatic) warning("'var' can't be static")
 					
+					var node = beginNode(isStatic ? 'static' : 'var')
 					lex()
 					var tid = typedId(true)
-					
+					node.name = tid.id
+					node.type = tid.type
 					if (_token == $'=')
 					{
 						lex()
 						expression()
 					}
+					endNode(node)
 					break
 					
 				default:
+					var node = beginNode(isStatic ? 'static' : 'var')
 					var tid = typedId(true)
+					
+					node.name = tid.id
+					node.type = tid.type
 					
 					if (isStatic)
 					{
@@ -1358,6 +1551,7 @@ class nitdev.Parser
 						expect($'=')
 						expression()
 					}
+					endNode(node)
 			}
 			
 			if (_token == $';') lex() // optional semicolon
@@ -1366,7 +1560,7 @@ class nitdev.Parser
 		lex()
 	}
 	
-	function propertyGetSet(id: string, allowed: string)
+	function propertyGetSet(id: string, allowed: string): bool
 	{
 		if (_token == TOKEN.IDENTIFIER)
 		{
@@ -1467,9 +1661,6 @@ class nitdev.Parser
 			lex()
 			expect($'('); commaExpr(); expect($')')
 		}
-		else
-		{
-		}
 	}
 	
 	function forStmt()
@@ -1550,7 +1741,10 @@ class nitdev.Parser
 	
 	function functionStmt()
 	{
+		var node = beginNode('function')
+		
 		lex()
+		var ns = null
 		var id = expect(TOKEN.IDENTIFIER)
 		
 		while (_token == $'.' || _token == TOKEN.DOUBLE_COLON)
@@ -1559,25 +1753,58 @@ class nitdev.Parser
 				warning('function definition via :: is deprecated')
 			
 			lex()
+			ns = ns ? (ns + "." + id) : (id)
 			id = expect(TOKEN.IDENTIFIER)
 		}
+		
+		node with
+		{
+			this.namespace = ns
+			this.name = id
+		}
+		
 		expect($'(')
-		createFunction(id)
+		var funcInfo = createFunction(id)
+
+		node.type = funcInfo.type
+		node.params = funcInfo.params
+		
+		endNode(node)
 	}
 	
 	function classStmt()
 	{
+		var node = beginNode('class')
+
 		lex()
 		
-		while (true)
+		var ns = null
+		var id = expect(TOKEN.IDENTIFIER)
+		
+		while (_token == $'.')
 		{
-			var clsname = expect(TOKEN.IDENTIFIER)
-			if (_token != $'.')
-				break
 			lex()
+			ns = ns ? (ns + "." + id) : id
+			id = expect(TOKEN.IDENTIFIER)
 		}
 		
-		classExp()
+		node with
+		{
+			this.namespace = ns
+			this.name = id
+		}
+		
+		var info = ClassInfo() with
+		{
+			this.namespace = ns
+			this.name = id
+		}
+		
+		classExpr(info)
+		
+		node.type = info.base
+		
+		endNode(node)
 	}
 	
 	function tryCatchFinallyStmt()
@@ -1645,12 +1872,21 @@ class nitdev.Parser
 		}
 	}
 	
-	function classExp()
+	class ClassInfo
+	{
+		var base: TypeTag
+		var namespace: string
+		var name: string
+	}
+	
+	function classExpr(info: ClassInfo=null)
 	{
 		if (_token == $':')
 		{
 			lex()
-			expression()
+			var tag = typeTag()
+			if (info)
+				info.base = tag
 		}
 		
 		if (_token == $'[')
@@ -1660,17 +1896,42 @@ class nitdev.Parser
 		}
 		
 		expect($'{')
-		parseClass()
+		parseClass(info)
 	}
 	
-	function createFunction(name: string, hasParams=true, lambda=false, isSetter=false)
+	class FunctionInfo
 	{
+		class Param
+		{
+			var name: string
+			var type: TypeTag
+			var default: string
+			
+			function _tostring()
+			{
+				var str = name
+				if (type != null)
+					str += ": " + type
+				if (this.default != null)
+					str += "=" + this.default
+				return str
+			}
+		}
+		
+		var type: TypeTag
+		var params: array<Param> = []
+		var help: string
+	}
+	
+	function createFunction(name: string, hasParams=true, lambda=false, isSetter=false): FunctionInfo
+	{
+		var funcInfo = FunctionInfo()
+		var params = funcInfo.params
+		
 		var defParams = 0
-		var params = [ ]
-		params.push({ name = "this" })
 		
 		if (isSetter)
-			params.push({ name = "value" })
+			params.push(FunctionInfo.Param() with { this.name = "value" })
 		
 		if (hasParams)
 		{
@@ -1680,16 +1941,18 @@ class nitdev.Parser
 				{
 					if (defParams > 0)
 						warning("function with default parameters cannot have variable number of parameters")
-					params.push({ name = "..." })
+					params.push(FunctionInfo.Param() with { this.name = "..." })
 					lex()
 					if (_token != $')') error("expected ')')")
 					break
 				}
 		
+				var param = FunctionInfo.Param()
 				var tid = typedId()
-				params.push({ name = tid.id, type = tid.type })
+				params.push(param with { this.name = tid.id, type = tid.type })
 				if (_token == $'=')
 				{
+					// TODO capture tokens and convert to param.default
 					lex()
 					expression()
 					++defParams
@@ -1702,11 +1965,14 @@ class nitdev.Parser
 			expect($')')
 			
 			if (_token == $':')
-				typeTag(null)
+			{
+				var type = typeTag()
+				funcInfo.type = type
+			}
 				
 			if (_token == TOKEN.STRING_LITERAL)
 			{
-				var help = expect(TOKEN.STRING_LITERAL)
+				funcInfo.help = expect(TOKEN.STRING_LITERAL)
 			}
 		}
 		
@@ -1724,6 +1990,8 @@ class nitdev.Parser
 		{
 			statement(false)
 		}
+		
+		return funcInfo
 	}
 	
 	function createLambdaReturnExpr()
@@ -1782,6 +2050,8 @@ class nitdev.Parser
 	}
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 function lexTest(text: string=null)
 {
 	if (text == null)
@@ -1801,6 +2071,19 @@ function lexTest(text: string=null)
 	}
 }
 
+var indentStr = "                                                              "
+function listNodes(node, indent = 0)
+{
+	print("-- " + indentStr.slice(0, indent*2) + node)
+	if (node.children)
+	{
+		//var children = node.children.sort by (a,b) => a.kind != b.kind ? a.kind <=> b.kind : a.name <=> b.name
+		var children = node.children
+		foreach (child in children)
+			listNodes(child, indent + 1)
+	}
+}
+
 function parserTest(text: string=null)
 {
 	if (text == null)
@@ -1809,9 +2092,14 @@ function parserTest(text: string=null)
 	a := nitdev.Parser(text)
 	
 	try
+	{
 		a.compile()
+	}
 	catch (ex)
 		printf("*** %s at line %d column %d", ex, a._lexer.line, a._lexer.column)
+	listNodes(a.root)
+	// foreach (kind, nodesOfKind in a._nodes)
+		// nodesOfKind.each by (n) => print(n)
 }
 
 function parserTests()
@@ -1828,10 +2116,4 @@ function parserTests()
 		}
 	}
 }
-
-
-
-
-
-
 
