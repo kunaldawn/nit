@@ -57,6 +57,7 @@
 				AdditionalDependencies="wxbase29ud.lib wxmsw29ud_core.lib"
 				OutputFile="$(OutDir)\nit_d.exe"
 				SubSystem="1"
+				TargetMachine="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -122,6 +123,7 @@
 				AdditionalDependencies="wxbase29u.lib wxmsw29u_core.lib"
 				OutputFile="$(OutDir)\nit.exe"
 				SubSystem="1"
+				TargetMachine="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
