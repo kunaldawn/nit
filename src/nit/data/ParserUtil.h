@@ -287,7 +287,7 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class XmlParser : public RefCounted
+class NIT_API XmlParser : public RefCounted
 {
 public:
 	XmlParser();
