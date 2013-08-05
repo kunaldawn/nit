@@ -1624,6 +1624,15 @@ public:
 		else if (sq_gettype(v, 3) != OT_ARRAY)
 			return sq_throwerror(v, "invalid array of client objects");
 
+		if (items.size() == 0)
+		{
+			self(v)->Set(0, NULL);
+			return 0;
+		}
+
+		if (sq_getsize(v, 3) != (int)items.size())
+			return sq_throwerror(v, "item count mismatch");
+
 		vector<wxClientData*>::type objects;
 		GetWxArrayScriptData(v, 3, objects);
 		self(v)->Set(items, &*objects.begin());
