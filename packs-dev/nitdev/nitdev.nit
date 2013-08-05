@@ -1,7 +1,9 @@
 require "nitdebugwin"
 require "debugclient"
+require "nitdev.Parser"
 
 import nit
+import nitdev
 
 var function id_char(ch: int): bool
 {
@@ -423,6 +425,131 @@ class Document
 		}
 	}
 	
+	function loadText(text: string)
+	{
+		var editor = firstEditor
+		editor.appendText(text)
+		if (_parserThread) _parserThread.kill()
+
+		_parser = Parser(text)
+
+		_parserThread = (costart by _parseJob()).weak()
+		
+	}
+	
+	var _members: array<table<qn, node, sn> >
+	
+	function _parseJob()
+	{
+		var combo = firstPane._navCombo
+		
+		combo.value = "<parsing>"
+		combo.enabled = false
+			
+		print("++ parsing: " + title)
+		_parser.compile()
+		
+		print("++ parsed: " + title)
+		
+		var functions = try _parser._nodes["function"]
+		if (functions)
+		{
+			var members = functions.map by (node) 
+			{ 
+				var qn = node.qualifiedName()
+				return { qn = qn, node = node, sn = qn.tolower() }
+			}
+
+			_members = members.sort by (a, b) => a.sn <=> b.sn
+			
+			var autocomp = []
+			
+			foreach (member in _members)
+			{
+				var paramsStr = null
+				var node = member.node
+				var qn = member.qn
+				if (node.params)
+				{
+					if (node.params.len())
+						paramsStr = (node.params.reduce by (r, p) => r + ", " + p)
+					else
+						paramsStr = ""
+				}
+				
+				var text = format("%s %s%s%s", 
+					node.kind, 
+					qn,
+					paramsStr ? "(" + paramsStr + ")" : "",
+					node.type ? ": " + node.type : "")
+					
+				combo.append(text, node)
+			}
+			
+			combo.bind(combo.EVT.COMBOBOX, this) by (evt) => onSelectMember(evt.clientObject)
+			combo.bind(combo.EVT.ENTER, this) by (evt) => onMemberTextEnter(combo, evt)
+		}
+		
+		combo.value = ""
+		combo.enabled = true
+		// listNodes(_parser.root)
+	}
+	
+	function onMemberTextEnter(combo: wx.ComboBox, evt: wx.CommandEvent)
+	{
+		dump(evt)
+		
+		var text = evt.string
+		
+		var combo = firstPane._navCombo
+		combo.value = text
+		combo.clear()
+		combo.selectAll()
+		evt.skip()
+		evt.stopPropagation()
+
+		foreach (member in _members)
+		{
+			if (text.len() && member.qn.find(text) == null)
+				continue
+				
+			var paramsStr = null
+			var node = member.node
+			var qn = member.qn
+			if (node.params)
+			{
+				if (node.params.len())
+					paramsStr = (node.params.reduce by (r, p) => r + ", " + p)
+				else
+					paramsStr = ""
+			}
+			
+			var text = format("%s %s%s%s", 
+				node.kind, 
+				qn,
+				paramsStr ? "(" + paramsStr + ")" : "",
+				node.type ? ": " + node.type : "")
+				
+			combo.append(text, node)
+		}
+		combo.popup()
+	}
+	
+	function onSelectMember(node: nitdev.Parser.SyntaxNode)
+	{
+		var line = node.startLine
+		var column = node.startColumn
+		
+		var editor = _frame.currEditor
+		
+		var pos = editor.positionFromLine(line - 1)
+		pos += column - 1
+		
+		editor.ensureVisibleEnforcePolicy(line - 1)
+		editor.gotoPos(pos)
+		editor.setFocus()
+	}
+	
 	function addBreakpoint(bp: Breakpoint)
 	{
 		_breakpoints[bp.line] := bp.weak()
@@ -451,10 +578,14 @@ class Document
 	var _readonly = false
 	
 	var _panes = []
-	var _frame	: weakref<NitEditFrame>
+	var _frame	: weak<NitEditFrame>
 	var _firstEditor
 	var _lastFocused
 	var _lastDebug
+	
+	var _parser : nitdev.Parser
+	var _parserThread : weak<thread>
+	var _comboThread : weak<thread>
 	
 	var _breakpoints = { }	// key: line
 }
@@ -513,6 +644,7 @@ class NitEditFrame : wx.ScriptFrame
 		FIND_NEXT		= wx.newId()
 		FIND_PREV		= wx.newId()
 		GOTO_LINE		= wx.newId()
+		SHOW_MEMBERS	= wx.newId()
 		
 		CUT				= wx.ID.CUT
 		COPY			= wx.ID.COPY
@@ -606,6 +738,7 @@ class NitEditFrame : wx.ScriptFrame
 			[ ID.FIND_NEXT, "&Find Next\tF3", "Find next position of last search"],
 			[ ID.FIND_PREV, "&Find Previous\tShift+F3", "Find previous position of last search"],
 			[ ID.GOTO_LINE, "&Go To...\tCtrl+G", "Go to specified line"],
+			[ ID.SHOW_MEMBERS, "&Members...\tAlt+M", "Show members popup"],
 		] )
 		
 		menuBar.append(editMenu, "&Edit")
@@ -616,6 +749,7 @@ class NitEditFrame : wx.ScriptFrame
 		bind(EVT.MENU, ID.FIND_NEXT, frame, onEditFindNext)
 		bind(EVT.MENU, ID.FIND_PREV, frame, onEditFindPrev)
 		bind(EVT.MENU, ID.GOTO_LINE, frame, onEditGotoLine)
+		bind(EVT.MENU, ID.SHOW_MEMBERS, frame, onEditShowMembers)
 	
 		// Debug Menu ////////
 		
@@ -934,7 +1068,7 @@ class NitEditFrame : wx.ScriptFrame
 		{
 			doc = newDocument({ url = url, crc = crc })
 			var editor = doc.firstEditor
-			editor.appendText(text)
+			doc.loadText(text)
 			selectPane(editor.parent)
 		}
 		
@@ -1049,6 +1183,15 @@ class NitEditFrame : wx.ScriptFrame
 			
 		editor.ensureVisibleEnforcePolicy(line - 1)
 		editor.gotoLine(line - 1)
+	}
+	
+	function onEditShowMembers(evt: wx.CommandEvent)
+	{
+		var pane = currDocPane
+		if (pane == null) return
+		
+		pane._navCombo.setFocus()
+		pane._navCombo.popup()
 	}
 	
 	var _lastFindText = null
@@ -1414,8 +1557,8 @@ class NitEditFrame : wx.ScriptFrame
 				addr = addr
 				url  = url
 			}, id)
+			doc.loadText(w.buffer.toString())
 			editor = doc.debugEditor
-			editor.appendText(w.buffer.toString())
 			doc.readOnly = true
 		}
 		else

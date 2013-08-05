@@ -17,12 +17,12 @@ class DocumentPane_Form : wx.ScriptPanel
 		_navPanel = wx.Panel(this, wx.ID.ANY, wx.DEFAULT.POS, wx.DEFAULT.SIZE, wx.Window.STYLE.TAB_TRAVERSAL)
 		var _bSizer2 = wx.BoxSizer(wx.HORIZONTAL)
 		
-		_navTitle = wx.StaticText(_navPanel, wx.ID.ANY, "Members:", wx.DEFAULT.POS, wx.DEFAULT.SIZE, 0)
+		var _navTitle = wx.StaticText(_navPanel, wx.ID.ANY, "Members:", wx.DEFAULT.POS, wx.DEFAULT.SIZE, 0)
 		_navTitle.wrap(-1)
 		_bSizer2.add(_navTitle, 0, wx.ALIGN.CENTER_VERTICAL | wx.DIR.RIGHT, 5)
 		
-		var _comboBox1 = wx.ComboBox(_navPanel, wx.ID.ANY, "Combo!", wx.DEFAULT.POS, wx.DEFAULT.SIZE, [  ], 0)
-		_bSizer2.add(_comboBox1, 1, wx.ALIGN.CENTER_VERTICAL | wx.DIR.LEFT, 5)
+		_navCombo = wx.ComboBox(_navPanel, wx.ID.ANY, "Combo!", wx.DEFAULT.POS, wx.DEFAULT.SIZE, [  ], wx.TextCtrl.STYLE.PROCESS_ENTER)
+		_bSizer2.add(_navCombo, 1, wx.ALIGN.CENTER_VERTICAL | wx.DIR.LEFT, 5)
 		
 		
 		_navPanel.sizer = _bSizer2
@@ -53,7 +53,7 @@ class DocumentPane_Form : wx.ScriptPanel
 	
 	// Member Declarations
 	var _navPanel : wx.Panel
-	var _navTitle : wx.StaticText
+	var _navCombo : wx.ComboBox
 	var _editor : wx.StyledTextCtrl
 	var _infobar : wx.InfoBar
 	
