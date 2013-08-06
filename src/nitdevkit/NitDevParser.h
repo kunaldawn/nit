@@ -49,7 +49,7 @@ public:
 		TK_DOUBLE_COLON,	// ::
 		TK_PLUSPLUS,		// ++
 		TK_MINUSMINUS,		// --
-		TK_3WAYSCMP,		// <=>
+		TK_THREEWAYSCMP,	// <=>
 		TK_USHIFTR,			// >>>
 		TK_VARPARAMS,		// ...
 		TK_MULEQ,			// *=

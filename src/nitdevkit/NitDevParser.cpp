@@ -116,7 +116,7 @@ NitLexer::Token NitLexer::lex()
 			if (_ch == '<') { next(); return token(TK_SHIFTL); }
 			if (_ch != '=') return token('<');
 			next();
-			if (_ch == '>') { next(); return token(TK_3WAYSCMP); }
+			if (_ch == '>') { next(); return token(TK_THREEWAYSCMP); }
 			return token(TK_LE);
 
 		case '>':

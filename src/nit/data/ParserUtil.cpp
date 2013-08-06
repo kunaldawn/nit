@@ -984,11 +984,15 @@ LexerBase::Token LexerBase::readString(Char delim, Char verbatim)
 					case '"': bufAddChar('\"'); next(); break;
 					case '\\': bufAddChar('\\'); next(); break;
 					case '\'': bufAddChar('\''); next(); break;
+					case '/': bufAddChar('/'); next(); break;
 					case 'b': bufAddChar('\b'); next(); break;
 					case 'f': bufAddChar('\f'); next(); break;
 					case 'n': bufAddChar('\n'); next(); break;
 					case 'r': bufAddChar('\r'); next(); break;
 					case 't': bufAddChar('\t'); next(); break;
+					case 'v': bufAddChar('\v'); next(); break;
+					case 'a': bufAddChar('\a'); next(); break;
+					case '0': bufAddChar('\0'); next(); break;
 					case 'x': case 'u':
 						{
 							next();

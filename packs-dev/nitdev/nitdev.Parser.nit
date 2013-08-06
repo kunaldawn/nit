@@ -4,86 +4,7 @@
 
 import nitdev
 
-nitdev.TOKEN :=
-{	
-	// Terms
-	IDENTIFIER		= 258
-	STRING_LITERAL	= 259
-	INTEGER			= 260
-	FLOAT			= 261
-	
-	// Operators
-	EQ				= 262
-	NE				= 263
-	LE				= 264
-	GE				= 265
-	ARROW			= 266
-	AND				= 270
-	OR				= 271
-	NEWSLOT			= 272
-	UMINUS			= 273
-	PLUSEQ			= 274
-	MINUSEQ			= 275
-	SHIFTL			= 276
-	SHIFTR			= 277
-	DOUBLE_COLON	= 278
-	PLUSPLUS		= 279
-	MINUSMINUS		= 280
-	THREEWAYSCMP	= 281
-	USHIFTR			= 282
-	VARPARAMS		= 283
-	MULEQ			= 284
-	DIVEQ			= 285
-	MODEQ			= 286
-	LAMBDA			= 287
-	WITHREF			= 288
-	
-	KEYWORD_START	= 300
-	
-	// Keywords
-	BASE			= 300
-	SWITCH			= 301
-	IF				= 302
-	ELSE			= 303
-	WHILE			= 304
-	BREAK			= 305
-	FOR				= 306
-	DO				= 307
-	NULL			= 308
-	FOREACH			= 309
-	IN				= 310
-	CLONE			= 311
-	FUNCTION		= 312
-	RETURN			= 313
-	TYPEOF			= 314
-	CONTINUE		= 315
-	YIELD			= 316
-	TRY				= 317
-	CATCH			= 318
-	THROW			= 319
-	RESUME			= 320
-	CASE			= 321
-	DEFAULT			= 322
-	THIS			= 323
-	CLASS			= 324
-	CONSTRUCTOR		= 325
-	IS				= 326
-	TRUE			= 327
-	FALSE			= 328
-	STATIC			= 329
-	ENUM			= 330
-	CONST			= 331
-	PROPERTY		= 332
-	REQUIRE			= 333
-	INTDIV			= 334
-	INTMOD			= 335
-	DESTRUCTOR		= 336
-	VAR				= 337
-	WITH			= 338
-	FINALLY			= 340
-	IMPORT			= 341
-	BY				= 342
-}
+nitdev.TOKEN := clone nitdev.NitLexer.TOKEN
 
 nitdev.TOKEN with 
 {
@@ -94,580 +15,15 @@ nitdev.TOKEN with
 	for (var i=32; i<=127; ++i) this[i] := format("'%c'", i)
 
 ////////////////////////////////////////////////////////////////////////////////
-	
-import nitdev
-
-class nitdev.Lexer
-{
-	static _keywords = 
-	{	
-		"base" 			= TOKEN.BASE
-		"break" 		= TOKEN.BREAK
-		"case" 			= TOKEN.CASE
-		"catch" 		= TOKEN.CATCH
-		"class" 		= TOKEN.CLASS
-		"clone" 		= TOKEN.CLONE
-		"constructor" 	= TOKEN.CONSTRUCTOR
-		"continue"		= TOKEN.CONTINUE
-		"default"		= TOKEN.DEFAULT
-		"destructor"	= TOKEN.DESTRUCTOR
-		"div"			= TOKEN.INTDIV
-		"do"			= TOKEN.DO
-		"else"			= TOKEN.ELSE
-		"false"			= TOKEN.FALSE
-		"for"			= TOKEN.FOR
-		"foreach"		= TOKEN.FOREACH
-		"function"		= TOKEN.FUNCTION
-		"if"			= TOKEN.IF
-		"in"			= TOKEN.IN
-		"is"			= TOKEN.IS
-		"mod"			= TOKEN.INTMOD
-		"null"			= TOKEN.NULL
-		"property"		= TOKEN.PROPERTY
-		"return"		= TOKEN.RETURN
-		"resume"		= TOKEN.RESUME
-		"require"		= TOKEN.REQUIRE
-		"static"		= TOKEN.STATIC
-		"switch"		= TOKEN.SWITCH
-		"this"			= TOKEN.THIS
-		"throw"			= TOKEN.THROW
-		"true"			= TOKEN.TRUE
-		"try"			= TOKEN.TRY
-		"typeof"		= TOKEN.TYPEOF
-		"var"			= TOKEN.VAR
-		"while"			= TOKEN.WHILE
-		"yield"			= TOKEN.YIELD
-		"with"			= TOKEN.WITH
-		"finally"		= TOKEN.FINALLY
-		"import"		= TOKEN.IMPORT
-		"by"			= TOKEN.BY
-	}
-	
-	property line: int 		get _line
-	property column: int	get _column
-
-	property token: TOKEN	
-		get _token 
-		set 
-		{ 
-			_endLine = _line; _endColumn = _column; 
-			_prevToken = _token; _token = value 
-		}
-		
-	property value 			get _value
-	
-	var _line: int
-	var _column: int
-	var _ch: int
-	var _token: TOKEN
-	var _value
-	
-	var _startLine: int
-	var _startColumn: int
-	var _endLine: int
-	var _endColumn: int
-
-	var _prevToken: TOKEN
-	
-	var _reader: generator
-	
-	constructor(source)
-	{
-		switch (typeof(source))
-		{
-			case 'string':
-				_reader = @{ foreach (ch in source) yield ch }()
-				break
-			
-			case 'function':
-				_reader = @{ while (true) yield source() }()
-				break
-				
-			case 'generator':
-				_reader = source
-				break
-				
-			default:
-				throw "not supported source: " + typeof(source)
-		}
-		
-		_line = 1
-		_column = 0
-		_token = null
-		_value = null
-
-		_prevToken = null
-		
-		next()
-	}
-	
-	function next()
-	{
-		_ch = resume _reader
-		++_column
-	}
-	
-	function isdigit(ch: int): bool
-	{
-		return $'0' <= ch && ch <= $'9'
-	}
-	
-	function isodigit(ch: int): bool
-	{
-		return $'0' <= ch && ch <= $'7'
-	}
-	
-	function isxdigit(ch: int): bool
-	{
-		return $'0' <= ch && ch <= $'9' || $'a' <= ch && ch <= $'f' || $'A' <= ch && ch <= $'F'
-	}
-	
-	function isalpha(ch: int): bool
-	{
-		return $'a' <= ch && ch <= $'z' || $'A' <= ch && ch <= $'Z'
-	}
-	
-	function isalnum(ch: int): bool
-	{
-		return $'0' <= ch && ch <= $'9' || $'a' <= ch && ch <= $'z' || $'A' <= ch && ch <= $'Z'
-	}
-	
-	function ws()
-	{
-		var whitespace = true
-		
-		while (whitespace)
-		{
-			switch (_ch)
-			{
-				case 65279 : next(); continue // UTF-8 BOM
-				
-				case $'\t': case $'\r': case $' ': next(); continue
-				
-				case $'\n':
-					token = $'\n'
-					next(); 
-					++_line; _column = 1
-					continue
-					
-				default:
-					whitespace = false
-			}
-		}
-		
-		_startLine = _line
-		_startColumn = _column
-	}
-	
-	function lex() : TOKEN
-	{
-		while (_ch != null)
-		{
-			ws()
-			
-			switch (_ch)
-			{
-				case $'/':
-					next()
-					switch (_ch)
-					{
-						case $'*': 
-							next()
-							lexBlockComment()
-							continue
-						case $'/':
-							do { next() } while (_ch != $'\n' && _ch != null)
-							continue
-						case $'=':
-							next()
-							return token = TOKEN.DIVEQ
-						default:
-							return token = $'/'
-					}
-					
-				case $'=':
-					next()
-					if (_ch == $'>') { next(); return token = TOKEN.LAMBDA }
-					if (_ch != $'=') { return token = $'=' }
-					else { next(); return token = TOKEN.EQ }
-					
-				case $'<':
-					next()
-					switch (_ch)
-					{
-						case $'=':
-							next(); 
-							if (_ch == $'>') { next(); return token = TOKEN.THREEWAYSCMP }
-							return token = TOKEN.LE
-						case $'<':
-							next(); return token = TOKEN.SHIFTL
-					}
-					return token = $'<'
-				
-				case $'>':
-					next()
-					if (_ch == $'=') { next(); return token = TOKEN.GE }
-					if (_ch != $'>') return token = $'>'
-					next()
-					if (_ch == $'>') { next(); return token = TOKEN.USHIFTR }
-					return token = TOKEN.SHIFTR
-					
-				case $'!':
-					next()
-					if (_ch != $'=') return token = $'!'
-					next(); return token = TOKEN.NE
-					
-				case $'@':
-					next()
-					if (_ch != $'"' && _ch != $"'") return token = $'@'
-					var stype = readString(_ch, true)
-					if (stype != -1) return token = stype
-					throw "error parsing the string"
-					
-				case $'"':
-				case $"'":
-					var stype = readString(_ch, false)
-					if (stype != -1) return token = stype
-					throw "error parsing the string"
-					
-				case $'{': case $'}': case $'(': case $')': case $'[': case $']': 
-				case $';': case $',': case $'?': case $'^': case $'~':
-					var tk = _ch; next(); return token = tk
-					
-				case $'.':
-					next()
-					if (_ch != $'.') return token = $'.'
-					next()
-					if (_ch != $'.') throw "invalid token '..'"
-					next()
-					return token = TOKEN.VARPARAMS
-				
-				case $'&':
-					next()
-					if (_ch != $'&') return token = $'&'
-					next(); return token = TOKEN.AND
-				
-				case $'|':
-					next()
-					if (_ch != $'|') return token = $'|'
-					next(); return token = TOKEN.OR
-					
-				case $':':
-					next()
-					if (_ch == $'=') { next(); return token = TOKEN.NEWSLOT }
-					if (_ch == $'>') { next(); return token = TOKEN.WITHREF }
-					if (_ch != $':') return token = $':'
-					next(); return token = TOKEN.DOUBLE_COLON
-					
-				case $'*':
-					next()
-					if (_ch == $'=') { next(); return token = TOKEN.MULEQ }
-					return token = $'*'
-					
-				case $'%':
-					next()
-					if (_ch == $'=') { next(); return token = TOKEN.MODEQ }
-					return token = $'%'
-					
-				case $'-':
-					next()
-					if (_ch == $'=') { next(); return token = TOKEN.MINUSEQ }
-					if (_ch == $'-') { next(); return token = TOKEN.MINUSMINUS }
-					return token = $'-'
-					
-				case $'+':
-					next()
-					if (_ch == $'=') { next(); return token = TOKEN.PLUSEQ }
-					if (_ch == $'+') { next(); return token = TOKEN.PLUSPLUS }
-					return token = $'+'
-				
-				case null:
-					return null
-					
-				default:
-					if (isdigit(_ch))
-						return token = readNumber()
-						
-					if (isalpha(_ch) || _ch == $'_')
-						return token = readIdentifier()
-					
-					if (_ch < $' ')
-						throw "unexpected character(control)"
-
-					token = _ch; next()
-					return token
-			}
-		}
-	}
-	
-	function lexBlockComment()
-	{
-		var done = false
-		while (!done)
-		{
-			switch (_ch)
-			{
-				case $'*': 
-					next()
-					if (_ch == $'/') { done = true; next() }
-					continue
-					
-				case $'\n':
-					++_line
-					next()
-					continue
-					
-				case null:
-					throw 'missing "*/" in coment'
-				
-				default:
-					next()
-			}
-		}
-	}
-	
-	function hexToInt(hex: string): int
-	{
-		var value = 0
-		
-		foreach (ch in hex)
-		{
-			var digit = 0
-			if ($'0' <= _ch && _ch <= $'9')
-				digit = _ch - $'0'
-			else if ($'a' <= _ch && _ch <= 'f')
-				digit = _ch - $'a' + 10
-			else if ($'A' <= _ch && _ch <= 'F')
-				digit = _ch - $'A' + 10
-				
-			value = value * 16 + digit
-		}
-		
-		return value
-	}
-
-	function octToInt(oct: string): int
-	{
-		var value = 0
-		
-		foreach (ch in oct)
-		{
-			var digit = 0
-			if ($'0' <= _ch && _ch <= $'9')
-				digit = _ch - $'0'
-				
-			value = value * 8 + digit
-		}
-		
-		return value
-	}
-	
-	function readString(delim: int, verbatim: bool) : TOKEN
-	{
-		next()
-		if (_ch == null) return -1
-		
-		var str = ""
-		
-		while (true)
-		{
-			while (_ch != delim)
-			{
-				switch (_ch)
-				{
-					case null:
-						throw "unfinished string"
-						
-					case $'\n':
-						if (!verbatim) throw "newline in a constant"
-						str += format("%c", _ch) // TODO: slow
-						next()
-						++_line
-						break
-						
-					case $'\\':
-						if (verbatim) { str += '\\'; next() }
-						else 
-						{
-							next()
-							switch (_ch)
-							{
-								case $'x': case $'u':
-									next()
-									if (!isxdigit(_ch)) throw "hexadecimal number expected"
-									var temp = ""
-									for (var n = 0; n < 4; ++n)
-										temp += format("%c", _ch)
-									var unichar = hexToInt(temp)
-									str += format("%c", unichar)
-									break
-									
-								case $'t': str += '\t'; next(); break
-								case $'a': str += '\a'; next(); break
-								case $'b': str += '\b'; next(); break
-								case $'n': str += '\n'; next(); break
-								case $'r': str += '\r'; next(); break
-								case $'v': str += '\v'; next(); break
-								case $'f': str += '\f'; next(); break
-								case $'0': str += '\0'; next(); break
-								case $'\\': str += '\\'; next(); break
-								case $'"': str += '"'; next(); break
-								case $"'": str += "'"; next(); break
-								case $'/': str += '/'; next(); break
-								default: throw "unrecognised escaper char"
-							}
-						}
-						break
-						
-					default:
-						str += format("%c", _ch)
-						next()
-				}
-			}
-			next()
-			
-			if (!verbatim) break
-			
-			if (_ch == $'@')
-			{
-				next()
-				break
-			}
-			
-			str += format("%c", delim)
-		}
-		
-		_value = str
-		return TOKEN.STRING_LITERAL
-	}
-
-	function readIdentifier(): TOKEN
-	{
-		var id = ""
-		do
-		{
-			id += format("%c", _ch) // TODO: slow, implement addChar(ch) to string
-			next()
-		}
-		while (isalnum(_ch) || _ch == $'_')
-		
-		_value = id
-		return getIdentifierType(_value)
-	}
-	
-	function getIdentifierType(value): TOKEN
-	{
-		var tk = try _keywords.rawget(value)
-		
-		return tk ? tk : TOKEN.IDENTIFIER
-	}
-	
-	static NUMTYPE = 
-	{
-		INT = 1
-		FLOAT = 2
-		HEX = 3
-		SCIENTIFIC = 4
-		OCTAL = 5
-	}
-	
-	function isexponent(ch: int): bool { return ch == 'e' || ch == 'E' }
-	
-	function readNumber(): TOKEN
-	{
-		var first = _ch
-		var type = NUMTYPE.INT
-		var temp = ""
-		next()
-		if (first == $'0' && (_ch == $'X' || _ch == $'x' || isodigit(_ch)))
-		{
-			if (isodigit(_ch))
-			{
-				type = NUMTYPE.OCTAL
-				while (isodigit(_ch))
-				{
-					temp += format("%c", _ch)
-					next()
-				}
-				
-				if (isdigit(_ch))
-					error("invalid octal number")
-			}
-			else
-			{
-				next()
-				type = NUMTYPE.HEX
-				while (isxdigit(_ch))
-				{
-					temp += format("%c", _ch)
-					next()
-				}
-				if (temp.len() > 8)
-					error("too many digits for an hex number")
-			}
-		}
-		else
-		{
-			temp += format("%c", first)
-			while (_ch == $'.' || isdigit(_ch) || isexponent(_ch))
-			{
-				if (_ch == $'.') type = NUMTYPE.FLOAT
-				else if (isexponent(_ch))
-				{
-					if (type == NUMTYPE.INT) type = NUMTYPE.FLOAT
-					if (type != NUMTYPE.FLOAT) error("invalid numeric format")
-					type = NUMTYPE.SCIENTIIC
-					temp += format("%c", _ch)
-					next()
-					if (_ch == $'+' || _ch == '-')
-					{
-						temp += format("%c", _ch)
-						next()
-					}
-					if (!isdigit(_ch)) error("exponent expected")
-				}
-				
-				temp += format("%c", _ch)
-				next()
-			}
-		}
-		
-		switch (type)
-		{
-			case NUMTYPE.SCIENTIFIC:
-			case NUMTYPE.FLOAT:
-				_value = temp.tofloat()
-				return TOKEN.FLOAT
-				
-			case NUMTYPE.INT:
-				_value = temp.tointeger()
-				return TOKEN.INTEGER
-				
-			case NUMTYPE.HEX:
-				_value = hexToInt(temp)
-				return TOKEN.INTEGER
-				
-			case NUMTYPE.OCTAL:
-				_value = octToInt(temp)
-				return TOKEN.INTEGER
-		}
-	}
-}
-
-nitdev.Lexer._keywords with
-{
-	foreach (key in keys()) this[this[key]] := key
-}
-
-////////////////////////////////////////////////////////////////////////////////
 
 import nitdev
 	
-class nitdev.Parser
+class nitdev.NitParser
 {
 	constructor(source)
 	{
-		_lexer = Lexer(source)
+		_lexer = NitLexer()
+		_lexer.start(source)
 	}
 
 	var _lexer: Lexer
@@ -695,10 +51,10 @@ class nitdev.Parser
 		}
 	
 		lex()
-		while (_token != null)
+		while (_token)
 		{
 			statement()
-			if (_lexer._prevToken != $'}' && _lexer._prevToken != $';')
+			if (_lexer.prevToken != $'}' && _lexer.prevToken != $';')
 				optionalSemicolon()
 		}
 		
@@ -714,8 +70,8 @@ class nitdev.Parser
 			_stepTime = system.clock() + _stepTimeLimit
 		}
 	
-		_prevEndLine = _lexer._endLine
-		_prevEndColumn = _lexer._endColumn
+		_prevEndLine = _lexer.endLine
+		_prevEndColumn = _lexer.endColumn
 		
 		_token = _lexer.lex()
 		
@@ -782,8 +138,8 @@ class nitdev.Parser
 	
 	function beginNode(kind: string): SyntaxNode
 	{
-		var startLine = _lexer._startLine
-		var startColumn = _lexer._startColumn
+		var startLine = _lexer.startLine
+		var startColumn = _lexer.startColumn
 		var parent = currNode()
 		
 		var node = SyntaxNode() with
@@ -860,13 +216,13 @@ class nitdev.Parser
 		if (_token == $':') lex()
 		
 		var ns = null
-		var id = expect(TOKEN.IDENTIFIER)
+		var id = expect(TOKEN.ID)
 		
 		while (_token == $'.')
 		{
 			lex()
 			ns = ns ? (ns + "." + id) : id
-			id = expect(TOKEN.IDENTIFIER)
+			id = expect(TOKEN.ID)
 		}
 
 		tag.namespace = ns
@@ -902,7 +258,7 @@ class nitdev.Parser
 	function typedId(treatKeywordAsIdentifier = false): TypedId
 	{
 		var tid = TypedId()
-		tid.id = expect(TOKEN.IDENTIFIER, treatKeywordAsIdentifier)
+		tid.id = expect(TOKEN.ID, treatKeywordAsIdentifier)
 		
 		if (_token == $':')
 			tid.type = typeTag()
@@ -915,7 +271,7 @@ class nitdev.Parser
 		while (_token != $'}' && _token != TOKEN.DEFAULT && _token != TOKEN.CASE)
 		{
 			statement()
-			if (_lexer._prevToken != $'}' && _lexer._prevToken != $';')
+			if (_lexer.prevToken != $'}' && _lexer.prevToken != $';')
 				optionalSemicolon()
 		}
 	}
@@ -1191,7 +547,7 @@ class nitdev.Parser
 				
 				case $'.':
 					lex()
-					expect(TOKEN.IDENTIFIER, true)
+					expect(TOKEN.ID, true)
 					break
 					
 				case $'[':
@@ -1232,14 +588,14 @@ class nitdev.Parser
 	{
 		switch (_token)
 		{
-			case TOKEN.STRING_LITERAL:
+			case TOKEN.STRING:
 				lex(); break
 				
 			case TOKEN.BASE:
 				lex()
 				return
 				
-			case TOKEN.IDENTIFIER:
+			case TOKEN.ID:
 			case TOKEN.CONSTRUCTOR:
 			case TOKEN.VARPARAMS:
 			case TOKEN.THIS:
@@ -1251,7 +607,7 @@ class nitdev.Parser
 				return
 				
 			case TOKEN.NULL: lex(); break
-			case TOKEN.INTEGER: lex(); break
+			case TOKEN.INT: lex(); break
 			case TOKEN.FLOAT: lex(); break
 			
 			case TOKEN.TRUE: 
@@ -1260,7 +616,7 @@ class nitdev.Parser
 				
 			case $'$':
 				lex()
-				if (_token != TOKEN.STRING_LITERAL)
+				if (_token != TOKEN.STRING)
 					error("invalid character literal")
 				lex()
 				break
@@ -1296,7 +652,7 @@ class nitdev.Parser
 				lex()
 				switch (_token)
 				{
-					case TOKEN.INTEGER: lex(); break
+					case TOKEN.INT: lex(); break
 					case TOKEN.FLOAT: lex(); break
 					default: unaryOp('-')
 				}
@@ -1307,7 +663,7 @@ class nitdev.Parser
 			case TOKEN.TRY: tryExpr(); break
 			case $'~': 
 				lex()
-				if (_token == TOKEN.INTEGER) lex()
+				if (_token == TOKEN.INT) lex()
 				else unaryOp('~')
 				break
 				
@@ -1396,7 +752,7 @@ class nitdev.Parser
 				case TOKEN.FUNCTION:
 					var tk = _token
 					lex()
-					var id = expect(TOKEN.IDENTIFIER, true)
+					var id = expect(TOKEN.ID, true)
 					expect($'(')
 					createFunction(id)
 					break
@@ -1407,8 +763,8 @@ class nitdev.Parser
 					expression()
 					break
 					
-				case TOKEN.STRING_LITERAL: // JSON
-					var id = expect(TOKEN.STRING_LITERAL)
+				case TOKEN.STRING: // JSON
+					var id = expect(TOKEN.STRING)
 					if (_token == $'=')
 						lex()
 					else
@@ -1422,7 +778,7 @@ class nitdev.Parser
 					if (_token == $'=')
 					{
 						lex()
-						if (_token == TOKEN.INTEGER) enumValue = _lexer.value + 1
+						if (_token == TOKEN.INT) enumValue = _lexer.intValue + 1
 						expression()
 					}
 					else enumValue++  // use enum value here
@@ -1471,7 +827,7 @@ class nitdev.Parser
 					else if (tk == TOKEN.DESTRUCTOR)
 						id = "destructor"
 					else
-						id = expect(TOKEN.IDENTIFIER, true)
+						id = expect(TOKEN.ID, true)
 					node.name = id
 					expect($'(')
 					var funcInfo = createFunction(id)
@@ -1489,8 +845,10 @@ class nitdev.Parser
 					{
 						if (!hasAttrs) warning("'#' needs attributes")
 						lex()
-						if (_token == TOKEN.INTEGER || _token == TOKEN.FLOAT)
-							propOrder = _lexer.value
+						if (_token == TOKEN.INT)
+							propOrder = _lexer.intValue
+						else if(_token == TOKEN.FLOAT)
+							propOrder = _lexer.floatValue
 						else
 							warning("invalid property #")
 						lex()
@@ -1512,7 +870,7 @@ class nitdev.Parser
 					isStatic = true
 					var node = beginNode('class')
 					lex()
-					var id = expect(TOKEN.IDENTIFIER)
+					var id = expect(TOKEN.ID)
 					node.name = id
 					classExpr()
 					endNode(node)
@@ -1562,9 +920,10 @@ class nitdev.Parser
 	
 	function propertyGetSet(id: string, allowed: string): bool
 	{
-		if (_token == TOKEN.IDENTIFIER)
+		if (_token == TOKEN.ID)
 		{
-			if (_lexer.value == "get" && allowed == "get")
+			var tokstr = _lexer.stringValue
+			if (tokstr == "get" && allowed == "get")
 			{
 				lex()
 				if (_token != $'{')
@@ -1574,7 +933,7 @@ class nitdev.Parser
 				return true
 			}
 			
-			if (_lexer.value == "set" && allowed == "set")
+			if (tokstr == "set" && allowed == "set")
 			{
 				lex()
 				createFunction(id, false, false, true)
@@ -1590,7 +949,7 @@ class nitdev.Parser
 		if (_token == TOKEN.FUNCTION)
 		{
 			lex()
-			var id = expect(TOKEN.IDENTIFIER)
+			var id = expect(TOKEN.ID)
 			expect($'(')
 			createFunction(id, true)
 			return
@@ -1745,7 +1104,7 @@ class nitdev.Parser
 		
 		lex()
 		var ns = null
-		var id = expect(TOKEN.IDENTIFIER)
+		var id = expect(TOKEN.ID)
 		
 		while (_token == $'.' || _token == TOKEN.DOUBLE_COLON)
 		{
@@ -1754,7 +1113,7 @@ class nitdev.Parser
 			
 			lex()
 			ns = ns ? (ns + "." + id) : (id)
-			id = expect(TOKEN.IDENTIFIER)
+			id = expect(TOKEN.ID)
 		}
 		
 		node with
@@ -1779,13 +1138,13 @@ class nitdev.Parser
 		lex()
 		
 		var ns = null
-		var id = expect(TOKEN.IDENTIFIER)
+		var id = expect(TOKEN.ID)
 		
 		while (_token == $'.')
 		{
 			lex()
 			ns = ns ? (ns + "." + id) : id
-			id = expect(TOKEN.IDENTIFIER)
+			id = expect(TOKEN.ID)
 		}
 		
 		node with
@@ -1817,7 +1176,7 @@ class nitdev.Parser
 		if (_token == TOKEN.CATCH)
 		{
 			lex(); expect($'('); 
-			var exid = expect(TOKEN.IDENTIFIER); 
+			var exid = expect(TOKEN.ID); 
 			expect($')')
 			
 			beginScope()
@@ -1970,9 +1329,9 @@ class nitdev.Parser
 				funcInfo.type = type
 			}
 				
-			if (_token == TOKEN.STRING_LITERAL)
+			if (_token == TOKEN.STRING)
 			{
-				funcInfo.help = expect(TOKEN.STRING_LITERAL)
+				funcInfo.help = expect(TOKEN.STRING)
 			}
 		}
 		
@@ -2002,7 +1361,7 @@ class nitdev.Parser
 	
 	function isEndOfStmt() : bool
 	{
-		return (_lexer._prevToken == $'\n' || _token == null || _token == $'}' || _token == $';' )
+		return (_lexer.prevToken == $'\n' || _token == TOKEN.EOS || _token == $'}' || _token == $';' )
 	}
 	
 	function optionalSemicolon()
@@ -2037,14 +1396,14 @@ class nitdev.Parser
 	function expect(token: TOKEN, treatKeywordAsIdentifier = false): value
 	{
 		if (treatKeywordAsIdentifier && _token >= TOKEN.KEYWORD_START)
-			_token = TOKEN.IDENTIFIER
+			_token = TOKEN.ID
 
 		if (_token != token)
 		{
 			throw format("expected '%s'", TOKEN.rawget(token))
 		}
 		
-		var value = _lexer.value
+		var value = _lexer.stringValue
 		lex()
 		return value
 	}
@@ -2057,15 +1416,16 @@ function lexTest(text: string=null)
 	if (text == null)
 		text = session.package.open("*.nit").buffer().toString()
 		
-	l := nitdev.Lexer(text)
+	l := nitdev.NitLexer()
+	l.start(text)
 	
 	var token
 	while (token = l.lex())
 	{
 		switch (token)
 		{
-			case TOKEN.IDENTIFIER: print("id(" + l._value + ")"); break
-			case TOKEN.STRING_LITERAL: print("str(" + l._value + ")"); break
+			case TOKEN.ID: print("id(" + l.stringValue + ")"); break
+			case TOKEN.STRING: print("str(" + l.stringValue + ")"); break
 			default:  print(TOKEN[token])
 		}
 	}
@@ -2089,15 +1449,15 @@ function parserTest(text: string=null)
 	if (text == null)
 		text = session.package.open("nitdev.parser.nit").buffer().toString()
 		
-	a := nitdev.Parser(text)
+	a := nitdev.NitParser(text)
 	
 	try
-	{
 		a.compile()
-	}
 	catch (ex)
 		printf("*** %s at line %d column %d", ex, a._lexer.line, a._lexer.column)
-	listNodes(a.root)
+
+	// listNodes(a.root)
+
 	// foreach (kind, nodesOfKind in a._nodes)
 		// nodesOfKind.each by (n) => print(n)
 }
@@ -2111,8 +1471,8 @@ function parserTests()
 		foreach (nitfile in session.package.find("*.nit"))
 		{
 			var tw = TimeWatch(nitfile.tostring())
-			var text = nitfile.open().buffer().toString()
-			parserTest(text)
+			//var text = nitfile.open().buffer().toString(); parserTest(text)
+			parserTest(nitfile.open())
 		}
 	}
 }

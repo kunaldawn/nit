@@ -40,6 +40,20 @@ public:
 	{
 		PropEntry props[] =
 		{
+			PROP_ENTRY_R(line),
+			PROP_ENTRY_R(column),
+
+			PROP_ENTRY_R(prevToken),
+
+			PROP_ENTRY_R(token),
+			PROP_ENTRY_R(startLine),
+			PROP_ENTRY_R(startColumn),
+			PROP_ENTRY_R(endLine),
+			PROP_ENTRY_R(endColumn),
+
+			PROP_ENTRY_R(stringValue),
+			PROP_ENTRY_R(intValue),
+			PROP_ENTRY_R(floatValue),
 			NULL
 		};
 
@@ -53,7 +67,104 @@ public:
 		};
 
 		bind(v, props, funcs);
+
+#define TOK(TOKEN) newSlot(v, -1, #TOKEN, (int)type::TK_##TOKEN)
+
+		addStaticTable(v, "TOKEN");
+
+		TOK(NONE);
+		TOK(EOS);
+		TOK(EOL);
+		TOK(STRING);
+		TOK(ID);
+		TOK(INT);
+		TOK(FLOAT);
+		TOK(ERROR);
+
+		TOK(OPERATOR_START);
+		TOK(EQ);
+		TOK(NE);
+		TOK(LE);
+		TOK(GE);
+		TOK(AND);
+		TOK(OR);
+		TOK(NEWSLOT);
+		TOK(PLUSEQ);
+		TOK(MINUSEQ);
+		TOK(SHIFTL);
+		TOK(SHIFTR);
+		TOK(DOUBLE_COLON);
+		TOK(PLUSPLUS);
+		TOK(MINUSMINUS);
+		TOK(THREEWAYSCMP);
+		TOK(USHIFTR);
+		TOK(VARPARAMS);
+		TOK(MULEQ);
+		TOK(DIVEQ);
+		TOK(MODEQ);
+		TOK(LAMBDA);
+		TOK(WITHREF);
+
+		TOK(KEYWORD_START);
+		TOK(BASE);
+		TOK(SWITCH);
+		TOK(IF);
+		TOK(ELSE);
+		TOK(WHILE);
+		TOK(BREAK);
+		TOK(FOR);
+		TOK(DO);
+		TOK(NULL);
+		TOK(FOREACH);
+		TOK(IN);
+		TOK(CLONE);
+		TOK(FUNCTION);
+		TOK(RETURN);
+		TOK(TYPEOF);
+		TOK(CONTINUE);
+		TOK(YIELD);
+		TOK(TRY);
+		TOK(CATCH);
+		TOK(THROW);
+		TOK(RESUME);
+		TOK(CASE);
+		TOK(DEFAULT);
+		TOK(THIS);
+		TOK(CLASS);
+		TOK(CONSTRUCTOR);
+		TOK(IS);
+		TOK(TRUE);
+		TOK(FALSE);
+		TOK(STATIC);
+		TOK(ENUM);
+		TOK(CONST);
+		TOK(PROPERTY);
+		TOK(REQUIRE);
+		TOK(INTDIV);
+		TOK(INTMOD);
+		TOK(DESTRUCTOR);
+		TOK(VAR);
+		TOK(WITH);
+		TOK(FINALLY);
+		TOK(IMPORT);
+		TOK(BY);
+
+		sq_poptop(v);
+
+#undef TOK
 	}
+
+	NB_PROP_GET(line)					{ return push(v, self(v)->getLine()); }
+	NB_PROP_GET(column)					{ return push(v, self(v)->getColumn()); }
+	NB_PROP_GET(prevToken)				{ return push(v, self(v)->getPrevToken().token); }
+	NB_PROP_GET(token)					{ return push(v, self(v)->getToken().token); }
+	NB_PROP_GET(startLine)				{ return push(v, self(v)->getToken().startLine); }
+	NB_PROP_GET(startColumn)			{ return push(v, self(v)->getToken().startColumn); }
+	NB_PROP_GET(endLine)				{ return push(v, self(v)->getToken().endLine); }
+	NB_PROP_GET(endColumn)				{ return push(v, self(v)->getToken().endColumn); }
+	NB_PROP_GET(stringValue)			{ return push(v, self(v)->getToken().stringValue); }
+	NB_PROP_GET(intValue)				{ return push(v, self(v)->getToken().intValue); }
+	NB_PROP_GET(floatValue)				{ return push(v, self(v)->getToken().floatValue); }
 
 	NB_CONS()							{ setSelf(v, new type()); return SQ_OK; }
 

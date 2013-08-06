@@ -145,6 +145,7 @@ public:
 
 	virtual Token						lex();
 	const TokenInfo&					getToken()								{ return _token; }
+	const TokenInfo&					getPrevToken()							{ return _prevToken; }
 
 	void								setKeywords(Keywords* keywords)			{ _keywords = keywords; }
 
