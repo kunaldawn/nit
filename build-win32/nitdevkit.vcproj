@@ -172,6 +172,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\src\nitdevkit\NitDevParser.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\src\nitdevkit\NitDevParser.h"
+			>
+		</File>
+		<File
 			RelativePath="..\src\nitdevkit\NitLibDevKit.cpp"
 			>
 		</File>

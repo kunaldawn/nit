@@ -20,68 +20,101 @@
 ///
 /// Author: ellongrey
 
-#include "nitdevkit_pch.h"
+#pragma once
 
-#include "nitdevkit/NitDevParser.h"
+#include "nit/data/ParserUtil.h"
 
-#include "nit/script/NitBind.h"
-#include "nit/script/NitBindMacro.h"
-
-NS_NIT_BEGIN;
+NS_NITDEV_BEGIN
 
 ////////////////////////////////////////////////////////////////////////////////
 
-NB_TYPE_AUTODELETE(NITDEVKIT_API, nitdev::NitLexer, NULL, delete);
-
-class NB_NitLexer : TNitClass<nitdev::NitLexer>
+class NITDEVKIT_API NitLexer : public LexerBase
 {
 public:
-	static void Register(HSQUIRRELVM v)
+	enum NitToken
 	{
-		PropEntry props[] =
-		{
-			NULL
-		};
+		TK_OPERATOR_START = 256,
 
-		FuncEntry funcs[] =
-		{
-			CONS_ENTRY_H(				"()"),
-			FUNC_ENTRY_H(start,			"(reader: StreamReader)"
-			"\n"						"(str: string)"),
-			FUNC_ENTRY_H(lex,			"(): TOKEN"),
-			NULL
-		};
+		TK_EQ,				// ==
+		TK_NE,				// !=
+		TK_LE,				// <=
+		TK_GE,				// >=
+		TK_AND,				// &&
+		TK_OR,				// ||
+		TK_NEWSLOT,			// :=
+		TK_PLUSEQ,			// +=
+		TK_MINUSEQ,			// -=
+		TK_SHIFTL,			// <<
+		TK_SHIFTR,			// >>
+		TK_DOUBLE_COLON,	// ::
+		TK_PLUSPLUS,		// ++
+		TK_MINUSMINUS,		// --
+		TK_3WAYSCMP,		// <=>
+		TK_USHIFTR,			// >>>
+		TK_VARPARAMS,		// ...
+		TK_MULEQ,			// *=
+		TK_DIVEQ,			// /=
+		TK_MODEQ,			// %=
+		TK_LAMBDA,			// =>
+		TK_WITHREF,			// :>
 
-		bind(v, props, funcs);
-	}
+		TK_KEYWORD_START = 1024,
 
-	NB_CONS()							{ setSelf(v, new type()); return SQ_OK; }
+		TK_BASE,
+		TK_SWITCH,
+		TK_IF,
+		TK_ELSE,
+		TK_WHILE,
+		TK_BREAK,
+		TK_FOR,
+		TK_DO,
+		TK_NULL,
+		TK_FOREACH,
+		TK_IN,
+		TK_CLONE,
+		TK_FUNCTION,
+		TK_RETURN,
+		TK_TYPEOF,
+		TK_CONTINUE,
+		TK_YIELD,
+		TK_TRY,
+		TK_CATCH,
+		TK_THROW,
+		TK_RESUME,
+		TK_CASE,
+		TK_DEFAULT,
+		TK_THIS,
+		TK_CLASS,
+		TK_CONSTRUCTOR,
+		TK_IS,
+		TK_TRUE,
+		TK_FALSE,
+		TK_STATIC,
+		TK_ENUM,
+		TK_CONST,
+		TK_PROPERTY,
+		TK_REQUIRE,
+		TK_INTDIV,
+		TK_INTMOD,
+		TK_DESTRUCTOR,
+		TK_VAR,
+		TK_WITH,
+		TK_FINALLY,
+		TK_IMPORT,
+		TK_BY,
+	};
 
-	NB_FUNC(start)
-	{
-		if (isString(v, 2))
-		{
-			size_t len = sq_getsize(v, 2);
-			self(v)->start(getString(v, 2), len);
-		}
-		else
-		{
-			self(v)->start(get<StreamReader>(v, 2));
-		}
-		return 0;
-	}
+public:
+	NitLexer();
 
-	NB_FUNC(lex)						{ return push(v, (int) self(v)->lex()); }
+public:
+	virtual Token						lex();
+
+public:
+	void								start(StreamReader* reader)				{ return LexerBase::start(reader); }
+	void								start(const void* buf, size_t len);
+	void								start(const String& str)				{ start(str.c_str(), str.size()); }
 };
-
 ////////////////////////////////////////////////////////////////////////////////
 
-NITDEVKIT_API SQRESULT NitLibDevKit(HSQUIRRELVM v)
-{
-	nitdev::NB_NitLexer::Register(v);
-	return SQ_OK;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-NS_NIT_END;
+NS_NITDEV_END
