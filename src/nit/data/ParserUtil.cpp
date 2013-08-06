@@ -658,23 +658,7 @@ void CmdLineParser::addSection(Ref<Settings> shellSection)
 
 LexerBase::LexerBase()
 {
-	_source								= NULL;
-
-	_ch									= CHAR_EOS;
-
-	_token.token						= TK_NONE;
-	_token.startLine					= 1;
-	_token.startColumn					= 1;
-	_token.endLine						= 1;
-	_token.endColumn					= 1;
-	_token.intValue						= 0;
-	_token.floatValue					= 0.0f;
-	_token.stringValue.clear();
-
-	_prevToken = _token;
-
-	_line = 1;
-	_column = 0;
+	_reader = NULL;
 }
 
 LexerBase::~LexerBase()
@@ -692,11 +676,52 @@ enum
 	MAX_HEX_DIGITS = sizeof(int) * 2
 };
 
-void LexerBase::start(LexerSource* source)
+void LexerBase::start(StreamReader* reader)
 {
-	_source = source;
+	// Stream must be seekable
+	if (reader->isSeekable())
+		_reader = reader;
+	else
+		_reader = new MemoryBuffer::Reader(reader);
+
+	// Initialize states
+	_ch									= CHAR_EOS;
+
+	_token.token						= TK_NONE;
+	_token.startLine					= 1;
+	_token.startColumn					= 1;
+	_token.endLine						= 1;
+	_token.endColumn					= 1;
+	_token.intValue						= 0;
+	_token.floatValue					= 0.0f;
+	_token.stringValue.clear();
+
+	_prevToken = _token;
+
+	_line = 1;
+	_column = 0;
 
 	next();
+
+	if (_ch == 65279) // UTF-8 BOM
+	{
+		--_column;
+		next();
+	}
+}
+
+LexerBase::Char LexerBase::next()
+{
+	Char ch = _ch; 
+
+	_ch = Unicode::utf8ReadChar(_reader);
+
+	if (_ch == -1)
+		_ch = CHAR_EOS;
+	else
+		++_column; 
+
+	return ch;
 }
 
 static inline int isoctdigit(int c) 
@@ -736,7 +761,7 @@ LexerBase::Token LexerBase::readNumber()
 {
 	int type = NT_INT;
 	int firstChar = _ch;
-	_stringBuf.resize(0);
+	bufClear();
 	next();
 
 	if (firstChar == '0' && (toupper(_ch) == 'X' || isoctdigit(_ch)))
@@ -746,7 +771,7 @@ LexerBase::Token LexerBase::readNumber()
 			type = NT_OCTAL;
 			while (isoctdigit(_ch))
 			{
-				_stringBuf.push_back(_ch);
+				bufAddChar(_ch);
 				next();
 			}
 			if (isdigit(_ch))
@@ -758,7 +783,7 @@ LexerBase::Token LexerBase::readNumber()
 			type = NT_HEX;
 			while (isxdigit(_ch))
 			{
-				_stringBuf.push_back(_ch);
+				bufAddChar(_ch);
 				next();
 			}
 			if (_stringBuf.size() > MAX_HEX_DIGITS)
@@ -767,7 +792,7 @@ LexerBase::Token LexerBase::readNumber()
 	}
 	else
 	{
-		_stringBuf.push_back(firstChar);
+		bufAddChar(firstChar);
 		while (_ch == '.' || isdigit(_ch) || isexponent(_ch))
 		{
 			if (_ch == '.')
@@ -777,26 +802,26 @@ LexerBase::Token LexerBase::readNumber()
 				if (type == NT_INT) type = NT_FLOAT;
 				if (type != NT_FLOAT) error("invalid numeric format");
 				type = NT_SCIENTIFIC;
-				_stringBuf.push_back(_ch);
+				bufAddChar(_ch);
 				next();
 				if (_ch == '+' || _ch == '-')
 				{
-					_stringBuf.push_back(_ch);
+					bufAddChar(_ch);
 					next();
 				}
 				if (!isdigit(_ch))
 					error("exponent expected");
 			}
-			_stringBuf.push_back(_ch);
+			bufAddChar(_ch);
 			next();
 		}
 	}
 
 	char* sTemp;
 
-	_token.stringValue.assign(_stringBuf.begin(), _stringBuf.end());
+	bufToString(_token.stringValue);
 
-	_stringBuf.push_back(0);
+	bufAddChar(0);
 
 	switch (type)
 	{
@@ -889,15 +914,15 @@ LexerBase::Token LexerBase::token(int tok)
 
 LexerBase::Token LexerBase::readId()
 {
-	_stringBuf.resize(0);
+	bufClear();
 	do
 	{
-		_stringBuf.push_back(_ch);
+		bufAddChar(_ch);
 		next();
 	}
 	while (isId(_ch));
 
-	_token.stringValue.assign(_stringBuf.begin(), _stringBuf.end());
+	bufToString(_token.stringValue);
 
 	if (_keywords == NULL)
 		return TK_ID;
@@ -910,9 +935,21 @@ LexerBase::Token LexerBase::readId()
 	return itr->second;
 }
 
-LexerBase::Token LexerBase::readString(CharType delim, bool verbatim)
+void LexerBase::bufAddChar(Char ch)
 {
-	_stringBuf.resize(0);
+	if (ch < 128)
+		_stringBuf.push_back(ch);
+	else
+	{
+		char utf8seq[4];
+		size_t utf8len = Unicode::toUtf8Char(ch, utf8seq);
+		_stringBuf.insert(_stringBuf.end(), utf8seq, utf8seq + utf8len);
+	}
+}
+
+LexerBase::Token LexerBase::readString(Char delim, Char verbatim)
+{
+	bufClear();
 	next();
 
 	if (isEos()) return -1;
@@ -929,14 +966,14 @@ LexerBase::Token LexerBase::readString(CharType delim, bool verbatim)
 
 			case '\n':
 				if (!verbatim) error("newline in a constant");
-				_stringBuf.push_back(_ch);
+				bufAddChar(_ch);
 				newLine();
 				break;
 
 			case '\\':
 				if (verbatim)
 				{
-					_stringBuf.push_back(_ch);
+					bufAddChar(_ch);
 					next();
 				}
 				else
@@ -944,14 +981,14 @@ LexerBase::Token LexerBase::readString(CharType delim, bool verbatim)
 					next();
 					switch (_ch)
 					{
-					case '"': _stringBuf.push_back('\"'); next(); break;
-					case '\\': _stringBuf.push_back('\\'); next(); break;
-					case '\'': _stringBuf.push_back('\''); next(); break;
-					case 'b': _stringBuf.push_back('\b'); next(); break;
-					case 'f': _stringBuf.push_back('\f'); next(); break;
-					case 'n': _stringBuf.push_back('\n'); next(); break;
-					case 'r': _stringBuf.push_back('\r'); next(); break;
-					case 't': _stringBuf.push_back('\t'); next(); break;
+					case '"': bufAddChar('\"'); next(); break;
+					case '\\': bufAddChar('\\'); next(); break;
+					case '\'': bufAddChar('\''); next(); break;
+					case 'b': bufAddChar('\b'); next(); break;
+					case 'f': bufAddChar('\f'); next(); break;
+					case 'n': bufAddChar('\n'); next(); break;
+					case 'r': bufAddChar('\r'); next(); break;
+					case 't': bufAddChar('\t'); next(); break;
 					case 'x': case 'u':
 						{
 							next();
@@ -968,14 +1005,7 @@ LexerBase::Token LexerBase::readString(CharType delim, bool verbatim)
 							temp[n] = 0;
 							char* sTemp;
 							uint ch = strtoul(temp, &sTemp, 16);
-							if (ch < 128)
-								_stringBuf.push_back(ch);
-							else
-							{
-								char utf8seq[4];
-								size_t utf8len = Unicode::toUtf8Char(ch, utf8seq);
-								_stringBuf.insert(_stringBuf.end(), utf8seq, utf8seq + utf8len);
-							}
+							bufAddChar((Char)ch);
 						}
 						break;
 					default:
@@ -985,23 +1015,24 @@ LexerBase::Token LexerBase::readString(CharType delim, bool verbatim)
 				}
 				break;
 			default:
-				_stringBuf.push_back(_ch);
+				bufAddChar(_ch);
 				next();
 			}
 		}
 		next();
-		if (verbatim && _ch == '"')
+
+		if (verbatim == 0) break;
+
+		if (_ch == verbatim)
 		{
-			_stringBuf.push_back(_ch);
 			next();
-		}
-		else
-		{
 			break;
 		}
+
+		bufAddChar(delim);
 	}
 
-	_token.stringValue.assign(_stringBuf.begin(), _stringBuf.end());
+	bufToString(_token.stringValue);
 	return TK_STRING;
 }
 
@@ -1113,184 +1144,21 @@ void ParserBase::warning(const char* fmt, ...)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-template <typename TReader>
-static int LexerReaderASCII(void* context)
-{
-	TReader* r = (TReader*)context;
-	return r->isEof() ? 0 : r->readInt8();
-}
-
-template <typename TReader>
-static int LexerReaderUTF16LE(void* context)
-{
-	TReader* r = (TReader*)context;
-	int ch = r->isEof() ? 0 : r->readInt16();
-
-#if NIT_ENDIAN == NIT_ENDIAN_BIG
-	ch = ((ch >> 8) & 0x00FF) | ((ch << 8) & 0xFF00);
-#endif
-
-	return ch;
-}
-
-template <typename TReader>
-static int LexerReaderUTF16BE(void* context)
-{
-	TReader* r = (TReader*)context;
-	int ch = r->isEof() ? 0 : r->readInt16();
-
-#if NIT_ENDIAN == NIT_ENDIAN_LITTLE
-	ch = ((ch >> 8) & 0x00FF) | ((ch << 8) & 0xFF00);
-#endif
-
-	return ch;
-}
-
-template <typename TReader>
-static int LexerReaderUTF8(void* context)
-{
-	StreamReader* s = (StreamReader*)context;
-#define READ() if (s->readRaw(&inchar, 1) != sizeof(inchar)) return 0
-
-	static const int utf8_lengths[16] =
-	{
-		1,1,1,1,1,1,1,1,        /* 0000 to 0111 : 1 byte (plain ASCII) */
-		0,0,0,0,                /* 1000 to 1011 : not valid */
-		2,2,                    /* 1100, 1101 : 2 bytes */
-		3,                      /* 1110 : 3 bytes */
-		4                       /* 1111 :4 bytes */
-	};
-
-	static unsigned char byte_masks[5] = {0,0,0x1f,0x0f,0x07};
-	unsigned char inchar;
-	int c = 0;
-	READ();
-	c = inchar;
-	//
-	if(c >= 0x80) {
-		int tmp;
-		int codelen = utf8_lengths[c>>4];
-		if(codelen == 0) 
-			return 0;
-		//"invalid UTF-8 stream";
-		tmp = c&byte_masks[codelen];
-		for(int n = 0; n < codelen-1; n++) {
-			tmp<<=6;
-			READ();
-			tmp |= inchar & 0x3F;
-		}
-		c = tmp;
-	}
-	return c;
-
-#undef READ
-}
-
-template <typename TReader>
-static LexerSource::Reader LexerSelectReader(TReader* reader)
-{
-	LexerSource::Reader func = LexerReaderASCII<TReader>;
-
-	uint16 us;
-	uint8 uc;
-
-	reader->getReader()->seek(0);
-	int ret = reader->readRaw(&us, sizeof(us));
-	if (ret != 2)
-	{
-		// probably an empty file
-		us = 0;
-	}
-
-	switch (us)
-	{
-#if NIT_ENDIAN == NIT_ENDIAN_LITTLE
-	case 0xFFFE: func = LexerReaderUTF16LE<TReader>; break;//UTF-16 little endian;
-	case 0xFEFF: func = LexerReaderUTF16BE<TReader>; break;//UTF-16 big endian;
-	case 0xBBEF: 
-#endif
-
-#if NIT_ENDIAN == NIT_ENDIAN_BIG
-	case 0xFEFF: func = LexerReaderUTF16LE<TReader>; break;//UTF-16 little endian;
-	case 0xFFFE: func = LexerReaderUTF16BE<TReader>; break;//UTF-16 big endian;
-	case 0xEFBB: 
-#endif
-
-		if (reader->readRaw(&uc, sizeof(uc)) == 0)
-		{
-			NIT_THROW(EX_IO);
-		}
-		if (uc != 0xBF) 
-		{ 
-			NIT_THROW(EX_IO);
-		}
-
-		{
-			// TODO: At now, we will treat BOM prefixed utf-8 as plain ascii.
-			// TODO: Decide this later!
-			bool treatBOMPrefiedUTF8AsAscii = true;
-
-			if (treatBOMPrefiedUTF8AsAscii)
-				func = LexerReaderASCII<TReader>;
-			else
-				func = LexerReaderUTF8<TReader>;
-		}
-		break;
-	default: 
-		// ascii
-		reader->getReader()->seek(0);
-	}
-
-	return func;
-}
-
-LexerSource::LexerSource(Reader reader, void* context)
-{
-	_reader = reader;
-	_context = context;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 void IParser::parse(StreamReader* reader)
 {
-	if (reader->isSeekable())
-	{
-		TBinaryReader<StreamReader> r(reader);
-
-		parse(LexerSelectReader(&r), &r);
-	}
-	else
-	{
-		Ref<MemoryBuffer> buf = reader->buffer();
-		MemoryBuffer::Access m(buf);
-		TBinaryReader<MemoryAccess> r(&m);
-
-		parse(LexerSelectReader(&r), &r);
-	}
+	doParse(reader);
 }
 
 void IParser::parse(const void* buf, size_t len)
 {
-	MemoryAccess m(const_cast<void*>(buf), len);
-	TBinaryReader<MemoryAccess> r(&m);
-	parse(LexerSelectReader(&r), &r);
+	Ref<MemoryBuffer> mem = new MemoryBuffer(buf, len);
+	Ref<MemorySource> src = new MemorySource("$string", mem);
+	return parse(src->open());
 }
 
 void IParser::parse(const String& str)
 {
 	parse(str.c_str(), str.length());
-}
-
-void IParser::parse(LexerSource::Reader reader, void* context)
-{
-	LexerSource source(reader, context);
-	parse(&source);
-}
-
-void IParser::parse(LexerSource* source)
-{
-	doParse(source);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1345,6 +1213,9 @@ public:
 
 			switch (_ch)
 			{
+			case CHAR_EOS:
+				return token(TK_EOS);
+
 			case '/':
 				next();
 				switch (_ch)
@@ -1379,8 +1250,7 @@ public:
 			case '\'':
 				if (readString(_ch) != -1)
 					return token(TK_STRING);
-				error("error parsing the string");
-				break;
+				return error("error parsing the string");
 
 			default:
 				if (isdigit(_ch))
@@ -1388,7 +1258,7 @@ public:
 				else if (isId(_ch))
 					return token(readId());
 				else
-					error("unexpected character");
+					return error("unexpected character");
 			}
 		}
 
@@ -1406,11 +1276,11 @@ public:
 	{
 	}
 
-	virtual void parse(LexerSource* source)
+	virtual void parse(StreamReader* reader)
 	{
 		JSONLexer lexer;
 		_lexer = &lexer;
-		_lexer->start(source);
+		_lexer->start(reader);
 
 		_handler->documentBegin();
 
@@ -1541,10 +1411,10 @@ Json::Json(IHandler* emitter)
 	_emitter = emitter;
 }
 
-void Json::doParse(LexerSource* source)
+void Json::doParse(StreamReader* reader)
 {
 	JSONParser parser(_emitter);
-	parser.parse(source);
+	parser.parse(reader);
 }
 
 void Json::writeEscaped(StreamWriter* w, const char* str)

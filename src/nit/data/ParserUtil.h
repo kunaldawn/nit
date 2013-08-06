@@ -108,34 +108,12 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class NIT_API LexerSource
+class NIT_API LexerBase
 {
 public:
 	typedef int							Char;
 	typedef char						CharType;
 	typedef String						StringType;
-
-	typedef Char						(*Reader) (void* context);
-
-public:
-	LexerSource(Reader reader, void* context);
-
-public:
-	Char								read()									{ return _reader(_context); }
-
-private:
-	Reader								_reader;
-	void*								_context;
-};
-
-////////////////////////////////////////////////////////////////////////////////
-
-class NIT_API LexerBase
-{
-public:
-	typedef LexerSource::Char			Char;
-	typedef LexerSource::CharType		CharType;
-	typedef LexerSource::StringType		StringType;
 	typedef int							Token;
 
 	typedef unordered_map<StringType, int>::type Keywords;
@@ -163,7 +141,7 @@ public:
 		int								endColumn;
 	};
 
-	virtual void						start(LexerSource* source);
+	virtual void						start(StreamReader* reader);
 
 	virtual Token						lex();
 	const TokenInfo&					getToken()								{ return _token; }
@@ -177,14 +155,19 @@ public:
 	Token								warning(const char* fmt, ...);
 
 protected:
+	Char								next();
+
 	inline Char							current()								{ return _ch; }
-	inline bool							isEos()									{ return _ch == 0; }
-	inline void							next()									{ _ch = _source->read(); ++_column; }
+	inline bool							isEos()									{ return _ch == CHAR_EOS; }
 	inline void							newLine()								{ token(TK_EOL); ++_line; next(); _column = 1; }
 
 	Token								readNumber();
 	Token								readId();
-	Token								readString(CharType delim, bool verbatim = false);
+	Token								readString(Char delim, Char verbatim = 0);
+
+	void								bufClear()								{ _stringBuf.resize(0); }
+	void								bufAddChar(Char ch);
+	void								bufToString(String& outString)			{ outString.assign(_stringBuf.begin(), _stringBuf.end()); }
 
 	void								blockComment();
 	void								lineComment();
@@ -204,7 +187,7 @@ protected:
 
 	Keywords*							_keywords;
 
-	LexerSource*						_source;
+	Ref<StreamReader>					_reader;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -216,7 +199,7 @@ public:
 	virtual ~ParserBase();
 
 protected:
-	virtual void						parse(LexerSource* source) = 0;
+	virtual void						parse(StreamReader* reader) = 0;
 
 	inline void							lex()									{ _token = _lexer->lex(); }
 
@@ -237,14 +220,12 @@ public:
 	virtual ~IParser()					{ }
 
 public:
-	void								parse(LexerSource* source);
 	void								parse(StreamReader* reader);
 	void								parse(const void* buf, size_t len);
 	void								parse(const String& str);
-	void								parse(LexerSource::Reader reader, void* context);
 
 protected:
-	virtual void						doParse(LexerSource* source) = 0;
+	virtual void						doParse(StreamReader* reader) = 0;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -260,7 +241,7 @@ public:
 	static void							writeEscaped(StreamWriter* w, const char* str);
 
 protected:
-	virtual void						doParse(LexerSource* source);
+	virtual void						doParse(StreamReader* reader);
 
 	IHandler*							_emitter;
 };
