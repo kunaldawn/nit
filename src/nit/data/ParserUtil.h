@@ -124,8 +124,16 @@ public:
 public:
 	enum
 	{ 
-		TK_NONE = -1, TK_EOS = 0, CHAR_EOS = 0, TK_EOL = 10,
-		TK_ERROR = 512, TK_ID, TK_STRING, TK_FLOAT, TK_INT 
+		CHAR_EOS = 0, 
+
+		TK_EOS = 0, 
+		TK_EOL = 10,
+
+		TK_ERROR = 512, 
+		TK_IDENTIFIER, 
+		TK_STRING_VALUE, 
+		TK_FLOAT_VALUE, 
+		TK_INT_VALUE 
 	};
 
 	struct TokenInfo
@@ -144,8 +152,8 @@ public:
 	virtual void						start(StreamReader* reader);
 
 	virtual Token						lex();
-	const TokenInfo&					getToken()								{ return _token; }
-	const TokenInfo&					getPrevToken()							{ return _prevToken; }
+	const TokenInfo&					getTokenInfo()							{ return _curr; }
+	Token								getPrevToken()							{ return _prevToken; }
 
 	void								setKeywords(Keywords* keywords)			{ _keywords = keywords; }
 
@@ -183,8 +191,8 @@ protected:
 	int									_line;
 	vector<CharType>::type				_stringBuf;
 
-	TokenInfo							_prevToken;
-	TokenInfo							_token;
+	Token								_prevToken;
+	TokenInfo							_curr;
 
 	Keywords*							_keywords;
 

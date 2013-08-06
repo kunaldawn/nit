@@ -431,7 +431,7 @@ class Document
 		editor.appendText(text)
 		if (_parserThread) _parserThread.kill()
 
-		_parser = Parser(text)
+		_parser = NitParser(text)
 
 		_parserThread = (costart by _parseJob()).weak()
 		

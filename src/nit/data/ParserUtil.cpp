@@ -687,16 +687,16 @@ void LexerBase::start(StreamReader* reader)
 	// Initialize states
 	_ch									= CHAR_EOS;
 
-	_token.token						= TK_NONE;
-	_token.startLine					= 1;
-	_token.startColumn					= 1;
-	_token.endLine						= 1;
-	_token.endColumn					= 1;
-	_token.intValue						= 0;
-	_token.floatValue					= 0.0f;
-	_token.stringValue.clear();
+	_curr.token							= TK_EOS;
+	_curr.startLine						= 1;
+	_curr.startColumn					= 1;
+	_curr.endLine						= 1;
+	_curr.endColumn						= 1;
+	_curr.intValue						= 0;
+	_curr.floatValue					= 0.0f;
+	_curr.stringValue.clear();
 
-	_prevToken = _token;
+	_prevToken = _curr.token;
 
 	_line = 1;
 	_column = 0;
@@ -819,7 +819,7 @@ LexerBase::Token LexerBase::readNumber()
 
 	char* sTemp;
 
-	bufToString(_token.stringValue);
+	bufToString(_curr.stringValue);
 
 	bufAddChar(0);
 
@@ -827,17 +827,17 @@ LexerBase::Token LexerBase::readNumber()
 	{
 	case NT_SCIENTIFIC:
 	case NT_FLOAT:
-		_token.floatValue = (float)strtod(&_stringBuf[0], &sTemp);
-		return TK_FLOAT;
+		_curr.floatValue = (float)strtod(&_stringBuf[0], &sTemp);
+		return TK_FLOAT_VALUE;
 	case NT_INT:
-		_token.intValue = ParseDec(&_stringBuf[0], 10);
-		return TK_INT;
+		_curr.intValue = ParseDec(&_stringBuf[0], 10);
+		return TK_INT_VALUE;
 	case NT_HEX:
-		_token.intValue = ParseHex(&_stringBuf[0]);
-		return TK_INT;
+		_curr.intValue = ParseHex(&_stringBuf[0]);
+		return TK_INT_VALUE;
 	case NT_OCTAL:
-		_token.intValue = ParseDec(&_stringBuf[0], 8);
-		return TK_INT;
+		_curr.intValue = ParseDec(&_stringBuf[0], 8);
+		return TK_INT_VALUE;
 	}
 	return 0;
 }
@@ -845,11 +845,8 @@ LexerBase::Token LexerBase::readNumber()
 void LexerBase::whitespace()
 {
 	// reset token
-	_token.startLine	= _line;
-	_token.startColumn	= _column;
-	_token.intValue		= 0;
-	_token.floatValue	= 0.0f;
-	_token.stringValue.resize(0);
+	_curr.startLine	= _line;
+	_curr.startColumn = _column;
 
 	bool ws = true;
 
@@ -865,8 +862,8 @@ void LexerBase::whitespace()
 		}
 	}
 
-	_token.startLine = _line;
-	_token.startColumn = _column;
+	_curr.startLine = _line;
+	_curr.startColumn = _column;
 }
 
 LexerBase::Token LexerBase::lex()
@@ -880,7 +877,7 @@ LexerBase::Token LexerBase::lex()
 		case '"':
 		case '\'':
 			if (readString(_ch) != -1)
-				return token(TK_STRING);
+				return token(TK_STRING_VALUE);
 			return error("error parsing the string");
 			break;
 
@@ -903,13 +900,13 @@ LexerBase::Token LexerBase::lex()
 
 LexerBase::Token LexerBase::token(int tok)
 {
-	_prevToken = _token;
+	_prevToken = _curr.token;
 
-	_token.token = (Token)tok;
-	_token.endLine = _line;
-	_token.endColumn = _column;
+	_curr.token = (Token)tok;
+	_curr.endLine = _line;
+	_curr.endColumn = _column;
 
-	return _token.token;
+	return _curr.token;
 }
 
 LexerBase::Token LexerBase::readId()
@@ -922,15 +919,15 @@ LexerBase::Token LexerBase::readId()
 	}
 	while (isId(_ch));
 
-	bufToString(_token.stringValue);
+	bufToString(_curr.stringValue);
 
 	if (_keywords == NULL)
-		return TK_ID;
+		return TK_IDENTIFIER;
 
-	Keywords::iterator itr = _keywords->find(_token.stringValue);
+	Keywords::iterator itr = _keywords->find(_curr.stringValue);
 
 	if (itr == _keywords->end())
-		return TK_ID;
+		return TK_IDENTIFIER;
 
 	return itr->second;
 }
@@ -1036,8 +1033,8 @@ LexerBase::Token LexerBase::readString(Char delim, Char verbatim)
 		bufAddChar(delim);
 	}
 
-	bufToString(_token.stringValue);
-	return TK_STRING;
+	bufToString(_curr.stringValue);
+	return TK_STRING_VALUE;
 }
 
 void LexerBase::blockComment()
@@ -1080,7 +1077,7 @@ LexerBase::Token LexerBase::error(const char* fmt, ...)
 	va_end(args);
 
 	desc += StringUtil::format(" at line %d, column %d", _line, _column);
-	_token.stringValue = desc;
+	_curr.stringValue = desc;
 
 	throw SyntaxException(desc);
 
@@ -1099,7 +1096,7 @@ LexerBase::Token LexerBase::warning(const char* fmt, ...)
 		va_end(args);
 
 		desc += StringUtil::format(" at line %d, column %d", _line, _column);
-		_token.stringValue = desc;
+		_curr.stringValue = desc;
 
 		throw SyntaxException(desc);
 	}
@@ -1182,9 +1179,9 @@ enum JSONToken
 {
 	TK_ERROR							= LexerBase::TK_ERROR,
 	TK_EOS								= LexerBase::TK_EOS,
-	TK_STRING							= LexerBase::TK_STRING,
-	TK_INT								= LexerBase::TK_INT,
-	TK_FLOAT							= LexerBase::TK_FLOAT,
+	TK_STRING							= LexerBase::TK_STRING_VALUE,
+	TK_INT								= LexerBase::TK_INT_VALUE,
+	TK_FLOAT							= LexerBase::TK_FLOAT_VALUE,
 	TK_TRUE								= 256,
 	TK_FALSE							= 257,
 	TK_NULL								= 258,
@@ -1336,10 +1333,10 @@ public:
 
 	void Pair()
 	{
-		if (_token != TK_STRING && _token != LexerBase::TK_ID)
+		if (_token != TK_STRING && _token != LexerBase::TK_IDENTIFIER)
 			error("key string expected");
 
-		String key = _lexer->getToken().stringValue;
+		String key = _lexer->getTokenInfo().stringValue;
 
 		lex();
 
@@ -1350,9 +1347,9 @@ public:
 
 		switch (_token)
 		{
-		case TK_STRING:					_handler->pair(key, _lexer->getToken().stringValue.c_str()); lex(); break;
-		case TK_INT:					_handler->pair(key, _lexer->getToken().intValue); lex(); break;
-		case TK_FLOAT:					_handler->pair(key, _lexer->getToken().floatValue); lex(); break;
+		case TK_STRING:					_handler->pair(key, _lexer->getTokenInfo().stringValue.c_str()); lex(); break;
+		case TK_INT:					_handler->pair(key, _lexer->getTokenInfo().intValue); lex(); break;
+		case TK_FLOAT:					_handler->pair(key, _lexer->getTokenInfo().floatValue); lex(); break;
 		case TK_NULL:					_handler->pairNull(key); lex(); break;
 		case TK_TRUE:					_handler->pair(key, true); lex(); break;
 		case TK_FALSE:					_handler->pair(key, false); lex(); break;
@@ -1361,7 +1358,7 @@ public:
 		case '[':						_handler->pairArrayBegin(key); Array(); _handler->pairArrayEnd(key); break;
 
 		// Non-quoted literal is not a standard JSON, added as a syntax sugar
-		case LexerBase::TK_ID:			_handler->pair(key, _lexer->getToken().stringValue.c_str()); lex(); break;
+		case LexerBase::TK_IDENTIFIER:			_handler->pair(key, _lexer->getTokenInfo().stringValue.c_str()); lex(); break;
 
 		default:						error("value expected");
 		}
@@ -1388,9 +1385,9 @@ public:
 	{
 		switch (_token)
 		{
-		case TK_STRING:					_handler->element(_lexer->getToken().stringValue.c_str()); lex(); break;
-		case TK_INT:					_handler->element(_lexer->getToken().intValue); lex(); break;
-		case TK_FLOAT:					_handler->element(_lexer->getToken().floatValue); lex(); break;
+		case TK_STRING:					_handler->element(_lexer->getTokenInfo().stringValue.c_str()); lex(); break;
+		case TK_INT:					_handler->element(_lexer->getTokenInfo().intValue); lex(); break;
+		case TK_FLOAT:					_handler->element(_lexer->getTokenInfo().floatValue); lex(); break;
 		case TK_NULL:					_handler->elementNull(); lex(); break;
 		case TK_TRUE:					_handler->element(true); lex(); break;
 		case TK_FALSE:					_handler->element(false); lex(); break;
@@ -1399,7 +1396,7 @@ public:
 		case '[':						_handler->elementArrayBegin(); Array(); _handler->elementArrayEnd(); break;
 
 		// Non-quoted literal is not a standard JSON, added as a syntax sugar
-		case LexerBase::TK_ID:			_handler->element(_lexer->getToken().stringValue.c_str()); lex(); break;
+		case LexerBase::TK_IDENTIFIER:			_handler->element(_lexer->getTokenInfo().stringValue.c_str()); lex(); break;
 
 		default:						error("value expected");
 		}

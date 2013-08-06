@@ -216,13 +216,13 @@ class nitdev.NitParser
 		if (_token == $':') lex()
 		
 		var ns = null
-		var id = expect(TOKEN.ID)
+		var id = expect(TOKEN.IDENTIFIER)
 		
 		while (_token == $'.')
 		{
 			lex()
 			ns = ns ? (ns + "." + id) : id
-			id = expect(TOKEN.ID)
+			id = expect(TOKEN.IDENTIFIER)
 		}
 
 		tag.namespace = ns
@@ -258,7 +258,7 @@ class nitdev.NitParser
 	function typedId(treatKeywordAsIdentifier = false): TypedId
 	{
 		var tid = TypedId()
-		tid.id = expect(TOKEN.ID, treatKeywordAsIdentifier)
+		tid.id = expect(TOKEN.IDENTIFIER, treatKeywordAsIdentifier)
 		
 		if (_token == $':')
 			tid.type = typeTag()
@@ -547,7 +547,7 @@ class nitdev.NitParser
 				
 				case $'.':
 					lex()
-					expect(TOKEN.ID, true)
+					expect(TOKEN.IDENTIFIER, true)
 					break
 					
 				case $'[':
@@ -588,14 +588,14 @@ class nitdev.NitParser
 	{
 		switch (_token)
 		{
-			case TOKEN.STRING:
+			case TOKEN.STRING_VALUE:
 				lex(); break
 				
 			case TOKEN.BASE:
 				lex()
 				return
 				
-			case TOKEN.ID:
+			case TOKEN.IDENTIFIER:
 			case TOKEN.CONSTRUCTOR:
 			case TOKEN.VARPARAMS:
 			case TOKEN.THIS:
@@ -607,8 +607,8 @@ class nitdev.NitParser
 				return
 				
 			case TOKEN.NULL: lex(); break
-			case TOKEN.INT: lex(); break
-			case TOKEN.FLOAT: lex(); break
+			case TOKEN.INT_VALUE: lex(); break
+			case TOKEN.FLOAT_VALUE: lex(); break
 			
 			case TOKEN.TRUE: 
 			case TOKEN.FALSE:
@@ -616,7 +616,7 @@ class nitdev.NitParser
 				
 			case $'$':
 				lex()
-				if (_token != TOKEN.STRING)
+				if (_token != TOKEN.STRING_VALUE)
 					error("invalid character literal")
 				lex()
 				break
@@ -652,8 +652,8 @@ class nitdev.NitParser
 				lex()
 				switch (_token)
 				{
-					case TOKEN.INT: lex(); break
-					case TOKEN.FLOAT: lex(); break
+					case TOKEN.INT_VALUE: lex(); break
+					case TOKEN.FLOAT_VALUE: lex(); break
 					default: unaryOp('-')
 				}
 				break
@@ -663,7 +663,7 @@ class nitdev.NitParser
 			case TOKEN.TRY: tryExpr(); break
 			case $'~': 
 				lex()
-				if (_token == TOKEN.INT) lex()
+				if (_token == TOKEN.INT_VALUE) lex()
 				else unaryOp('~')
 				break
 				
@@ -752,7 +752,7 @@ class nitdev.NitParser
 				case TOKEN.FUNCTION:
 					var tk = _token
 					lex()
-					var id = expect(TOKEN.ID, true)
+					var id = expect(TOKEN.IDENTIFIER, true)
 					expect($'(')
 					createFunction(id)
 					break
@@ -763,8 +763,8 @@ class nitdev.NitParser
 					expression()
 					break
 					
-				case TOKEN.STRING: // JSON
-					var id = expect(TOKEN.STRING)
+				case TOKEN.STRING_VALUE: // JSON
+					var id = expect(TOKEN.STRING_VALUE)
 					if (_token == $'=')
 						lex()
 					else
@@ -778,7 +778,7 @@ class nitdev.NitParser
 					if (_token == $'=')
 					{
 						lex()
-						if (_token == TOKEN.INT) enumValue = _lexer.intValue + 1
+						if (_token == TOKEN.INT_VALUE) enumValue = _lexer.intValue + 1
 						expression()
 					}
 					else enumValue++  // use enum value here
@@ -827,7 +827,7 @@ class nitdev.NitParser
 					else if (tk == TOKEN.DESTRUCTOR)
 						id = "destructor"
 					else
-						id = expect(TOKEN.ID, true)
+						id = expect(TOKEN.IDENTIFIER, true)
 					node.name = id
 					expect($'(')
 					var funcInfo = createFunction(id)
@@ -845,9 +845,9 @@ class nitdev.NitParser
 					{
 						if (!hasAttrs) warning("'#' needs attributes")
 						lex()
-						if (_token == TOKEN.INT)
+						if (_token == TOKEN.INT_VALUE)
 							propOrder = _lexer.intValue
-						else if(_token == TOKEN.FLOAT)
+						else if(_token == TOKEN.FLOAT_VALUE)
 							propOrder = _lexer.floatValue
 						else
 							warning("invalid property #")
@@ -870,7 +870,7 @@ class nitdev.NitParser
 					isStatic = true
 					var node = beginNode('class')
 					lex()
-					var id = expect(TOKEN.ID)
+					var id = expect(TOKEN.IDENTIFIER)
 					node.name = id
 					classExpr()
 					endNode(node)
@@ -920,7 +920,7 @@ class nitdev.NitParser
 	
 	function propertyGetSet(id: string, allowed: string): bool
 	{
-		if (_token == TOKEN.ID)
+		if (_token == TOKEN.IDENTIFIER)
 		{
 			var tokstr = _lexer.stringValue
 			if (tokstr == "get" && allowed == "get")
@@ -949,7 +949,7 @@ class nitdev.NitParser
 		if (_token == TOKEN.FUNCTION)
 		{
 			lex()
-			var id = expect(TOKEN.ID)
+			var id = expect(TOKEN.IDENTIFIER)
 			expect($'(')
 			createFunction(id, true)
 			return
@@ -1104,7 +1104,7 @@ class nitdev.NitParser
 		
 		lex()
 		var ns = null
-		var id = expect(TOKEN.ID)
+		var id = expect(TOKEN.IDENTIFIER)
 		
 		while (_token == $'.' || _token == TOKEN.DOUBLE_COLON)
 		{
@@ -1113,7 +1113,7 @@ class nitdev.NitParser
 			
 			lex()
 			ns = ns ? (ns + "." + id) : (id)
-			id = expect(TOKEN.ID)
+			id = expect(TOKEN.IDENTIFIER)
 		}
 		
 		node with
@@ -1138,13 +1138,13 @@ class nitdev.NitParser
 		lex()
 		
 		var ns = null
-		var id = expect(TOKEN.ID)
+		var id = expect(TOKEN.IDENTIFIER)
 		
 		while (_token == $'.')
 		{
 			lex()
 			ns = ns ? (ns + "." + id) : id
-			id = expect(TOKEN.ID)
+			id = expect(TOKEN.IDENTIFIER)
 		}
 		
 		node with
@@ -1176,7 +1176,7 @@ class nitdev.NitParser
 		if (_token == TOKEN.CATCH)
 		{
 			lex(); expect($'('); 
-			var exid = expect(TOKEN.ID); 
+			var exid = expect(TOKEN.IDENTIFIER); 
 			expect($')')
 			
 			beginScope()
@@ -1329,9 +1329,9 @@ class nitdev.NitParser
 				funcInfo.type = type
 			}
 				
-			if (_token == TOKEN.STRING)
+			if (_token == TOKEN.STRING_VALUE)
 			{
-				funcInfo.help = expect(TOKEN.STRING)
+				funcInfo.help = expect(TOKEN.STRING_VALUE)
 			}
 		}
 		
@@ -1396,7 +1396,7 @@ class nitdev.NitParser
 	function expect(token: TOKEN, treatKeywordAsIdentifier = false): value
 	{
 		if (treatKeywordAsIdentifier && _token >= TOKEN.KEYWORD_START)
-			_token = TOKEN.ID
+			_token = TOKEN.IDENTIFIER
 
 		if (_token != token)
 		{
@@ -1424,8 +1424,8 @@ function lexTest(text: string=null)
 	{
 		switch (token)
 		{
-			case TOKEN.ID: print("id(" + l.stringValue + ")"); break
-			case TOKEN.STRING: print("str(" + l.stringValue + ")"); break
+			case TOKEN.IDENTIFIER: print("id(" + l.stringValue + ")"); break
+			case TOKEN.STRING_VALUE: print("str(" + l.stringValue + ")"); break
 			default:  print(TOKEN[token])
 		}
 	}
@@ -1472,7 +1472,8 @@ function parserTests()
 		{
 			var tw = TimeWatch(nitfile.tostring())
 			//var text = nitfile.open().buffer().toString(); parserTest(text)
-			parserTest(nitfile.open())
+//			parserTest(nitfile.open())
+			try loadstream(nitfile.open())
 		}
 	}
 }

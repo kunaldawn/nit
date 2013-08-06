@@ -140,7 +140,7 @@ NitLexer::Token NitLexer::lex()
 
 		case '"':
 		case '\'':
-			if (readString(_ch) != -1) return token(TK_STRING);
+			if (readString(_ch) != -1) return token(TK_STRING_VALUE);
 			return error("error parsing the string");
 
 		case '{': case '}': case '(': case ')': case '[': case ']':

@@ -72,13 +72,12 @@ public:
 
 		addStaticTable(v, "TOKEN");
 
-		TOK(NONE);
 		TOK(EOS);
 		TOK(EOL);
-		TOK(STRING);
-		TOK(ID);
-		TOK(INT);
-		TOK(FLOAT);
+		TOK(STRING_VALUE);
+		TOK(IDENTIFIER);
+		TOK(INT_VALUE);
+		TOK(FLOAT_VALUE);
 		TOK(ERROR);
 
 		TOK(OPERATOR_START);
@@ -156,15 +155,15 @@ public:
 
 	NB_PROP_GET(line)					{ return push(v, self(v)->getLine()); }
 	NB_PROP_GET(column)					{ return push(v, self(v)->getColumn()); }
-	NB_PROP_GET(prevToken)				{ return push(v, self(v)->getPrevToken().token); }
-	NB_PROP_GET(token)					{ return push(v, self(v)->getToken().token); }
-	NB_PROP_GET(startLine)				{ return push(v, self(v)->getToken().startLine); }
-	NB_PROP_GET(startColumn)			{ return push(v, self(v)->getToken().startColumn); }
-	NB_PROP_GET(endLine)				{ return push(v, self(v)->getToken().endLine); }
-	NB_PROP_GET(endColumn)				{ return push(v, self(v)->getToken().endColumn); }
-	NB_PROP_GET(stringValue)			{ return push(v, self(v)->getToken().stringValue); }
-	NB_PROP_GET(intValue)				{ return push(v, self(v)->getToken().intValue); }
-	NB_PROP_GET(floatValue)				{ return push(v, self(v)->getToken().floatValue); }
+	NB_PROP_GET(prevToken)				{ return push(v, self(v)->getPrevToken()); }
+	NB_PROP_GET(token)					{ return push(v, self(v)->getTokenInfo().token); }
+	NB_PROP_GET(startLine)				{ return push(v, self(v)->getTokenInfo().startLine); }
+	NB_PROP_GET(startColumn)			{ return push(v, self(v)->getTokenInfo().startColumn); }
+	NB_PROP_GET(endLine)				{ return push(v, self(v)->getTokenInfo().endLine); }
+	NB_PROP_GET(endColumn)				{ return push(v, self(v)->getTokenInfo().endColumn); }
+	NB_PROP_GET(stringValue)			{ return push(v, self(v)->getTokenInfo().stringValue); }
+	NB_PROP_GET(intValue)				{ return push(v, self(v)->getTokenInfo().intValue); }
+	NB_PROP_GET(floatValue)				{ return push(v, self(v)->getTokenInfo().floatValue); }
 
 	NB_CONS()							{ setSelf(v, new type()); return SQ_OK; }
 
